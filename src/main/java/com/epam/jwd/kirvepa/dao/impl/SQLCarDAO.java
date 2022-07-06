@@ -6,7 +6,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.epam.jwd.kirvepa.bean.Car;
 import com.epam.jwd.kirvepa.dao.CarDAO;
@@ -49,10 +51,8 @@ public class SQLCarDAO implements CarDAO {
 	}
 
 	@Override
-	public List<Car> getCarList(Date from, Date to, String[] bodies) throws DAOException {
+	public Map<Car, Double> getCarList(Date from, Date to, String[] bodies) throws DAOException {
         
-		System.out.println("from " + from + ", to " + to); //temp
-		
 		Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -67,44 +67,69 @@ public class SQLCarDAO implements CarDAO {
 				bodiesList.append(",").append(bodies[i]);
 			}
 			
-			System.out.println(bodiesList.toString()); //temp
-			
-			preparedStatement.setString(1, bodiesList.toString());
+			preparedStatement.setDate(1, to);
 			preparedStatement.setDate(2, from);
-			preparedStatement.setDate(3, to);
+			preparedStatement.setString(3, bodiesList.toString());
 			preparedStatement.setDate(4, from);
 			preparedStatement.setDate(5, to);
+			preparedStatement.setDate(6, from);
+			preparedStatement.setDate(7, to);
 			
-			System.out.println(preparedStatement.toString()); //temp
+			System.out.println(preparedStatement.toString()); //temporary
 			
 	        resultSet = preparedStatement.executeQuery();
-	        
-	        List<Car> cars = new ArrayList<>();
+
+	        Map<Car, Double> carsPrice = new HashMap<>();
 	        
 	        while(resultSet.next()) {
-	        	int id = resultSet.getInt(1);
-	        	String manufacturer = resultSet.getString(2);
-	        	String model = resultSet.getString(3);
-	        	String licencePlate = resultSet.getString(4);
-	        	String vin = resultSet.getString(5);
+	        	String manufacturer = resultSet.getString(1);
+	        	String model = resultSet.getString(2);
+	        	String engine = resultSet.getString(3);
+	        	String transmission = resultSet.getString(4);
+	        	String driveType = resultSet.getString(5);
 	        	String bodyType = resultSet.getString(6);
-	        	int issueYear = resultSet.getInt(7);
-	        	//String engine = resultSet.getString(8);
-	        	String transmission = resultSet.getString(9);
-	        	String driveType = resultSet.getString(10);
-	        	String color = resultSet.getString(11);
-	        	int weight = resultSet.getInt(12);
+	        	Double price = resultSet.getDouble(7);
 	        	
-                cars.add(new Car(id, manufacturer, model, licencePlate, vin, bodyType, issueYear, "2,0", transmission, driveType, color, weight));
+	        	carsPrice.put(new Car(manufacturer, model, bodyType, engine, transmission, driveType), price);
             }
 	        
-	        return cars;
+	        return carsPrice;
 			
 		} catch (ConnectionPoolException e) {
 			throw new DAOException(e);
 		} catch (SQLException e) {
 			throw new DAOException(e);
 		}
+	}
+	
+	public static int getCarId(Car car, Date from, Date to, Connection c, PreparedStatement ps) throws SQLException {
+		
+		ps = c.prepareStatement(SQLQuery.FIND_CAR_ID);
+			
+		ps.setString(1, car.getManufacturer());
+		ps.setString(2, car.getModel());
+		ps.setString(3, car.getBodyType());
+		ps.setString(4, car.getEngine());
+		ps.setString(5, car.getTransmission());
+		ps.setString(6, car.getDriveType());
+		ps.setDate(7, from);
+		ps.setDate(8, to);
+		ps.setDate(9, from);
+		ps.setDate(10, to);
+			
+		ResultSet rs = ps.executeQuery();
+		
+		int result;
+		if (rs.next()) {
+			result = rs.getInt(1);
+		} else {
+			result =  0;
+		}
+		
+		rs.close();
+		
+		return result;
+
 	}
 
 }

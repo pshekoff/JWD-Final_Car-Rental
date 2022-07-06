@@ -43,7 +43,21 @@ public class Car implements Serializable {
 		setColor(color);
 		setWeight(weight);
 	}
-
+	
+	public Car(String manufacturer
+			, String model
+			, String bodyType
+			, String engine
+			, String transmission
+			, String driveType) {
+		setManufacturer(manufacturer);
+		setModel(model);
+		setBodyType(bodyType);
+		setEngine(engine);
+		setTransmission(transmission);
+		setDriveType(driveType);
+	}
+	
 	public int getId() {
 		return id;
 	}

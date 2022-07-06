@@ -2,11 +2,11 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-<fmt:setLocale value="en"/>
+<fmt:setLocale value="${param.lang}" />
 <fmt:setBundle basename="messages"/>
 
 <!DOCTYPE html>
-<html>
+<html lang="${param.lang}">
   <head>
 	<meta charset="UTF-8">
     	
@@ -35,5 +35,6 @@
     <button onclick="location='jsp/authorization.jsp'">
 	  <fmt:message key="index.button.login" />
     </button>
+    <h2></h2>
   </body>
 </html>

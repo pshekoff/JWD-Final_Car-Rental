@@ -8,5 +8,7 @@ public enum CommandName {
 	SIGN_OUT,
 	GET_CAR_BODY_LIST,
 	FIND_CAR,
+	PLACE_ORDER,
+	PREPARE_ORDER,
 	UNKNOWN_COMMAND
 }

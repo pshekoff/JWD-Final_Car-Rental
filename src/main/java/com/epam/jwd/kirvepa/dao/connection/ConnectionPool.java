@@ -25,14 +25,12 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public final class ConnectionPool {
 	private static final ConnectionPool instance;
 	private static final String DB_CONN_PROP_FILE = "db_conn.properties";
-	
 	private static final Logger logger = LogManager.getLogger(ConnectionPool.class);
 	
 	static {
@@ -40,7 +38,7 @@ public final class ConnectionPool {
 		try {
 			tmp = new ConnectionPool();
 		} catch (ConnectionPoolException e) {
-			logger.log(Level.ERROR, "Can't initialize connection pool", e);
+			logger.error("Can't initialize connection pool.", e);
 		}
 		instance = tmp;
 	}
@@ -65,7 +63,7 @@ public final class ConnectionPool {
 			poolSize = Integer.parseInt(getProperties().getProperty(DBParameter.DB_POOL_SIZE));
 		} catch (NumberFormatException e) {
 			poolSize = 5;
-			logger.log(Level.WARN, "Can't read data from properties file. Connections count set to " + poolSize + ".", e);
+			logger.warn("Can't read data from properties file. Connections count set to " + poolSize + ".", e);
 		}
 		
 		initPoolData();
@@ -120,7 +118,7 @@ public final class ConnectionPool {
 			closeConnectionQueue(givenConnectionQueue);
 			closeConnectionQueue(connectionQueue);
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "Error closing the connection.", e);
+			logger.error("Error closing the connection.", e);
 		}
 	}
 	
@@ -128,17 +126,17 @@ public final class ConnectionPool {
 		try {
 			con.close();
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "Connection isn't return to the pool.", e);
+			logger.error("Connection isn't return to the pool.", e);
 		}
 		try {
 			rs.close();
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "Result set isn't closed.", e);
+			logger.error("Result set isn't closed.", e);
 		}
 		try {
 			st.close();
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "Statement isn't closed.", e);
+			logger.error("Statement isn't closed.", e);
 		}
 	}
 	
@@ -146,12 +144,12 @@ public final class ConnectionPool {
 		try {
 			con.close();
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "Connection isn't return to the pool.", e);
+			logger.error("Connection isn't return to the pool.", e);
 		}
 		try {
 			st.close();
 		} catch (SQLException e) {
-			logger.log(Level.ERROR, "Statement isn't closed.", e);
+			logger.error("Statement isn't closed.", e);
 		}
 	}
 	

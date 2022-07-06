@@ -2,6 +2,7 @@ package com.epam.jwd.kirvepa.service.impl;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.epam.jwd.kirvepa.bean.Car;
 import com.epam.jwd.kirvepa.dao.CarDAO;
@@ -26,7 +27,7 @@ public class CarServiceImpl implements CarService{
 	}
 
 	@Override
-	public List<Car> getCarList(Date from, Date to, String[] bodies) throws ServiceException {
+	public Map<Car, Double> getCarList(Date from, Date to, String[] bodies) throws ServiceException {
 		
 		if (!validator.bodyValidation(bodies)) {
 			throw new ServiceException("No any car body type selected.");

@@ -15,7 +15,6 @@ import com.epam.jwd.kirvepa.dao.exception.DAOException;
 
 public class SQLUserDAO implements UserDAO {
 
-
 	@Override
 	public AuthorizedUser authorization(String login, int passwordHash) throws DAOException {
 		
@@ -25,22 +24,29 @@ public class SQLUserDAO implements UserDAO {
 
 		try {
 			connection = ConnectionPool.getInstance().takeConnection();
-			
-			preparedStatement = connection.prepareStatement(SQLQuery.CHECK_CREDENTIALS);
-            preparedStatement.setString(1, login);
-            preparedStatement.setInt(2, passwordHash);
+
+			preparedStatement = connection.prepareStatement(SQLQuery.CHECK_ACCESS);
+            preparedStatement.setInt(1, passwordHash);
+            preparedStatement.setString(2, login);
             
             resultSet = preparedStatement.executeQuery();
 
             if (!resultSet.next()) {
-            	return null;
+            	throw new DAOException("Authorization failed. Specified user doesn't exist");
+            }
+            else if (!resultSet.getBoolean(2)) {
+            	throw new DAOException("Authorization failed. Specified user is blocked");
+            }
+            else if (resultSet.getString(5) == null) {
+            	throw new DAOException("Authorization failed. Wrong password.");
             }
             else {
-            	int id = resultSet.getInt(1);
-            	String role = resultSet.getString(2);
-                return new AuthorizedUser(id, login, role);
+            	int userId = resultSet.getInt(1);
+            	boolean admin = resultSet.getBoolean(3);
+            	String email = resultSet.getString(4);
+                return new AuthorizedUser(userId, login, email, admin);
             }
-            
+
 		} catch (ConnectionPoolException e) {
 			throw new DAOException(e);
 		} catch (SQLException e) {
@@ -52,126 +58,114 @@ public class SQLUserDAO implements UserDAO {
 	}
 
 	@Override
-	public synchronized boolean insertUser(User user) throws DAOException {
+	public synchronized int insertUser(User user, int passwordHash) throws DAOException {
 		
         Connection connection = null;
         PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
         
         try {
         	connection = ConnectionPool.getInstance().takeConnection();
-        	connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
         	
-			preparedStatement = connection.prepareStatement(SQLQuery.FIND_USER);
-            preparedStatement.setString(1, user.getLogin());
-            
-            resultSet = preparedStatement.executeQuery();
-            
-            if (resultSet.next()) {
+        	if (findUser(user.getLogin(), connection) != 0) {
             	throw new DAOException("User with specified login is already exist");
             }
             
-			preparedStatement = connection.prepareStatement(SQLQuery.FIND_EMAIL);
-            preparedStatement.setString(1, user.getEmail());
-            
-            resultSet = preparedStatement.executeQuery();
-            
-            if (resultSet.next()) {
-            	throw new DAOException("Specified email is used");
+            if (checkEmailExist(user.getEmail(), connection)) {
+            	throw new DAOException("Specified email is already used.");
             }
             
 			preparedStatement = connection.prepareStatement(SQLQuery.INSERT_USER);
             preparedStatement.setString(1, user.getLogin());
-            preparedStatement.setInt(2, user.getPasswordHash());
+            preparedStatement.setInt(2, passwordHash);
             preparedStatement.setString(3, user.getEmail());
-            preparedStatement.setString(4, user.getRole());
-            preparedStatement.setString(5, user.getFirstName());
-            preparedStatement.setString(6, user.getLastName());
-            preparedStatement.setString(7, user.getAdress());
-            preparedStatement.setString(8, user.getPhone());
+            preparedStatement.setBoolean(4, user.isAdmin());
+            preparedStatement.setBoolean(5, true);
+
             preparedStatement.executeUpdate();
             
-            return true;
-            
+            return findUser(user.getLogin(), connection);
+
 		} catch (ConnectionPoolException e) {
 			throw new DAOException(e);
 		} catch (SQLException e) {
 			throw new DAOException(e);
+		} finally {
+			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement);
 		}
 		
 	}
 
 	@Override
-	public boolean insertEmployee(Employee employee) throws DAOException {
+	public synchronized int insertEmployee(Employee employee, int passwordHash) throws DAOException {
         
+		int userId = insertUser(employee, passwordHash);
+
 		Connection connection = null;
         PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
         
         try {
         	connection = ConnectionPool.getInstance().takeConnection();
-        	connection.setAutoCommit(false);
-        	
-			preparedStatement = connection.prepareStatement(SQLQuery.FIND_USER);
-            preparedStatement.setString(1, employee.getLogin());
-
-            resultSet = preparedStatement.executeQuery();
-
-            if (resultSet.next()) {
-            	throw new DAOException("Employee with specified login is already exist");
-            }
+ 
+    		preparedStatement = connection.prepareStatement(SQLQuery.INSERT_EMPLOYEE);
+                
+            preparedStatement.setString(1, employee.getDepartment());
+            preparedStatement.setString(2, employee.getPosition());
+            preparedStatement.setDouble(3, employee.getSalary());
+            preparedStatement.setInt(4, userId);
+                
+            preparedStatement.executeUpdate();
             
-			preparedStatement = connection.prepareStatement(SQLQuery.FIND_EMAIL);
-            preparedStatement.setString(1, employee.getEmail());
-
-            resultSet = preparedStatement.executeQuery();
-            
-            if (resultSet.next()) {
-            	throw new DAOException("Specified email is used");
-            }
-            
-            try {
-    			preparedStatement = connection.prepareStatement(SQLQuery.INSERT_USER);
-                preparedStatement.setString(1, employee.getLogin());
-                preparedStatement.setInt(2, employee.getPasswordHash());
-                preparedStatement.setString(3, employee.getEmail());
-                preparedStatement.setString(4, employee.getRole());
-                preparedStatement.setString(5, employee.getFirstName());
-                preparedStatement.setString(6, employee.getLastName());
-                preparedStatement.setString(7, employee.getAdress());
-                preparedStatement.setString(8, employee.getPhone());
-                
-                preparedStatement.executeUpdate();
-                
-                preparedStatement = connection.prepareStatement(SQLQuery.FIND_USER);
-                preparedStatement.setString(1, employee.getLogin());
-                resultSet = preparedStatement.executeQuery();
-                
-                if (!resultSet.next()) {
-                	throw new SQLException();
-                } else {
-                	int id = resultSet.getInt(1);
-                	
-                	preparedStatement = connection.prepareStatement(SQLQuery.INSERT_EMPLOYEE);
-                	preparedStatement.setInt(1, id);
-                	preparedStatement.setString(2, employee.getDepartment());
-                	preparedStatement.setDouble(3, employee.getSalary());
-                	preparedStatement.executeUpdate();
-                }
-                
-                connection.commit();
-                
-            } catch (SQLException e) {
-            	connection.rollback();
-            }
-            
-            return true;
+            return findUser(employee.getLogin(), connection);
 
 		} catch (ConnectionPoolException e) {
 			throw new DAOException(e);
 		} catch (SQLException e) {
 			throw new DAOException(e);
+		} finally {
+			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement);
 		}
+        
+	}
+	
+	public int findUser(String login, Connection connection) throws SQLException {
+		
+		PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        
+		preparedStatement = connection.prepareStatement(SQLQuery.FIND_USER);
+		preparedStatement.setString(1, login);
+			
+		resultSet = preparedStatement.executeQuery();
+			
+        if (resultSet.next()) {
+            return resultSet.getInt(1);
+        } else {
+            return 0;
+        }
+
+	}
+	
+	public boolean checkEmailExist(String email, Connection connection) throws DAOException {
+		
+		PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        
+		try {
+			preparedStatement = connection.prepareStatement(SQLQuery.FIND_EMAIL);
+			preparedStatement.setString(1, email);
+			
+			resultSet = preparedStatement.executeQuery();
+			
+            if (resultSet.next()) {
+            	return true;
+            } else {
+            	return false;
+            }
+
+		} catch (SQLException e) {
+			throw new DAOException(e);
+		}
+
 	}
 
 }

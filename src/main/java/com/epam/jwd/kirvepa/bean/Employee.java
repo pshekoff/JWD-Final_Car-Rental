@@ -1,31 +1,24 @@
 package com.epam.jwd.kirvepa.bean;
 
-import java.io.Serializable;
-
-public class Employee extends User implements Serializable {
+public class Employee extends User {
 	private static final long serialVersionUID = 1L;
-	
-	private static final String role = "Administrator";
 	
 	private String department;
 	private String position;
 	private double salary;
 	
 	public Employee(String login
-					, int passwordHash
-					, String email
-					, String firstName
-					, String lastName
-					, String homeAdress
-					, String phone
-					, String department
-					, String position
-					, double salary) {
-		super(login, passwordHash, email, firstName, lastName, homeAdress, phone, role);
+			, String email
+			, boolean admin
+			, PersonalData personalData
+			, String department
+			, String position
+			, double salary) {
+		super(login, email, admin);
+		super.setPersonalData(personalData);
 		setDepartment(department);
 		setPosition(position);
 		setSalary(salary);
-		
 	}
 	
 	public void setDepartment(String department) {
@@ -37,7 +30,7 @@ public class Employee extends User implements Serializable {
 	public void setSalary(double salary) {
 		this.salary = salary;
 	}
-
+	
 	public String getDepartment() {
 		return department;
 	}
@@ -47,5 +40,4 @@ public class Employee extends User implements Serializable {
 	public double getSalary() {
 		return salary;
 	}
-
 }

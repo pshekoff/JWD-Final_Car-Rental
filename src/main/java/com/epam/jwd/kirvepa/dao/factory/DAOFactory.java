@@ -1,8 +1,10 @@
 package com.epam.jwd.kirvepa.dao.factory;
 
 import com.epam.jwd.kirvepa.dao.CarDAO;
+import com.epam.jwd.kirvepa.dao.OrderDAO;
 import com.epam.jwd.kirvepa.dao.UserDAO;
 import com.epam.jwd.kirvepa.dao.impl.SQLCarDAO;
+import com.epam.jwd.kirvepa.dao.impl.SQLOrderDAO;
 import com.epam.jwd.kirvepa.dao.impl.SQLUserDAO;
 
 public final class DAOFactory {
@@ -10,6 +12,7 @@ public final class DAOFactory {
 	
 	private final UserDAO sqlUserImpl = new SQLUserDAO();
 	private final CarDAO sqlCarImpl = new SQLCarDAO();
+	private final OrderDAO sqlOrderImpl = new SQLOrderDAO();
 	
 	private DAOFactory() {
 	}
@@ -23,6 +26,9 @@ public final class DAOFactory {
 	}
 	public CarDAO getCarDAO(){
 		return sqlCarImpl;
+	}
+	public OrderDAO getOrderDAO() {
+		return sqlOrderImpl;
 	}
 
 }

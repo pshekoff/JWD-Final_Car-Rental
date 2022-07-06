@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
 			AuthorizedUser authUser =  userDAO.authorization(login, passwordHash);
 			return authUser;
 		} catch (DAOException e) {
-			throw new ServiceException(e);
+			throw new ServiceException(e.getMessage());
 		}
 		
 	}
@@ -34,13 +34,13 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public User singOut(String login) throws ServiceException {
 		// TODO Auto-generated method stub
-		User user = new User("login", "password".hashCode(), "email", "User"); //stub
+		User user = new User("login", "email", false); //stub
 		return user;
 		
 	}
 
 	@Override
-	public boolean registration(User user) throws ServiceException {
+	public boolean registration(User user, int passwordHash) throws ServiceException {
 		
 		if(!validator.loginValidation(user.getLogin())) {
 			throw new ServiceException("Incorrect login");
@@ -49,18 +49,23 @@ public class UserServiceImpl implements UserService {
 			throw new ServiceException("Incorrect email");
 		}
 		
-		boolean success;
-		
 		try {
-			success = userDAO.insertUser(user);
+			int userId = userDAO.insertUser(user, passwordHash);
+			
+			if (userId != 0) {
+				return true;
+			} else {
+				return false;
+			}
+			
 		} catch (DAOException e) {
-			throw new ServiceException(e);
+			throw new ServiceException(e.getMessage());
 		}
-		return success;
+
 	}
 
 	@Override
-	public boolean addEmployee(Employee employee) throws ServiceException {
+	public boolean addEmployee(Employee employee, int passwordHash) throws ServiceException {
 		
 		if(!validator.loginValidation(employee.getLogin())) {
 			throw new ServiceException("Incorrect login");
@@ -69,14 +74,19 @@ public class UserServiceImpl implements UserService {
 			throw new ServiceException("Incorrect email");
 		}
 		
-		boolean success;
-		
 		try {
-			success = userDAO.insertEmployee(employee);
+			int employeeId = userDAO.insertEmployee(employee, passwordHash);
+			
+			if (employeeId != 0) {
+				return true;
+			} else {
+				return false;
+			}
+			
 		} catch (DAOException e) {
 			throw new ServiceException(e);
 		}
-		return success;
+		
 	}
 
 }

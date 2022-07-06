@@ -11,19 +11,19 @@
 	<meta charset="UTF-8">
 	
 	<title>
-	  <fmt:message key="auth_user.title" />
+	  <fmt:message key="order_created.title" />
 	</title>
   </head>
   
   <body>
 	<h1>
-	  <fmt:message key="auth_user.label.welcome" />
+	  <fmt:message key="order_created.welcome" />
 	</h1>
 	
 	<div>
 	  <form action="controller" method="post">
-		<input type="hidden" name="command" value="get_car_body_list" />
-		<input type="submit" value=<fmt:message key="auth_user.submit.rent_car" /> />
+		<input type="hidden" name="command" value="order_payment" />
+		<input type="submit" value=<fmt:message key="order_created.submit.order_pay" /> />
 	  </form>
 	</div>
 	

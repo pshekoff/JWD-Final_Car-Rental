@@ -18,8 +18,8 @@ import com.epam.jwd.kirvepa.controller.command.Command;
  */
 public class FrontController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private static final Logger logger = LogManager.getLogger(FrontController.class);
 	private static final CommandProvider provider = CommandProvider.getInstance();
+	private static final Logger logger = LogManager.getLogger(FrontController.class);
        
     /**
      * @see HttpServlet#HttpServlet()
@@ -33,7 +33,6 @@ public class FrontController extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		doPost(request, response);
 	}
 
@@ -43,16 +42,18 @@ public class FrontController extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
 		response.setContentType("text/html; charset=UTF-8");
-		
-		String commandName = request.getParameter(RequestParameterName.REQ_PARAM_NAME_COMMAND);
 
+		String commandName = request.getParameter(RequestParameterName.REQ_PARAM_NAME_COMMAND);
+		logger.info("Command \"" + commandName + "\" is requested.");
+		
 		Command command = provider.getCommand(commandName); 
-		logger.info("Command " + commandName + "received");
 
 		String page = command.execute(request, response);
+		logger.info("Command \"" + commandName + "\" is executed.");
 		
 		RequestDispatcher dispatcher = request.getRequestDispatcher(page);
 		dispatcher.forward(request, response);
+		logger.info("Forward to \"" + page + "\".");
 
 	}
 

@@ -1,24 +1,17 @@
 package com.epam.jwd.kirvepa.bean;
 
-public class AuthorizedUser {
-	private int id;
-	private String name;
-	private String role;
+public class AuthorizedUser extends User {
+	private static final long serialVersionUID = 1L;
 	
-	public AuthorizedUser(int id, String name, String role) {
-		this.id = id;
-		this.name = name;
-		this.role = role;
+	private int userId;
+	
+	public AuthorizedUser(int userId, String login, String email, boolean admin) {
+		super(login, email, admin);
+		this.userId = userId;
 	}
 	
-	public int getId() {
-		return id;
-	}
-	public String getName() {
-		return name;
-	}
-	public String getRole() {
-		return role;
+	public int getUserId() {
+		return userId;
 	}
 
 }

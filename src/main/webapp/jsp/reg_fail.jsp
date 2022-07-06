@@ -1,23 +1,43 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
+<fmt:setLocale value="${param.lang}" />
+<fmt:setBundle basename="messages"/>
+
 <!DOCTYPE html>
-<html>
-<head>
+<html lang="${param.lang}">
+  <head>
     <meta charset="UTF-8">
-    <title>Ошибка регистрации</title>
-</head>
-<body>
+    <title>
+      <fmt:message key="reg_fail.title" />
+    </title>
+  </head>
+  
+  <body>
     <div>
-        <h2>Регистрация не выполнена.</h2>
+	  <h2>
+		<fmt:message key="reg_fail.label.failed" />
+	  </h2>
     </div>
-    <div>
-		<p>$request: {message}</p>
+	
+	<div>
+	  <h3>${message}</h3>
     </div>
     
-	<a href="/CarRental/jsp/registration.jsp">Попробовать снова</a>
-	<h4>или</h4>
-	<a href="/CarRental/jsp/authorization.jsp">Войти в систему</a>
-	<h2></h2>
-	<a href="/CarRental/index.jsp">На главную</a>
+	<a href="/CarRental/jsp/registration.jsp">
+	 <fmt:message key="href.registeration" />
+	</a>
+	
+	<fmt:message key="separator" />
 
-</body>
+	<a href="/CarRental/jsp/authorization.jsp">
+	  <fmt:message key="href.authorization" />
+	</a>
+	
+	<h2></h2>
+	<a href="/CarRental/index.jsp">
+	  <fmt:message key="href.homepage" />
+	</a>
+  </body>
 </html>

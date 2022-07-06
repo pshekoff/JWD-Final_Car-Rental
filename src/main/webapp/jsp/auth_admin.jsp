@@ -2,11 +2,11 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-<fmt:setLocale value="en"/>
+<fmt:setLocale value="${param.lang}" />
 <fmt:setBundle basename="messages"/>
 
 <!DOCTYPE html>
-<html>
+<html lang="${param.lang}">
   <head>
 	<meta charset="UTF-8">
 	
@@ -28,7 +28,7 @@
 	</div>
 	
 	<div>
-	  <form action="controller" method="get">
+	  <form action="controller" method="post">
 		<input type="hidden" name="command" value="edit_profile" />
 		<input type="submit" value=<fmt:message key="auth_admin.submit.edit_profile" /> />
 	  </form>

@@ -16,9 +16,9 @@
   </head>
   
   <body>
-	<h1>
-	  <fmt:message key="auth_user.label.welcome" />
-	</h1>
+  	<h2>
+  	  ${user_header}
+  	</h2>
 	
 	<div>
 	  <form action="controller" method="post">

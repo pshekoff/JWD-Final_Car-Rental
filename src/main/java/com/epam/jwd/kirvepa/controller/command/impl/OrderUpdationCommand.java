@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.epam.jwd.kirvepa.bean.Order;
 import com.epam.jwd.kirvepa.bean.PersonalData;
 import com.epam.jwd.kirvepa.controller.JSPPageName;
 import com.epam.jwd.kirvepa.controller.RequestParameterName;
@@ -16,9 +17,9 @@ import com.epam.jwd.kirvepa.service.OrderService;
 import com.epam.jwd.kirvepa.service.exception.ServiceException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
-public class OrderCreationCommand implements Command{
+public class OrderUpdationCommand implements Command{
 	private static final OrderService orderService = ServiceFactory.getInstance().getOrderService();
-	private static final Logger logger = LogManager.getLogger(OrderCreationCommand.class);
+	private static final Logger logger = LogManager.getLogger(OrderUpdationCommand.class);
 	
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
@@ -40,8 +41,9 @@ public class OrderCreationCommand implements Command{
 		PersonalData personalData = new PersonalData(firstName, lastName, dayOfBirth, docNum, docIssueDate, docExpDate, IdNum, address, phone);
 		
 		try {
-			orderService.createOrder(userId, orderId, personalData);
-			return JSPPageName.ORDER_PAGE;
+			Order order = orderService.updateOrder(userId, orderId, personalData);
+			request.setAttribute("amount", order.getAmount());
+			return JSPPageName.ORDER_CREATED;
 		} catch (ServiceException e) {
 			logger.error(e);
 			request.setAttribute("message", "Failed to create order.");

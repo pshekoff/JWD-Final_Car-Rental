@@ -20,6 +20,8 @@
 	  <fmt:message key="order_created.welcome" />
 	</h1>
 	
+	<p>${amount} <fmt:message key="label.currency" /><fmt:message key="order_created.label.to_pay" /></p>
+	
 	<div>
 	  <form action="controller" method="post">
 		<input type="hidden" name="command" value="order_payment" />
@@ -27,32 +29,14 @@
 	  </form>
 	</div>
 	
-	<h1></h1>
+	<p></p>
 	
 	<div>
 		<form action="controller" method="post">
-			<input type="hidden" name="command" value="get_orders" />
-			<input type="submit" value=<fmt:message key="auth_user.submit.orders" /> />
+			<input type="hidden" name="command" value="cancel_order" />
+			<input type="submit" value=<fmt:message key="order_created.submit.order_cancel" /> />
 		</form>
 	</div>	
-	
-	<h1></h1>
-	
-	<div>
-		<form action="controller" method="post">
-			<input type="hidden" name="command" value="edit_profile" />
-			<input type="submit" value=<fmt:message key="auth_user.submit.edit_profile" /> />
-		</form>
-	</div>
-	
-	<h1></h1>
-	
-	<div>
-		<form action="controller" method="post">
-			<input type="hidden" name="command" value="sign_out" />
-			<input type="submit" value=<fmt:message key="auth_user.submit.sign_out" /> />
-		</form>
-	</div>
-	
+
 </body>
 </html>

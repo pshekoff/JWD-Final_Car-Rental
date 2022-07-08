@@ -19,7 +19,7 @@
    
 	<form class="order-form" action="controller" method="post">
 	  <div>
-		<input type="hidden" name="command" value="place_order" />
+		<input type="hidden" name="command" value="update_order" />
 	  </div>
 	  <div>
 		<h4>

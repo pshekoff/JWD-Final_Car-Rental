@@ -102,31 +102,32 @@ public class SQLCarDAO implements CarDAO {
 		}
 	}
 	
-	public static int getCarId(Car car, Date from, Date to, Connection c, PreparedStatement ps) throws SQLException {
+	public static int getCarId(Car car, Date from, Date to, Connection connection) throws SQLException {
 		
-		ps = c.prepareStatement(SQLQuery.FIND_CAR_ID);
+		PreparedStatement preparedStatement = connection.prepareStatement(SQLQuery.FIND_CAR_ID);
 			
-		ps.setString(1, car.getManufacturer());
-		ps.setString(2, car.getModel());
-		ps.setString(3, car.getBodyType());
-		ps.setString(4, car.getEngine());
-		ps.setString(5, car.getTransmission());
-		ps.setString(6, car.getDriveType());
-		ps.setDate(7, from);
-		ps.setDate(8, to);
-		ps.setDate(9, from);
-		ps.setDate(10, to);
+		preparedStatement.setString(1, car.getManufacturer());
+		preparedStatement.setString(2, car.getModel());
+		preparedStatement.setString(3, car.getBodyType());
+		preparedStatement.setString(4, car.getEngine());
+		preparedStatement.setString(5, car.getTransmission());
+		preparedStatement.setString(6, car.getDriveType());
+		preparedStatement.setDate(7, from);
+		preparedStatement.setDate(8, to);
+		preparedStatement.setDate(9, from);
+		preparedStatement.setDate(10, to);
 			
-		ResultSet rs = ps.executeQuery();
+		ResultSet resultSet = preparedStatement.executeQuery();
 		
 		int result;
-		if (rs.next()) {
-			result = rs.getInt(1);
+		if (resultSet.next()) {
+			result = resultSet.getInt(1);
 		} else {
 			result =  0;
 		}
 		
-		rs.close();
+		resultSet.close();
+		preparedStatement.close();
 		
 		return result;
 

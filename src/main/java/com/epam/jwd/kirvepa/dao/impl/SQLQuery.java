@@ -12,6 +12,11 @@ public final class SQLQuery {
 	
 	protected static final String FIND_EMAIL = "SELECT email FROM users WHERE email = ?";
 	
+	protected static final String CHECK_PERSONAL_DATA = "SELECT 1"
+			+ " FROM personal_data"
+			+ " WHERE user_id = ?"
+			+ " AND valid = TRUE;";
+	
 	protected static final String INSERT_USER = "INSERT INTO users"
 			+ "(login, password_hash, email, admin, active, datetime_created, datetime_updated)"
 			+ " values (?, ?, ?, ?, ?, SYSDATE(), SYSDATE());";
@@ -50,9 +55,9 @@ public final class SQLQuery {
 			+ " passport_expire_date, identification_number, home_address, phone, datetime_created, valid)"
 			+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, SYSDATE(), TRUE);";
 	
-	protected static final String PREPARE_ORDER = "INSERT INTO orders"
+	protected static final String CREATE_ORDER = "INSERT INTO orders"
 			+ " (car_id, user_id, date_handover, date_return, total_price, order_status_id, datetime_created, datetime_updated)"
-			+ " VALUES (?, ?, ?, ?, ?, (SELECT id FROM order_statuses WHERE description='PREPARED'), SYSDATE(), SYSDATE());";
+			+ " VALUES (?, ?, ?, ?, ?, (SELECT id FROM order_statuses WHERE description=?), SYSDATE(), SYSDATE());";
 	
 	protected static final String FIND_ORDER = "SELECT id"
 			+ " FROM orders"
@@ -61,10 +66,42 @@ public final class SQLQuery {
 			+ " AND order_status_id ="
 			+ "		 (SELECT id FROM order_statuses WHERE description = 'PREPARED');";
 	
-	protected static final String PLACE_ORDER = "UPDATE orders"
+	protected static final String UPDATE_ORDER = "UPDATE orders"
 			+ " SET order_status_id = (SELECT id FROM order_statuses WHERE description='CREATED')"
 			+ ", datetime_updated = SYSDATE()"
 			+ " WHERE id = ?;";
+	
+	protected static final String CANCEL_ORDER = "UPDATE orders"
+			+ " SET order_status_id = (SELECT id FROM order_statuses WHERE description='CANCELLED')"
+			+ ", datetime_updated = SYSDATE()"
+			+ " WHERE id = ?;";
+	
+	protected static final String GET_ORDER = "SELECT"
+			+ " c.manufacturer, c.model, bt.description_ru, c.engine, c.transmission_type, c.drive_type,"
+			+ " o.date_handover, o.date_return, o.total_price, os.description"
+			+ " FROM orders o"
+			+ " LEFT JOIN cars c ON c.id = o.car_id"
+			+ " LEFT JOIN body_types bt ON bt.id = c.body_type_id"
+			+ " LEFT JOIN order_statuses os ON os.id = o.order_status_id"
+			+ " WHERE o.id = ?";	
+
+	protected static final String GET_USER_ORDERS = "SELECT"
+			+ " c.manufacturer, c.model, bt.description_ru, c.engine, c.transmission_type, c.drive_type,"
+			+ " o.id, o.date_handover, o.date_return, o.total_price, os.description"
+			+ " FROM orders o"
+			+ " LEFT JOIN cars c ON c.id = o.car_id"
+			+ " LEFT JOIN body_types bt ON bt.id = c.body_type_id"
+			+ " LEFT JOIN order_statuses os ON os.id = o.order_status_id"
+			+ " WHERE o.user_id = ?"
+			+ " ORDER BY o.date_handoved;";
+	
+	protected static final String CHECK_PAYMENT = "SELECT"
+			+ " payment_method_id, amount"
+			+ " FROM payments WHERE order_id = ?;";
+	
+	protected static final String UPDATE_ORDER_HISTORY = "INSERT INTO orders_history"
+			+ " (datetime_created, order_id, order_status_id, comment, employee_id)"
+			+ " VALUES (SYSDATE(), ?, ?, ?, ?);";
 	
 	protected static final String FIND_CAR_ID = "SELECT c.id"
 			+ " FROM cars c"
@@ -82,6 +119,22 @@ public final class SQLQuery {
 			+ " AND c.id NOT IN (SELECT car_id FROM orders WHERE date_return >= DATE(SYSDATE())"
 			+ " AND (date_handover BETWEEN ? AND ? OR date_return+1 BETWEEN ? AND ?))"
 			+ " LIMIT 1;";
+	
+	protected static final String ORDER_PAYMENT = "INSERT INTO payments"
+			+ " (order_id, payment_type_id, payment_method_id, amount, datetime_created, datetime_updated)"
+			+ " SELECT ?, pt.id, pm.id, o.total_price, SYSDATE(), SYSDATE()"
+			+ " FROM payment_types pt, payment_method pm, orders o"
+			+ " WHERE pt.description = 'PAYMENT'"
+			+ " AND pm.description = 'Card'"
+			+ " AND o.id = ?;";
+	
+	protected static final String ORDER_REFUND = "INSERT INTO payments"
+			+ " (order_id, payment_type_id, payment_method_id, amount, datetime_created, datetime_updated)"
+			+ " SELECT ?, pt.id, pm.id, o.total_price, SYSDATE(), SYSDATE()"
+			+ " FROM payment_types pt, payment_method pm, orders o"
+			+ " WHERE pt.description = 'REFUND'"
+			+ " AND pm.description = 'Card'"
+			+ " AND o.id = ?;";
 	
 	protected static final String HOLD_CAR = "UPDATE cars"
 			+ " SET available = FALSE"

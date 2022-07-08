@@ -10,6 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.epam.jwd.kirvepa.bean.Car;
+import com.epam.jwd.kirvepa.bean.Order;
 import com.epam.jwd.kirvepa.controller.JSPPageName;
 import com.epam.jwd.kirvepa.controller.RequestParameterName;
 import com.epam.jwd.kirvepa.controller.command.Command;
@@ -17,15 +18,15 @@ import com.epam.jwd.kirvepa.service.OrderService;
 import com.epam.jwd.kirvepa.service.exception.ServiceException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
-public class OrderPreparationCommand implements Command {
+public class OrderRegistrationCommand implements Command {
 	private static final OrderService orderService = ServiceFactory.getInstance().getOrderService();
-	private static final Logger logger = LogManager.getLogger(OrderPreparationCommand.class);
+	private static final Logger logger = LogManager.getLogger(OrderRegistrationCommand.class);
 	
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
 
 		int userId = (int) request.getSession().getAttribute("user_id");
-
+		System.out.println("user ID = " + userId);
 		//car data
 		String manufacturer = request.getParameter(RequestParameterName.REQ_PARAM_NAME_CAR_MANUF);
 		String model = request.getParameter(RequestParameterName.REQ_PARAM_NAME_CAR_MODEL);
@@ -42,16 +43,27 @@ public class OrderPreparationCommand implements Command {
 		Car car = new Car(manufacturer, model, bodyType, engine, transmission, driveType);
 				
 		try {
-			int orderId = orderService.prepareOrder(userId, car, dateFrom, dateTo, price);
+			Order order = orderService.placeOrder(userId, car, dateFrom, dateTo, price);
 			
 			HttpSession session = request.getSession();
-			session.setAttribute("order_id", orderId);
-			
-			return JSPPageName.PERSONAL_DATA_PAGE;
+			session.setAttribute("order_id", order.getId());
+
+			if (order.getStatus().equals("PREPARED")) {
+				return JSPPageName.PERSONAL_DATA_PAGE;
+			} else if (order.getStatus().equals("CREATED")) {
+				request.setAttribute("user_header", "Order has been created.");
+				request.setAttribute("amount", order.getAmount());
+				return JSPPageName.ORDER_CREATED;
+			} else {
+				logger.error("Unexpected error.");
+				request.setAttribute("user_header", "Unexpected error.");
+				return JSPPageName.USER_HOMEPAGE;
+			}
+
 		} catch (ServiceException e) {
 			logger.error(e);
-			request.setAttribute("message", "Failed to prepare order.");
-			return JSPPageName.ERROR_PAGE;
+			request.setAttribute("user_header", "Failed to book selected car");
+			return JSPPageName.USER_HOMEPAGE;
 		}
 	}
 	

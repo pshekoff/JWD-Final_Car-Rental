@@ -3,6 +3,7 @@ package com.epam.jwd.kirvepa.service.impl;
 import java.sql.Date;
 
 import com.epam.jwd.kirvepa.bean.Car;
+import com.epam.jwd.kirvepa.bean.Order;
 import com.epam.jwd.kirvepa.bean.PersonalData;
 import com.epam.jwd.kirvepa.dao.OrderDAO;
 import com.epam.jwd.kirvepa.dao.exception.DAOException;
@@ -17,26 +18,30 @@ public class OrderServiceImpl implements OrderService {
 	private static final OrderDAO orderDAO = DAOFactory.getInstance().getOrderDAO();
 	
 	@Override
-	public int prepareOrder(int userId, Car car, Date from, Date to, double price) throws ServiceException {
+	public Order placeOrder(int userId, Car car, Date from, Date to, double price) throws ServiceException {
 		
 		try {
-			return orderDAO.prepareOrder(userId, car, from, to, price);
+			return orderDAO.placeOrder(userId, car, from, to, price);
 		} catch (DAOException e) {
 			throw new ServiceException(e);
 		}
-
 	}
 	
 	@Override
-	public boolean createOrder(int userId, int orderId, PersonalData client) throws ServiceException {
-		
-	/*	if(!validator.loginValidation(client.getFirstName()) {
-			throw new ServiceException("Incorrect first name");
-		}
-*/
+	public Order updateOrder(int userId, int orderId, PersonalData personalData) throws ServiceException {
 		
 		try {
-			boolean success = orderDAO.createOrder(userId, orderId, client);
+			return orderDAO.updateOrder(userId, orderId, personalData);
+		} catch (DAOException e) {
+			throw new ServiceException(e);
+		}
+	}
+
+	@Override
+	public boolean cancelOrder(int orderId) throws ServiceException {
+		
+		try {
+			boolean success = orderDAO.cancelOrder(orderId);
 			
 			if (success) {
 				return true;
@@ -49,6 +54,26 @@ public class OrderServiceImpl implements OrderService {
 		}
 	}
 
+	@Override
+	public boolean payOrder(int orderId) throws ServiceException {
+		
+		try {
+			boolean success = orderDAO.payOrder(orderId);
+			
+			if (success) {
+				return true;
+			} else {
+				return false;
+			}
+			
+		} catch (DAOException e) {
+			throw new ServiceException(e.getMessage());
+		}
+		
+	}
 
 
+
+
+	
 }

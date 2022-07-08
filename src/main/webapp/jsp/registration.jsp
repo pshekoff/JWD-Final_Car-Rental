@@ -15,6 +15,10 @@
   </head>
   
   <body>
+  	<h2>
+  	  <%=session.getAttribute("reg_header")%>
+  	</h2>
+  	
 	<form class="tab-form" action="controller" method="post">
 	  <div>
 		<input type="hidden" name="command" value="registration" />
@@ -56,11 +60,10 @@
 	  <div class="registrationFormAlert" id="divCheckPasswordMatch"></div>
 	</form>
 	
-	<div>
-	  <h2></h2>
+	<p>
 	  <a href="/CarRental/index.jsp">
 	  	<fmt:message key="href.homepage" />
 	  </a>
-	</div>
+	</p>
   </body>
 </html>

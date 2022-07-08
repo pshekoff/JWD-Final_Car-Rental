@@ -2,6 +2,7 @@ package com.epam.jwd.kirvepa.controller.command.impl;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,9 +28,11 @@ public class RegistrationCommand implements Command {
 		String passwordRepeat = request.getParameter(RequestParameterName.REQ_PARAM_NAME_USR_PASS_REPEAT);
 		String email = request.getParameter(RequestParameterName.REQ_PARAM_NAME_USR_EMAIL);
 		
+		HttpSession session = request.getSession();
+		
 		if (!password.equals(passwordRepeat)) {
-			request.setAttribute("message", "Entered passwords aren't match.");
-			return JSPPageName.REGISTER_FAIL;
+			session.setAttribute("reg_header", "Entered passwords aren't match. Try again.");
+			return JSPPageName.REGISTRATION;
 		}
 
 		boolean success;
@@ -38,18 +41,19 @@ public class RegistrationCommand implements Command {
 			
 			if (!success) {
 				logger.info("Command " + CommandName.REGISTRATION + " finished unsuccessfully.");
-				request.setAttribute("message", "Registration failed");
-				return JSPPageName.REGISTER_FAIL;
+				session.setAttribute("reg_header", "Registration failed. Unexpected error.");
+				return JSPPageName.REGISTRATION;
 			}
 			else {
 				logger.info("Command " + CommandName.REGISTRATION + " finished successfully.");
-				return JSPPageName.REGISTER_SUCCESS;
+				session.setAttribute("auth_header", "Successful registration. Please, sign in.");
+				return JSPPageName.AUTHORIZATION;
 			}
 			
 		} catch (ServiceException e) {
 			logger.error(e);
-			request.setAttribute("message", "Registration failed");
-			return JSPPageName.REGISTER_FAIL;
+			session.setAttribute("reg_header", "Registration failed. " + e.getMessage());
+			return JSPPageName.REGISTRATION;
 		}
 
 	}

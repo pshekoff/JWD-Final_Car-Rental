@@ -28,7 +28,7 @@
 	  <fmt:message key="car_list.available" />
 	</h2>
 	<form action="controller" method="post">
-	  <input type="hidden" name="command" value="prepare_order" />
+	  <input type="hidden" name="command" value="register_order" />
 	  <table border="1">
 	  	<tr>
 		  <th></th>

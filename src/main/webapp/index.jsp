@@ -11,7 +11,7 @@
 	<meta charset="UTF-8">
     	
 	<title>
-	  <fmt:message key="index.title.main" />
+	  <fmt:message key="index.title" />
 	</title>
   </head>
   
@@ -29,17 +29,14 @@
 	</div>
 	
 	<form action="jsp/registration.jsp">
-	  <%session.setAttribute("reg_header","Fill registration form");%>
       <button type="submit" id="btnReg" name="btnReg">
       	<fmt:message key="index.button.registration" />
       </button>
-      
 	</form>
 	
 	<p></p>
 	
 	<form action="jsp/authorization.jsp">
-	 <%session.setAttribute("auth_header","Enter your credentials");%>
       <button type="submit" id="btnAuth" name="btnAuth">
       	<fmt:message key="index.button.login" />
       </button>

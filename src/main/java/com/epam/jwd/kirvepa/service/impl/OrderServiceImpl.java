@@ -7,9 +7,11 @@ import com.epam.jwd.kirvepa.bean.Order;
 import com.epam.jwd.kirvepa.bean.PersonalData;
 import com.epam.jwd.kirvepa.dao.OrderDAO;
 import com.epam.jwd.kirvepa.dao.exception.DAOException;
+import com.epam.jwd.kirvepa.dao.exception.DAOUserException;
 import com.epam.jwd.kirvepa.dao.factory.DAOFactory;
 import com.epam.jwd.kirvepa.service.OrderService;
 import com.epam.jwd.kirvepa.service.exception.ServiceException;
+import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 import com.epam.jwd.kirvepa.service.validator.PersonalDataValidator;
 
 public class OrderServiceImpl implements OrderService {
@@ -18,22 +20,26 @@ public class OrderServiceImpl implements OrderService {
 	private static final OrderDAO orderDAO = DAOFactory.getInstance().getOrderDAO();
 	
 	@Override
-	public Order placeOrder(int userId, Car car, Date from, Date to, double price) throws ServiceException {
+	public Order placeOrder(int userId, Car car, Date from, Date to, double price) throws ServiceException, ServiceUserException {
 		
 		try {
 			return orderDAO.placeOrder(userId, car, from, to, price);
 		} catch (DAOException e) {
 			throw new ServiceException(e);
+		} catch (DAOUserException e) {
+			throw new ServiceUserException(e.getMessage());
 		}
 	}
 	
 	@Override
-	public Order updateOrder(int userId, int orderId, PersonalData personalData) throws ServiceException {
+	public Order updateOrder(int userId, int orderId, PersonalData personalData) throws ServiceException, ServiceUserException {
 		
 		try {
 			return orderDAO.updateOrder(userId, orderId, personalData);
 		} catch (DAOException e) {
 			throw new ServiceException(e);
+		} catch (DAOUserException e) {
+			throw new ServiceUserException(e.getMessage());
 		}
 	}
 

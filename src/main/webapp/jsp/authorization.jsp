@@ -16,8 +16,12 @@
 
   <body>
   	<h2>
-  	  <%=session.getAttribute("auth_header")%>
+  	  <fmt:message key="authorization.header" />
   	</h2>
+
+	<p style="color:#ff0000">
+  	  ${error}
+  	</p>
   
 	<form class="login-form" action="controller" method="post">
 	  <div>
@@ -52,6 +56,10 @@
 	<p>
 	  <a href="/CarRental/index.jsp">
 	  	<fmt:message key="href.homepage" />
+	  </a>
+	  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	  <a href="registration.jsp">
+	  	<fmt:message key="href.registration" />
 	  </a>
 	</p>
   </body>

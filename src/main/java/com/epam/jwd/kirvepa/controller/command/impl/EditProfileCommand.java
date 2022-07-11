@@ -22,6 +22,8 @@ public class EditProfileCommand implements Command {
 		HttpSession session = request.getSession();
 		
 		int userId = (int) session.getAttribute("user_id");
+		
+		
 
 		if (session != null) {
 	//		User user = userService.getUserData(userId);

@@ -28,7 +28,7 @@ public class SQLCarDAO implements CarDAO {
         try {
 			connection = ConnectionPool.getInstance().takeConnection();
 			
-			preparedStatement = connection.prepareStatement(SQLQuery.GET_BODY_TYPE_LIST_RU);
+			preparedStatement = connection.prepareStatement(SQLCarQuery.GET_BODY_TYPE_LIST_RU);
 	        
 	        resultSet = preparedStatement.executeQuery();
 	        
@@ -60,7 +60,7 @@ public class SQLCarDAO implements CarDAO {
         try {
 			connection = ConnectionPool.getInstance().takeConnection();
 			
-			preparedStatement = connection.prepareStatement(SQLQuery.GET_CAR_LIST);
+			preparedStatement = connection.prepareStatement(SQLCarQuery.GET_CAR_LIST);
 			
 			StringBuffer bodiesList = new StringBuffer(bodies[0]);
 			for (int i = 1; i < bodies.length; i++) {
@@ -104,7 +104,7 @@ public class SQLCarDAO implements CarDAO {
 	
 	public static int getCarId(Car car, Date from, Date to, Connection connection) throws SQLException {
 		
-		PreparedStatement preparedStatement = connection.prepareStatement(SQLQuery.FIND_CAR_ID);
+		PreparedStatement preparedStatement = connection.prepareStatement(SQLCarQuery.FIND_CAR_ID);
 			
 		preparedStatement.setString(1, car.getManufacturer());
 		preparedStatement.setString(2, car.getModel());

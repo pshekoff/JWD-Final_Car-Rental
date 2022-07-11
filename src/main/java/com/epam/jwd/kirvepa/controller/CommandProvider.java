@@ -12,9 +12,12 @@ import com.epam.jwd.kirvepa.controller.command.impl.AuthorizationCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.CarFindCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.CommandName;
 import com.epam.jwd.kirvepa.controller.command.impl.EditProfileCommand;
+import com.epam.jwd.kirvepa.controller.command.impl.EmailChangingCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.GetBodyListCommand;
+import com.epam.jwd.kirvepa.controller.command.impl.LoginChangingCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.OrderCancellationCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.OrderUpdationCommand;
+import com.epam.jwd.kirvepa.controller.command.impl.PasswordChangingCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.OrderPaymentCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.OrderRegistrationCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.RegistrationCommand;
@@ -35,7 +38,9 @@ public class CommandProvider {
 		repository.put(CommandName.REGISTER_ORDER, new OrderRegistrationCommand());
 		repository.put(CommandName.CANCEL_ORDER, new OrderCancellationCommand());
 		repository.put(CommandName.ORDER_PAYMENT, new OrderPaymentCommand());
-		
+		repository.put(CommandName.CHANGE_LOGIN, new LoginChangingCommand());
+		repository.put(CommandName.CHNGE_PASSWORD, new PasswordChangingCommand());
+		repository.put(CommandName.CHANGE_EMAIL, new EmailChangingCommand());
 	}
 	
 	public static CommandProvider getInstance() {

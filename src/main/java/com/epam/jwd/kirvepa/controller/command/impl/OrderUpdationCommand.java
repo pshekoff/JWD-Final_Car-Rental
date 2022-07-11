@@ -15,6 +15,7 @@ import com.epam.jwd.kirvepa.controller.RequestParameterName;
 import com.epam.jwd.kirvepa.controller.command.Command;
 import com.epam.jwd.kirvepa.service.OrderService;
 import com.epam.jwd.kirvepa.service.exception.ServiceException;
+import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
 public class OrderUpdationCommand implements Command{
@@ -47,6 +48,10 @@ public class OrderUpdationCommand implements Command{
 		} catch (ServiceException e) {
 			logger.error(e);
 			request.setAttribute("message", "Failed to create order.");
+			return JSPPageName.ERROR_PAGE;
+		} catch (ServiceUserException e) {
+			logger.error(e);
+			request.setAttribute("message", "Failed to create order. " + e.getMessage());
 			return JSPPageName.ERROR_PAGE;
 		}
 

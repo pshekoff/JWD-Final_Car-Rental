@@ -6,7 +6,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.epam.jwd.kirvepa.bean.User;
 import com.epam.jwd.kirvepa.controller.JSPPageName;
 import com.epam.jwd.kirvepa.controller.RequestParameterName;
 import com.epam.jwd.kirvepa.controller.command.Command;
@@ -15,50 +14,44 @@ import com.epam.jwd.kirvepa.service.exception.ServiceException;
 import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
-public class RegistrationCommand implements Command {
-	private static final boolean admin = false;
+public class PasswordChangingCommand implements Command {
 	private static final UserService userService = ServiceFactory.getInstance().getUserService();
-	private static final Logger logger = LogManager.getLogger(RegistrationCommand.class);
+	private static final Logger logger = LogManager.getLogger(PasswordChangingCommand.class);
 
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
-
-		String login = request.getParameter(RequestParameterName.REQ_PARAM_NAME_USR_LOGIN);
+		
+		int userId = (int) request.getSession().getAttribute("user_id");
 		String password = request.getParameter(RequestParameterName.REQ_PARAM_NAME_USR_PASS);
 		String passwordRepeat = request.getParameter(RequestParameterName.REQ_PARAM_NAME_USR_PASS_REPEAT);
-		String email = request.getParameter(RequestParameterName.REQ_PARAM_NAME_USR_EMAIL);
 		
 		if (!password.equals(passwordRepeat)) {
 			request.setAttribute("error", "Entered passwords aren't match.");
-			return JSPPageName.REGISTRATION;
+			return JSPPageName.EDIT_PROFILE;
 		}
 
 		boolean success;
 		try {
-			logger.info("Registration attempt with username (" + login + "), email(" + email + ")");
-			success = userService.registration(new User(login, email, admin), password.hashCode());
+			success = userService.changePassword(userId, password.hashCode());
 			
 			if (!success) {
-				logger.error("Registration finished unsuccessfully.");
-				request.setAttribute("error", "Registration failed.");
-				return JSPPageName.REGISTRATION;
+				logger.error("Password changing failed.");
+				request.setAttribute("error", "Password changing failed.");
+				return JSPPageName.EDIT_PROFILE;
+			} else {
+				logger.error("Password successfully changed.");
+				request.setAttribute("message", "Password successfully changed.");
+				return JSPPageName.EDIT_PROFILE;
 			}
-			else {
-				logger.info("Registration finished successfully.");
-				request.setAttribute("message", "Successful registration. Please, sign in.");
-				return JSPPageName.AUTHORIZATION;
-			}
-			
 		} catch (ServiceException e) {
 			logger.error(e);
-			request.setAttribute("error", "Registration failed.");
-			return JSPPageName.REGISTRATION;
+			request.setAttribute("error", "Password changing failed.");
+			return JSPPageName.EDIT_PROFILE;
 		} catch (ServiceUserException e) {
 			logger.error(e);
-			request.setAttribute("error", "Registration failed. " + e.getMessage());
-			return JSPPageName.REGISTRATION;
+			request.setAttribute("error", "Password changing failed. " + e.getMessage());
+			return JSPPageName.EDIT_PROFILE;
 		}
-
 	}
 
 }

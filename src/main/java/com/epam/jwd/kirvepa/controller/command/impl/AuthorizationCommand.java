@@ -13,6 +13,7 @@ import com.epam.jwd.kirvepa.controller.RequestParameterName;
 import com.epam.jwd.kirvepa.controller.command.Command;
 import com.epam.jwd.kirvepa.service.UserService;
 import com.epam.jwd.kirvepa.service.exception.ServiceException;
+import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
 public class AuthorizationCommand implements Command {
@@ -59,6 +60,10 @@ public class AuthorizationCommand implements Command {
 			}
 			
 		} catch (ServiceException e) {
+			logger.error(e);
+			request.getSession().setAttribute("auth_header", "Authorization failed.");
+			return JSPPageName.AUTHORIZATION;
+		} catch (ServiceUserException e) {
 			logger.error(e);
 			request.getSession().setAttribute("auth_header", "Authorization failed. " + e.getMessage());
 			return JSPPageName.AUTHORIZATION;

@@ -16,6 +16,7 @@ import com.epam.jwd.kirvepa.controller.RequestParameterName;
 import com.epam.jwd.kirvepa.controller.command.Command;
 import com.epam.jwd.kirvepa.service.OrderService;
 import com.epam.jwd.kirvepa.service.exception.ServiceException;
+import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
 public class OrderRegistrationCommand implements Command {
@@ -63,6 +64,10 @@ public class OrderRegistrationCommand implements Command {
 		} catch (ServiceException e) {
 			logger.error(e);
 			request.setAttribute("user_header", "Failed to book selected car");
+			return JSPPageName.USER_HOMEPAGE;
+		} catch (ServiceUserException e) {
+			logger.error(e);
+			request.setAttribute("user_header", "Failed to book selected car. " + e.getMessage());
 			return JSPPageName.USER_HOMEPAGE;
 		}
 	}

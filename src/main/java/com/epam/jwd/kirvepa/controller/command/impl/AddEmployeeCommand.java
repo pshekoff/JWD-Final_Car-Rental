@@ -15,6 +15,7 @@ import com.epam.jwd.kirvepa.controller.RequestParameterName;
 import com.epam.jwd.kirvepa.controller.command.Command;
 import com.epam.jwd.kirvepa.service.UserService;
 import com.epam.jwd.kirvepa.service.exception.ServiceException;
+import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
 public class AddEmployeeCommand implements Command {
@@ -76,6 +77,10 @@ public class AddEmployeeCommand implements Command {
 		} catch (ServiceException e) {
 			logger.error(e);
 			request.setAttribute("message", "Employee adding failed.");
+			return JSPPageName.ADD_EMPLOYEE_FAIL;
+		} catch (ServiceUserException e) {
+			logger.error(e);
+			request.setAttribute("message", "Employee adding failed. " + e.getMessage());
 			return JSPPageName.ADD_EMPLOYEE_FAIL;
 		}
 

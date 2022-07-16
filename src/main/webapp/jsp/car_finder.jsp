@@ -40,5 +40,11 @@
 	  <input type="hidden" name="command" value="find_car" />
 	  <input type="submit" value=<fmt:message key="car_finder.submit.search" /> />
   	</form>
+	
+	<p>
+	  <a href="user_home.jsp">
+	  	<fmt:message key="href.back" />
+	  </a>
+	</p>
   </body>
 </html>

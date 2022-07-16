@@ -19,7 +19,8 @@
    
 	<form class="order-form" action="controller" method="post">
 	  <div>
-		<input type="hidden" name="command" value="update_order" />
+		<input type="hidden" name="command" value="create_order" />
+		<input type="hidden" name="order_id" value="${order_id}" />
 	  </div>
 	  <div>
 		<h4>

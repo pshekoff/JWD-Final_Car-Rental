@@ -13,5 +13,16 @@ public class AuthorizedUser extends User {
 	public int getUserId() {
 		return userId;
 	}
+	
+	@Override
+	public String toString() {
+		String role;
+		if (isAdmin()) {
+			role = "Administrator";
+		} else {
+			role = "User";
+		}
+		return String.format("ID: %d, Login: %s, Email: %s, Role: %s", userId, getLogin(), getEmail(), role);
+	}
 
 }

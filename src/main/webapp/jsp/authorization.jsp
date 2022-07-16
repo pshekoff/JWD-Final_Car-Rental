@@ -19,8 +19,12 @@
   	  <fmt:message key="authorization.header" />
   	</h2>
 
+	<p>
+  	  ${auth_message}
+  	</p>
+  	
 	<p style="color:#ff0000">
-  	  ${error}
+  	  ${auth_error}
   	</p>
   
 	<form class="login-form" action="controller" method="post">

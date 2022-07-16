@@ -13,6 +13,7 @@ public final class JSPPageName {
 	public final static String ORDER_CREATED = "/jsp/order_created.jsp";
 	public final static String PERSONAL_DATA_PAGE = "/jsp/personal_data.jsp";
 	public final static String EDIT_PROFILE = "/jsp/edit_profile.jsp";
+	public final static String USER_ORDERS = "/jsp/user_orders.jsp";
 	public final static String ERROR_PAGE = "/error/error.jsp";
 	
 	private JSPPageName() {}

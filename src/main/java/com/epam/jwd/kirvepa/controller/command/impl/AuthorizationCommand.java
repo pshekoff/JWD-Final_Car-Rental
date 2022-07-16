@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.epam.jwd.kirvepa.bean.AuthorizedUser;
 import com.epam.jwd.kirvepa.controller.JSPPageName;
+import com.epam.jwd.kirvepa.controller.PageAttributeMessage;
 import com.epam.jwd.kirvepa.controller.RequestParameterName;
 import com.epam.jwd.kirvepa.controller.command.Command;
 import com.epam.jwd.kirvepa.service.UserService;
@@ -17,8 +18,8 @@ import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
 public class AuthorizationCommand implements Command {
-	private static final UserService userService = ServiceFactory.getInstance().getUserService();
 	private static final Logger logger = LogManager.getLogger(AuthorizationCommand.class);
+	private static final UserService userService = ServiceFactory.getInstance().getUserService();
 	
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
@@ -26,7 +27,7 @@ public class AuthorizationCommand implements Command {
 		String login = request.getParameter(RequestParameterName.REQ_PARAM_NAME_USR_LOGIN);
 		int passwordHash = request.getParameter(RequestParameterName.REQ_PARAM_NAME_USR_PASS).hashCode();
 
-		logger.info("User " + login + " request to login");
+		logger.info("User \"" + login + "\" requested to login");
 		
 		AuthorizedUser authUser;
 		
@@ -41,31 +42,31 @@ public class AuthorizationCommand implements Command {
 				session.setAttribute("email", authUser.getEmail());
 				session.setAttribute("admin", authUser.isAdmin());
 				
-				logger.info(authUser.toString() + " authorized");
+				logger.info(authUser.toString() + " authorized.");
 				
 				if (authUser.isAdmin()) {
-					request.setAttribute("admin_header", "Welcome, administrator.");
+					request.setAttribute(PageAttributeMessage.ADMIN_HEADER, PageAttributeMessage.ADMIN_GREETINGS);
 					return JSPPageName.ADMIN_HOMEPAGE;
 				}
 				else {
-					request.setAttribute("user_header", "Welcome, " + authUser.getLogin());
+					request.setAttribute(PageAttributeMessage.USER_HEADER, PageAttributeMessage.USER_GREETINGS + authUser.getLogin());
 					return JSPPageName.USER_HOMEPAGE;
 				}
 
 			}
 			else {
-				logger.warn("Command " + CommandName.AUTHORIZATION + " finished unsuccessfully.");
-				request.getSession().setAttribute("auth_header", "Authorization failed. Unexpected error.");
+				logger.error("Null is returned.");
+				request.setAttribute(PageAttributeMessage.AUTH_ERROR, PageAttributeMessage.AUTH_ERROR_MSG);
 				return JSPPageName.AUTHORIZATION;
 			}
 			
 		} catch (ServiceException e) {
 			logger.error(e);
-			request.getSession().setAttribute("auth_header", "Authorization failed.");
+			request.setAttribute(PageAttributeMessage.AUTH_ERROR, PageAttributeMessage.AUTH_ERROR_MSG);
 			return JSPPageName.AUTHORIZATION;
 		} catch (ServiceUserException e) {
 			logger.error(e);
-			request.getSession().setAttribute("auth_header", "Authorization failed. " + e.getMessage());
+			request.setAttribute(PageAttributeMessage.AUTH_ERROR, PageAttributeMessage.AUTH_ERROR_MSG + e.getMessage());
 			return JSPPageName.AUTHORIZATION;
 		}
 

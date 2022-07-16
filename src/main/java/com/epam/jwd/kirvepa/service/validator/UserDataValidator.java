@@ -2,7 +2,6 @@ package com.epam.jwd.kirvepa.service.validator;
 
 public class UserDataValidator {
 	private static final UserDataValidator instance = new UserDataValidator();
-	private static final int LOGIN_MAX_LENGTH = 16;
 	
 	private UserDataValidator() {}
 	
@@ -11,7 +10,7 @@ public class UserDataValidator {
 	}
 	
 	public boolean loginValidation(String login) {
-		if(login == null || login.isEmpty() || login.length() > LOGIN_MAX_LENGTH){
+		if(login == null || login.isEmpty()){
 			return false;
 		}
 		else {

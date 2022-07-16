@@ -40,22 +40,22 @@ public class RegistrationCommand implements Command {
 			
 			if (!success) {
 				logger.error("Registration finished unsuccessfully.");
-				request.setAttribute("error", "Registration failed.");
+				request.setAttribute("reg_error", "Registration failed.");
 				return JSPPageName.REGISTRATION;
 			}
 			else {
 				logger.info("Registration finished successfully.");
-				request.setAttribute("message", "Successful registration. Please, sign in.");
+				request.setAttribute("auth_message", "Successful registration. Please, sign in.");
 				return JSPPageName.AUTHORIZATION;
 			}
 			
 		} catch (ServiceException e) {
 			logger.error(e);
-			request.setAttribute("error", "Registration failed.");
+			request.setAttribute("reg_error", "Registration failed.");
 			return JSPPageName.REGISTRATION;
 		} catch (ServiceUserException e) {
 			logger.error(e);
-			request.setAttribute("error", "Registration failed. " + e.getMessage());
+			request.setAttribute("reg_error", "Registration failed. " + e.getMessage());
 			return JSPPageName.REGISTRATION;
 		}
 

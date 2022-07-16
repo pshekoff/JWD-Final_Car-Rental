@@ -36,6 +36,8 @@ public class SQLUserDAO implements UserDAO {
             preparedStatement.setInt(1, passwordHash);
             preparedStatement.setString(2, login);
             
+            logger.debug(preparedStatement.toString());
+            
             resultSet = preparedStatement.executeQuery();
 
             if (!resultSet.next()) {
@@ -54,6 +56,7 @@ public class SQLUserDAO implements UserDAO {
             	int userId = resultSet.getInt(1);
             	boolean admin = resultSet.getBoolean(3);
             	String email = resultSet.getString(4);
+            	
                 return new AuthorizedUser(userId, login, email, admin);
             }
 

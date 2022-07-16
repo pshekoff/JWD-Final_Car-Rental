@@ -35,7 +35,9 @@
 		  <input type="submit" value=<fmt:message key="edit_profile.submit.login" /> />
 		</p>
 	  </div>
-
+	</form>
+	
+	<form class="login-form" action="controller" method="post">
 	  <div>
 		<input type="hidden" name="command" value="change_password" />
 		<fmt:message key="label.password" />
@@ -46,7 +48,9 @@
 		  <input type="submit" value=<fmt:message key="edit_profile.submit.password" /> />
 		</p>
 	  </div>
-	  
+	</form>
+	
+	<form>
 	  <div>
 		<input type="hidden" name="command" value="change_email" />
 		<fmt:message key="label.email" />&nbsp;${sessionScope.email}
@@ -55,7 +59,6 @@
 		  <input type="submit" value=<fmt:message key="edit_profile.submit.email" /> />
 		</p>
 	  </div>
-
 	</form>
     
     <p>

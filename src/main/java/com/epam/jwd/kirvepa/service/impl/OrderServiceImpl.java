@@ -1,6 +1,10 @@
 package com.epam.jwd.kirvepa.service.impl;
 
 import java.sql.Date;
+import java.util.List;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.epam.jwd.kirvepa.bean.Car;
 import com.epam.jwd.kirvepa.bean.Order;
@@ -15,7 +19,7 @@ import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 import com.epam.jwd.kirvepa.service.validator.PersonalDataValidator;
 
 public class OrderServiceImpl implements OrderService {
-
+	private static final Logger logger = LogManager.getLogger(OrderServiceImpl.class);
 	private static final PersonalDataValidator validator = PersonalDataValidator.getInstance();
 	private static final OrderDAO orderDAO = DAOFactory.getInstance().getOrderDAO();
 	
@@ -25,26 +29,30 @@ public class OrderServiceImpl implements OrderService {
 		try {
 			return orderDAO.placeOrder(userId, car, from, to, price);
 		} catch (DAOException e) {
+			logger.error(e);
 			throw new ServiceException(e);
 		} catch (DAOUserException e) {
-			throw new ServiceUserException(e.getMessage());
+			logger.error(e);
+			throw new ServiceUserException(e);
 		}
 	}
 	
 	@Override
-	public Order updateOrder(int userId, int orderId, PersonalData personalData) throws ServiceException, ServiceUserException {
+	public Order createOrder(int userId, int orderId, PersonalData personalData) throws ServiceException, ServiceUserException {
 		
 		try {
-			return orderDAO.updateOrder(userId, orderId, personalData);
+			return orderDAO.createOrder(userId, orderId, personalData);
 		} catch (DAOException e) {
+			logger.error(e);
 			throw new ServiceException(e);
 		} catch (DAOUserException e) {
-			throw new ServiceUserException(e.getMessage());
+			logger.error(e);
+			throw new ServiceUserException(e);
 		}
 	}
 
 	@Override
-	public boolean cancelOrder(int orderId) throws ServiceException {
+	public boolean cancelOrder(int orderId) throws ServiceException, ServiceUserException {
 		
 		try {
 			boolean success = orderDAO.cancelOrder(orderId);
@@ -56,12 +64,16 @@ public class OrderServiceImpl implements OrderService {
 			}
 			
 		} catch (DAOException e) {
-			throw new ServiceException(e.getMessage());
+			logger.error(e);
+			throw new ServiceException(e);
+		} catch (DAOUserException e) {
+			logger.error(e);
+			throw new ServiceUserException(e);
 		}
 	}
 
 	@Override
-	public boolean payOrder(int orderId) throws ServiceException {
+	public boolean payOrder(int orderId) throws ServiceException, ServiceUserException {
 		
 		try {
 			boolean success = orderDAO.payOrder(orderId);
@@ -73,9 +85,24 @@ public class OrderServiceImpl implements OrderService {
 			}
 			
 		} catch (DAOException e) {
-			throw new ServiceException(e.getMessage());
+			logger.error(e);
+			throw new ServiceException(e);
+		} catch (DAOUserException e) {
+			logger.error(e);
+			throw new ServiceUserException(e);
 		}
 		
+	}
+
+	@Override
+	public List<Order> getUserOrders(int UserId) throws ServiceException {
+		
+		try {
+			return orderDAO.getUserOrders(UserId);
+		} catch (DAOException e) {
+			logger.error(e);
+			throw new ServiceException(e);
+		}
 	}
 
 

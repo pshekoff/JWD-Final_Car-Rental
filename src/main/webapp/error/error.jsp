@@ -10,6 +10,6 @@
 </head>
 <body>
 <h4>Exception occurred while processing the request</h4>
-<p>Message: ${message}</p>
+<p>Message: ${error}</p>
 </body>
 </html>

@@ -11,8 +11,8 @@ import com.epam.jwd.kirvepa.dao.exception.DAOUserException;
 
 public interface OrderDAO {
 	Order placeOrder(int userId, Car car, Date from, Date to, double price) throws DAOException, DAOUserException;
-	Order updateOrder(int userId, int orderId, PersonalData personalData) throws DAOException, DAOUserException;
-	boolean cancelOrder(int orderId) throws DAOException;
-	boolean payOrder(int orderId) throws DAOException;
+	Order createOrder(int userId, int orderId, PersonalData personalData) throws DAOException, DAOUserException;
+	boolean cancelOrder(int orderId) throws DAOException, DAOUserException;
+	boolean payOrder(int orderId) throws DAOException, DAOUserException;
 	List<Order> getUserOrders(int userId) throws DAOException;
 }

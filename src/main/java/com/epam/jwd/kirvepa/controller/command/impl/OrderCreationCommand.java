@@ -18,9 +18,9 @@ import com.epam.jwd.kirvepa.service.exception.ServiceException;
 import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
-public class OrderUpdationCommand implements Command{
+public class OrderCreationCommand implements Command{
 	private static final OrderService orderService = ServiceFactory.getInstance().getOrderService();
-	private static final Logger logger = LogManager.getLogger(OrderUpdationCommand.class);
+	private static final Logger logger = LogManager.getLogger(OrderCreationCommand.class);
 	
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
@@ -37,12 +37,12 @@ public class OrderUpdationCommand implements Command{
 		String phone = request.getParameter(RequestParameterName.REQ_PARAM_NAME_USR_PHONE);
 
 		int userId = (int) request.getSession().getAttribute("user_id");
-		int orderId = (int) request.getSession().getAttribute("order_id");
+		int orderId = Integer.parseInt(request.getParameter("order_id"));
 		
 		PersonalData personalData = new PersonalData(firstName, lastName, dayOfBirth, docNum, docIssueDate, docExpDate, IdNum, address, phone);
 		
 		try {
-			Order order = orderService.updateOrder(userId, orderId, personalData);
+			Order order = orderService.createOrder(userId, orderId, personalData);
 			request.setAttribute("amount", order.getAmount());
 			return JSPPageName.ORDER_CREATED;
 		} catch (ServiceException e) {

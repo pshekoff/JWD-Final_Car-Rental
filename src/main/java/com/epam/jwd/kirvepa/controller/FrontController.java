@@ -44,12 +44,12 @@ public class FrontController extends HttpServlet {
 		response.setContentType("text/html; charset=UTF-8");
 
 		String commandName = request.getParameter(RequestParameterName.REQ_PARAM_NAME_COMMAND);
-		logger.info("Command \"" + commandName + "\" is requested.");
+		logger.info("Command \"" + commandName + "\" was requested.");
 		
 		Command command = provider.getCommand(commandName); 
 
 		String page = command.execute(request, response);
-		logger.info("Command \"" + commandName + "\" is executed.");
+		logger.info("Command \"" + commandName + "\" was executed.");
 		
 		RequestDispatcher dispatcher = request.getRequestDispatcher(page);
 		dispatcher.forward(request, response);

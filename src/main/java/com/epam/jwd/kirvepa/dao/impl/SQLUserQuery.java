@@ -5,8 +5,8 @@ public final class SQLUserQuery {
 	protected static final String CHECK_ACCESS = "SELECT"
 			+ " u1.id, u1.active, u1.admin, u1.email, u2.password_hash"
 			+ " FROM users u1"
-			+ " LEFT JOIN users u2 ON u2.id = u1.id AND u2.password_hash=?"
-			+ " WHERE u1.login=?";
+			+ " LEFT JOIN users u2 ON u2.id = u1.id AND u2.password_hash = ?"
+			+ " WHERE u1.login = ?";
 	
 	protected static final String FIND_USER = "SELECT id FROM users WHERE login = ?";
 	

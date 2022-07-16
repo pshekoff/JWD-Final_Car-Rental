@@ -1,5 +1,8 @@
 package com.epam.jwd.kirvepa.service.impl;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.epam.jwd.kirvepa.bean.AuthorizedUser;
 import com.epam.jwd.kirvepa.bean.Employee;
 import com.epam.jwd.kirvepa.bean.User;
@@ -13,6 +16,7 @@ import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 import com.epam.jwd.kirvepa.service.validator.UserDataValidator;
 
 public class UserServiceImpl implements UserService {
+	private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
 	
 	private static final UserDataValidator validator = UserDataValidator.getInstance();
 	private static final UserDAO userDAO = DAOFactory.getInstance().getUserDAO();
@@ -21,14 +25,18 @@ public class UserServiceImpl implements UserService {
 	public AuthorizedUser singIn(String login, int passwordHash) throws ServiceException, ServiceUserException {
 
 		if(!validator.loginValidation(login)){
-			throw new ServiceException("Incorrect login.");
+			logger.error(ServiceUserException.MSG_USR_LOGIN_VAL_FAIL);
+			throw new ServiceUserException(ServiceUserException.MSG_USR_LOGIN_WRONG);
 		}
 		
 		try {
 			return userDAO.authorization(login, passwordHash);
+			
 		} catch (DAOException e) {
+			logger.error(e);
 			throw new ServiceException(e);
 		} catch (DAOUserException e) {
+			logger.error(e);
 			throw new ServiceUserException(e.getMessage());
 		}
 		
@@ -46,17 +54,21 @@ public class UserServiceImpl implements UserService {
 	public boolean registration(User user, int passwordHash) throws ServiceException, ServiceUserException {
 		
 		if(!validator.loginValidation(user.getLogin())) {
-			throw new ServiceUserException("Incorrect login.");
+			logger.error(ServiceUserException.MSG_USR_LOGIN_VAL_FAIL);
+			throw new ServiceUserException(ServiceUserException.MSG_USR_LOGIN_WRONG);
 		}
 		if (!validator.emailValidation(user.getEmail())) {
-			throw new ServiceUserException("Incorrect email.");
+			logger.error(ServiceUserException.MSG_USR_EMAIL_VAL_FAIL);
+			throw new ServiceUserException(ServiceUserException.MSG_USR_EMAIL_WRONG);
 		}
 		
 		try {
 			return userDAO.insertUser(user, passwordHash);
 		} catch (DAOException e) {
+			logger.error(e);
 			throw new ServiceException(e.getMessage());
 		} catch (DAOUserException e) {
+			logger.error(e);
 			throw new ServiceUserException(e.getMessage());
 		}
 
@@ -66,17 +78,21 @@ public class UserServiceImpl implements UserService {
 	public boolean addEmployee(Employee employee, int passwordHash) throws ServiceException, ServiceUserException {
 		
 		if(!validator.loginValidation(employee.getLogin())) {
-			throw new ServiceException("Incorrect login");
+			logger.error(ServiceUserException.MSG_USR_LOGIN_VAL_FAIL);
+			throw new ServiceException(ServiceUserException.MSG_USR_LOGIN_WRONG);
 		}
 		if (!validator.emailValidation(employee.getEmail())) {
-			throw new ServiceException("Incorrect email");
+			logger.error(ServiceUserException.MSG_USR_EMAIL_VAL_FAIL);
+			throw new ServiceException(ServiceUserException.MSG_USR_EMAIL_WRONG);
 		}
 		
 		try {
 			return userDAO.insertEmployee(employee, passwordHash);
 		} catch (DAOException e) {
+			logger.error(e);
 			throw new ServiceException(e);
 		} catch (DAOUserException e) {
+			logger.error(e);
 			throw new ServiceUserException(e.getMessage());
 		}
 		
@@ -86,14 +102,17 @@ public class UserServiceImpl implements UserService {
 	public boolean changeLogin(int userId, String login) throws ServiceException, ServiceUserException {
 		
 		if(!validator.loginValidation(login)){
-			throw new ServiceException("Incorrect login.");
+			logger.error(ServiceUserException.MSG_USR_LOGIN_VAL_FAIL);
+			throw new ServiceException(ServiceUserException.MSG_USR_LOGIN_WRONG);
 		}
 		
 		try {
 			return userDAO.updateLogin(userId, login);
 		} catch (DAOException e) {
+			logger.error(e);
 			throw new ServiceException(e);
 		} catch (DAOUserException e) {
+			logger.error(e);
 			throw new ServiceUserException(e.getMessage());
 		}
 	}
@@ -103,8 +122,10 @@ public class UserServiceImpl implements UserService {
 		try {
 			return userDAO.updatePassword(userId, passwordHash);
 		} catch (DAOException e) {
+			logger.error(e);
 			throw new ServiceException(e.getMessage());
 		} catch (DAOUserException e) {
+			logger.error(e);
 			throw new ServiceUserException(e.getMessage());
 		}
 	}
@@ -113,14 +134,17 @@ public class UserServiceImpl implements UserService {
 	public boolean changeEmail(int userId, String email) throws ServiceException, ServiceUserException {
 		
 		if (!validator.emailValidation(email)) {
-			throw new ServiceUserException("Incorrect email.");
+			logger.error(ServiceUserException.MSG_USR_EMAIL_VAL_FAIL);
+			throw new ServiceUserException(ServiceUserException.MSG_USR_EMAIL_WRONG);
 		}
 		
 		try {
 			return userDAO.updateEmail(userId, email);
 		} catch (DAOException e) {
+			logger.error(e);
 			throw new ServiceException(e);
 		} catch (DAOUserException e) {
+			logger.error(e);
 			throw new ServiceUserException(e.getMessage());
 		}
 	}

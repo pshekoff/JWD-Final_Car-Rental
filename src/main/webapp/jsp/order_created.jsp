@@ -24,7 +24,8 @@
 	
 	<div>
 	  <form action="controller" method="post">
-		<input type="hidden" name="command" value="order_payment" />
+		<input type="hidden" name="command" value="pay_order" />
+		<input type="hidden" name="order_id" value="${order_id}" />
 		<input type="submit" value=<fmt:message key="order_created.submit.order_pay" /> />
 	  </form>
 	</div>
@@ -34,6 +35,7 @@
 	<div>
 		<form action="controller" method="post">
 			<input type="hidden" name="command" value="cancel_order" />
+			<input type="hidden" name="order_id" value="${order_id}" />
 			<input type="submit" value=<fmt:message key="order_created.submit.order_cancel" /> />
 		</form>
 	</div>	

@@ -10,16 +10,17 @@ import com.epam.jwd.kirvepa.controller.JSPPageName;
 import com.epam.jwd.kirvepa.controller.command.Command;
 import com.epam.jwd.kirvepa.service.OrderService;
 import com.epam.jwd.kirvepa.service.exception.ServiceException;
+import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
 public class OrderCancellationCommand implements Command {
 	private static final OrderService orderService = ServiceFactory.getInstance().getOrderService();
-	private static final Logger logger = LogManager.getLogger(OrderUpdationCommand.class);
+	private static final Logger logger = LogManager.getLogger(OrderCreationCommand.class);
 
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
 		
-		int orderId = (int) request.getSession().getAttribute("order_id");
+		int orderId = Integer.parseInt(request.getParameter("order_id"));
 		
 		try {
 			boolean success = orderService.cancelOrder(orderId);
@@ -30,13 +31,17 @@ public class OrderCancellationCommand implements Command {
 				return JSPPageName.ERROR_PAGE;
 			}
 			else {
-				logger.info("Command " + CommandName.ORDER_PAYMENT + " finished successfully.");
+				logger.info("Command " + CommandName.PAY_ORDER + " finished successfully.");
 				request.setAttribute("user_header", "Order has been cancelled.");
 				return JSPPageName.USER_HOMEPAGE;
 			}
 		} catch (ServiceException e) {
 			logger.error(e);
 			request.setAttribute("message", "Order cancellation failed.");
+			return JSPPageName.ERROR_PAGE;
+		} catch (ServiceUserException e) {
+			logger.error(e);
+			request.setAttribute("error", e.getMessage());
 			return JSPPageName.ERROR_PAGE;
 		}
 	}

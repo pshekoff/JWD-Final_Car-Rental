@@ -113,7 +113,7 @@ input[type=submit] {
   	</h2>
 
 	<p style="color:#ff0000">
-  	  ${error}
+  	  ${reg_error}
   	</p>
   	
   <form action="controller" method="post">

@@ -46,8 +46,7 @@ public class OrderRegistrationCommand implements Command {
 		try {
 			Order order = orderService.placeOrder(userId, car, dateFrom, dateTo, price);
 			
-			HttpSession session = request.getSession();
-			session.setAttribute("order_id", order.getId());
+			request.setAttribute("order_id", order.getId());
 
 			if (order.getStatus().equals("PREPARED")) {
 				return JSPPageName.PERSONAL_DATA_PAGE;

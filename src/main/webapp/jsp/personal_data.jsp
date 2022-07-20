@@ -48,7 +48,7 @@
 	  </div>	  
 	  <div>
 		<h4>
-		  <fmt:message key="label.pass_issue_date" />
+		  <fmt:message key="label.issue_date" />
 		</h4>
 		<input type="date" name="issue_date" />
 	  </div>		  

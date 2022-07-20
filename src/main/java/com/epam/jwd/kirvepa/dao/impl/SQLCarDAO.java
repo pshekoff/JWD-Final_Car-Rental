@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.epam.jwd.kirvepa.bean.Car;
 import com.epam.jwd.kirvepa.dao.CarDAO;
 import com.epam.jwd.kirvepa.dao.connection.ConnectionPool;
@@ -17,7 +20,8 @@ import com.epam.jwd.kirvepa.dao.connection.ConnectionPoolException;
 import com.epam.jwd.kirvepa.dao.exception.DAOException;
 
 public class SQLCarDAO implements CarDAO {
-
+	private static final Logger logger = LogManager.getLogger(SQLCarDAO.class);
+	
 	@Override
 	public List<String> getCarBodyList() throws DAOException {
 		
@@ -30,6 +34,8 @@ public class SQLCarDAO implements CarDAO {
 			
 			preparedStatement = connection.prepareStatement(SQLCarQuery.GET_BODY_TYPE_LIST_RU);
 	        
+			logger.debug("SQL query to execute: " + preparedStatement.toString());
+			
 	        resultSet = preparedStatement.executeQuery();
 	        
 	        List<String> bodyTypes = new ArrayList<>();
@@ -42,8 +48,10 @@ public class SQLCarDAO implements CarDAO {
 	        
 		} catch (ConnectionPoolException e) {
 			throw new DAOException(e);
+			
 		} catch (SQLException e) {
 			throw new DAOException(e);
+			
 		} finally {
 			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement, resultSet);
 		}
@@ -75,7 +83,7 @@ public class SQLCarDAO implements CarDAO {
 			preparedStatement.setDate(6, from);
 			preparedStatement.setDate(7, to);
 			
-			System.out.println(preparedStatement.toString()); //temporary
+			logger.debug("SQL query to execute: " + preparedStatement.toString());
 			
 	        resultSet = preparedStatement.executeQuery();
 
@@ -97,9 +105,14 @@ public class SQLCarDAO implements CarDAO {
 			
 		} catch (ConnectionPoolException e) {
 			throw new DAOException(e);
+			
 		} catch (SQLException e) {
 			throw new DAOException(e);
+			
+		} finally {
+			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement, resultSet);
 		}
+        
 	}
 	
 	public static int getCarId(Car car, Date from, Date to, Connection connection) throws SQLException {
@@ -117,6 +130,8 @@ public class SQLCarDAO implements CarDAO {
 		preparedStatement.setDate(9, from);
 		preparedStatement.setDate(10, to);
 			
+		logger.debug("SQL query to execute: " + preparedStatement.toString());
+		
 		ResultSet resultSet = preparedStatement.executeQuery();
 		
 		int result;

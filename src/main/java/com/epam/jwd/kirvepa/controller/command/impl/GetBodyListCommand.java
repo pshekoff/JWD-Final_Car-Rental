@@ -9,6 +9,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.epam.jwd.kirvepa.controller.JSPPageName;
+import com.epam.jwd.kirvepa.controller.ResourceManager;
+import com.epam.jwd.kirvepa.controller.RequestAttributeName;
+import com.epam.jwd.kirvepa.controller.RequestParameterName;
 import com.epam.jwd.kirvepa.controller.command.Command;
 import com.epam.jwd.kirvepa.service.CarService;
 import com.epam.jwd.kirvepa.service.exception.ServiceException;
@@ -17,19 +20,21 @@ import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 public class GetBodyListCommand implements Command {
 	private static final CarService carService = ServiceFactory.getInstance().getCarService();
 	private static final Logger logger = LogManager.getLogger(GetBodyListCommand.class);
+	private static final ResourceManager manager = ResourceManager.getInstance();
 
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
 
 		try {
 			List<String> bodyList = carService.getCarBodyList();
-			request.getSession().setAttribute("bodylist", bodyList);
+			request.setAttribute(RequestParameterName.CAR_BODY_LIST
+								 , bodyList);
 			
 			return JSPPageName.CAR_FINDER;
 			
 		} catch (ServiceException e) {
 			logger.error(e);
-			request.setAttribute("message", "Failed to get car body types.");
+			request.setAttribute(RequestAttributeName.ERR, manager.getValue("car_finder.bodylist.error"));
 			return JSPPageName.ERROR_PAGE;
 		}
 

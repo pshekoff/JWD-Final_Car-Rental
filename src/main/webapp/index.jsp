@@ -28,7 +28,7 @@
 	  </h3>
 	</div>
 	
-	<form action="jsp/registration.jsp">
+	<form action="/CarRental/jsp/registration.jsp">
       <button type="submit" id="btnReg" name="btnReg">
       	<fmt:message key="index.button.registration" />
       </button>
@@ -36,7 +36,7 @@
 	
 	<p></p>
 	
-	<form action="jsp/authorization.jsp">
+	<form action="/CarRental/jsp/authorization.jsp">
       <button type="submit" id="btnAuth" name="btnAuth">
       	<fmt:message key="index.button.login" />
       </button>

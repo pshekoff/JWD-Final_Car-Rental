@@ -16,9 +16,9 @@
   </head>
   
   <body>
-	<h1>
-	  <fmt:message key="order_created.welcome" />
-	</h1>
+  	<h2>
+  	  ${order_header}
+  	</h2>
 	
 	<p>${amount} <fmt:message key="label.currency" /><fmt:message key="order_created.label.to_pay" /></p>
 	

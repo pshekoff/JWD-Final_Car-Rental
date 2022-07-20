@@ -11,7 +11,7 @@
 	<meta charset="UTF-8">
 	
 	<title>
-	  <fmt:message key="auth_user.title" />
+	  <fmt:message key="user_home.title" />
 	</title>
   </head>
   
@@ -23,7 +23,7 @@
 	<div>
 	  <form action="controller" method="post">
 		<input type="hidden" name="command" value="get_car_body_list" />
-		<input type="submit" value=<fmt:message key="auth_user.submit.rent_car" /> />
+		<input type="submit" value=<fmt:message key="user_home.submit.rent_car" /> />
 	  </form>
 	</div>
 	
@@ -32,7 +32,7 @@
 	<div>
 		<form action="controller" method="post">
 			<input type="hidden" name="command" value="get_orders" />
-			<input type="submit" value=<fmt:message key="auth_user.submit.orders" /> />
+			<input type="submit" value=<fmt:message key="user_home.submit.orders" /> />
 		</form>
 	</div>	
 	
@@ -41,7 +41,7 @@
 	<div>
 		<form action="controller" method="post">
 			<input type="hidden" name="command" value="edit_profile" />
-			<input type="submit" value=<fmt:message key="auth_user.submit.edit_profile" /> />
+			<input type="submit" value=<fmt:message key="user_home.submit.edit_profile" /> />
 		</form>
 	</div>
 	
@@ -50,7 +50,7 @@
 	<div>
 		<form action="controller" method="post">
 			<input type="hidden" name="command" value="sign_out" />
-			<input type="submit" value=<fmt:message key="auth_user.submit.sign_out" /> />
+			<input type="submit" value=<fmt:message key="user_home.submit.sign_out" /> />
 		</form>
 	</div>
 	

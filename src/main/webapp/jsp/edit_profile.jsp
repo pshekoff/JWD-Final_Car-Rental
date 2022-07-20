@@ -20,18 +20,19 @@
   	</h2>
 
 	<p style="color:#ff0000">
-  	  ${error}
-  	</p>
-  	<p>
-  	  ${message}
+  	  ${profile_error}
   	</p>
   	
+	<h3>
+  	  ${profile_message}
+  	</h3>  	
+
 	<form class="login-form" action="controller" method="post">
 	  <div>
 		<input type="hidden" name="command" value="change_login" />
-		<fmt:message key="label.username" />&nbsp;${sessionScope.login}
+		<fmt:message key="label.login" />&nbsp;${sessionScope.login}
 		<p>
-		  <input type="text" name="login" />
+		  <input type="text" name="login" required />
 		  <input type="submit" value=<fmt:message key="edit_profile.submit.login" /> />
 		</p>
 	  </div>
@@ -41,10 +42,10 @@
 	  <div>
 		<input type="hidden" name="command" value="change_password" />
 		<fmt:message key="label.password" />
-		<input type="password" name="login" />
+		<input type="password" name="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title=<fmt:message key="message.password.requirements" /> required />
 		<p>
 		  <fmt:message key="label.password_repeat" />
-		  <input type="password" name="password_repeat" />
+		  <input type="password" name="password_repeat" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title=<fmt:message key="message.password.requirements" /> required />
 		  <input type="submit" value=<fmt:message key="edit_profile.submit.password" /> />
 		</p>
 	  </div>
@@ -55,7 +56,7 @@
 		<input type="hidden" name="command" value="change_email" />
 		<fmt:message key="label.email" />&nbsp;${sessionScope.email}
 		<p>
-		  <input type="text" name="email" />
+		  <input type="email" name="email" required />
 		  <input type="submit" value=<fmt:message key="edit_profile.submit.email" /> />
 		</p>
 	  </div>

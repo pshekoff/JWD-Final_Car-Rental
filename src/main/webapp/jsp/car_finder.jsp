@@ -13,8 +13,12 @@
 	  <fmt:message key="car_finder.title" />
 	</title>
   </head>
-  
+
   <body>
+    <p>
+	  ${car_finder_error}
+  	</p>
+  	
 	<h1>
 	  <fmt:message key="car_finder.label.search" />
 	</h1>
@@ -22,17 +26,17 @@
 	<form action="controller" method="post">
 	  <p>
 	  	<fmt:message key="car_finder.label.datefrom" />
-	  	<input type="date" name="date_from">
+	  	<input type="date" name="date_from" required />
 	  <p>
 	  	<fmt:message key="car_finder.label.dateto" />
-	  	<input type="date" name="date_to">
+	  	<input type="date" name="date_to" required />
    		
 	  <h3>
 	    <fmt:message key="car_finder.label.body" />
 	  </h3>
 
 	  <c:forEach var="body" items="${bodylist}">
-		<input type="checkbox" name="body" value="${body}"/>
+		<input type="checkbox" name="body" value="${body}" />
 		<label>${body}</label>
 		<p></p>
 	  </c:forEach>

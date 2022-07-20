@@ -43,7 +43,7 @@ public class FrontController extends HttpServlet {
 		request.setCharacterEncoding("UTF-8");
 		response.setContentType("text/html; charset=UTF-8");
 
-		String commandName = request.getParameter(RequestParameterName.REQ_PARAM_NAME_COMMAND);
+		String commandName = request.getParameter(RequestParameterName.COMMAND);
 		logger.info("Command \"" + commandName + "\" was requested.");
 		
 		Command command = provider.getCommand(commandName); 

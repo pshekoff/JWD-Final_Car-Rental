@@ -18,6 +18,8 @@ public class Car implements Serializable {
 	private String color;
 	private int weight;
 	
+	public Car() {}
+	
 	public Car(int id
 			, String manufacturer
 			, String model
@@ -34,7 +36,7 @@ public class Car implements Serializable {
 		setManufacturer(manufacturer);
 		setModel(model);
 		setLicensePlate(licensePlate);
-		setVIN(vin);
+		setVin(vin);
 		setBodyType(bodyType);
 		setIssueYear(issueYear);
 		setEngine(engine);
@@ -57,7 +59,7 @@ public class Car implements Serializable {
 		setTransmission(transmission);
 		setDriveType(driveType);
 	}
-	
+
 	public int getId() {
 		return id;
 	}
@@ -86,10 +88,10 @@ public class Car implements Serializable {
 		this.licensePlate = licensePlate;
 	}
 
-	public String getVIN() {
+	public String getVin() {
 		return vin;
 	}
-	public void setVIN(String vin) {
+	public void setVin(String vin) {
 		this.vin = vin;
 	}
 
@@ -142,8 +144,49 @@ public class Car implements Serializable {
 		this.weight = weight;
 	}
 
-	public static long getSerialversionuid() {
-		return serialVersionUID;
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((bodyType == null) ? 0 : bodyType.hashCode());
+		result = prime * result + ((color == null) ? 0 : color.hashCode());
+		result = prime * result + ((driveType == null) ? 0 : driveType.hashCode());
+		result = prime * result + ((engine == null) ? 0 : engine.hashCode());
+		result = prime * result + id;
+		result = prime * result + issueYear;
+		result = prime * result + ((licensePlate == null) ? 0 : licensePlate.hashCode());
+		result = prime * result + ((manufacturer == null) ? 0 : manufacturer.hashCode());
+		result = prime * result + ((model == null) ? 0 : model.hashCode());
+		result = prime * result + ((transmission == null) ? 0 : transmission.hashCode());
+		result = prime * result + ((vin == null) ? 0 : vin.hashCode());
+		result = prime * result + weight;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		Car other = (Car) obj;
+		return this.bodyType.equals(other.bodyType)
+				&& this.color.equals(other.color)
+				&& this.driveType.equals(other.driveType)
+				&& this.engine.equals(other.engine)
+				&& this.id == other.id
+				&& this.issueYear == other.issueYear
+				&& this.licensePlate.equals(other.licensePlate)
+				&& this.manufacturer.equals(other.manufacturer)
+				&& this.model.equals(other.model)
+				&& this.transmission.equals(other.transmission)
+				&& this.vin.equals(other.vin)
+				&& weight == other.weight;
 	}
 
 	@Override
@@ -152,6 +195,4 @@ public class Car implements Serializable {
 				manufacturer, model, bodyType, engine, transmission, driveType);
 	}
 	
-	
-
 }

@@ -13,13 +13,8 @@ public class SQLOrderQuery {
 			+ " AND order_status_id ="
 			+ "		 (SELECT id FROM order_statuses WHERE description = 'PREPARED');";
 	
-	protected static final String CREATE_ORDER = "UPDATE orders"
-			+ " SET order_status_id = (SELECT id FROM order_statuses WHERE description='CREATED')"
-			+ ", datetime_updated = SYSDATE()"
-			+ " WHERE id = ?;";
-	
-	protected static final String CANCEL_ORDER = "UPDATE orders"
-			+ " SET order_status_id = (SELECT id FROM order_statuses WHERE description='CANCELLED')"
+	protected static final String UPDATE_ORDER_STATUS = "UPDATE orders"
+			+ " SET order_status_id = (SELECT id FROM order_statuses WHERE description = ?)"
 			+ ", datetime_updated = SYSDATE()"
 			+ " WHERE id = ?;";
 	
@@ -62,7 +57,7 @@ public class SQLOrderQuery {
 	
 	protected static final String ORDER_REFUND = "INSERT INTO payments"
 			+ " (order_id, payment_type_id, payment_method_id, amount, datetime_created, datetime_updated)"
-			+ " SELECT ?, pt.id, pm.id, o.total_price, SYSDATE(), SYSDATE()"
+			+ " SELECT o.id, pt.id, pm.id, o.total_price, SYSDATE(), SYSDATE()"
 			+ " FROM payment_types pt, payment_method pm, orders o"
 			+ " WHERE pt.description = 'REFUND'"
 			+ " AND pm.description = 'Card'"

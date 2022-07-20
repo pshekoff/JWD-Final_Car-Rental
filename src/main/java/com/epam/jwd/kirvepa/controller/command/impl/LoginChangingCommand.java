@@ -8,6 +8,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.epam.jwd.kirvepa.controller.JSPPageName;
+import com.epam.jwd.kirvepa.controller.ResourceManager;
+import com.epam.jwd.kirvepa.controller.RequestAttributeName;
 import com.epam.jwd.kirvepa.controller.RequestParameterName;
 import com.epam.jwd.kirvepa.controller.command.Command;
 import com.epam.jwd.kirvepa.service.UserService;
@@ -16,38 +18,45 @@ import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
 public class LoginChangingCommand implements Command {
-	private static final UserService userService = ServiceFactory.getInstance().getUserService();
 	private static final Logger logger = LogManager.getLogger(LoginChangingCommand.class);
-
+	private static final ResourceManager manager = ResourceManager.getInstance();
+	private static final UserService userService = ServiceFactory.getInstance().getUserService();
+	
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
 		
-		int userId = (int) request.getSession().getAttribute("user_id");
-		String login = request.getParameter(RequestParameterName.REQ_PARAM_NAME_USR_LOGIN);
+		HttpSession session = request.getSession();
+		
+		int userId = (int) session.getAttribute(RequestAttributeName.USR_ID);
+		String newLogin =  request.getParameter(RequestParameterName.USR_LOGIN);
 
+		String error = manager.getValue("edit_profile.login.error");
+		String message = manager.getValue("edit_profile.login.message");
+		
 		boolean success;
 		try {
-			success = userService.changeLogin(userId, login);
+			success = userService.changeLogin(userId, newLogin);
 			
 			if (!success) {
-				logger.error("Login changing failed.");
-				request.setAttribute("error", "Login changing failed.");
+				logger.error(error);
+				request.setAttribute(RequestAttributeName.PROFILE_ERR, error);
 				return JSPPageName.EDIT_PROFILE;
+				
 			} else {
-				HttpSession session = request.getSession();
-				session.setAttribute("login", login);
-
-				logger.error("Login successfully changed.");
-				request.setAttribute("message", "Login successfully changed.");
+				session.setAttribute(RequestAttributeName.USR_LOGIN, newLogin);
+				logger.info(message + newLogin);
+				request.setAttribute(RequestAttributeName.PROFILE_MSG, message + newLogin);
 				return JSPPageName.EDIT_PROFILE;
 			}
+			
 		} catch (ServiceException e) {
-			logger.error(e);
-			request.setAttribute("error", "Login changing failed.");
+			logger.error(error + e);
+			request.setAttribute(RequestAttributeName.PROFILE_ERR, error);
 			return JSPPageName.EDIT_PROFILE;
+			
 		} catch (ServiceUserException e) {
-			logger.error(e);
-			request.setAttribute("error", "Login changing failed. " + e.getMessage());
+			logger.error(error + e);
+			request.setAttribute(RequestAttributeName.PROFILE_ERR, error + e.getMessage());
 			return JSPPageName.EDIT_PROFILE;
 		}
 	}

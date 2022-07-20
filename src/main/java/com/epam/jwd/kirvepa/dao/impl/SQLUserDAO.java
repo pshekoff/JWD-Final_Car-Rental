@@ -36,7 +36,7 @@ public class SQLUserDAO implements UserDAO {
             preparedStatement.setInt(1, passwordHash);
             preparedStatement.setString(2, login);
             
-            logger.debug(preparedStatement.toString());
+            logger.debug("SQL query to execute: " + preparedStatement.toString());
             
             resultSet = preparedStatement.executeQuery();
 
@@ -63,9 +63,11 @@ public class SQLUserDAO implements UserDAO {
 		} catch (ConnectionPoolException e) {
 			logger.error(e);
 			throw new DAOException(e);
+			
 		} catch (SQLException e) {
 			logger.error(e);
 			throw new DAOException(e);
+			
 		} finally {
 			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement, resultSet);
 		}
@@ -77,12 +79,12 @@ public class SQLUserDAO implements UserDAO {
 		
         Connection connection = null;
         PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
         
         try {
         	connection = ConnectionPool.getInstance().takeConnection();
 			
-        	preparedStatement = connection.prepareStatement(SQLUserQuery.INSERT_USER, Statement.RETURN_GENERATED_KEYS);
+        	preparedStatement = connection.prepareStatement(SQLUserQuery.INSERT_USER
+        												   	, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setString(1, user.getLogin());
             preparedStatement.setInt(2, passwordHash);
             preparedStatement.setString(3, user.getEmail());
@@ -98,24 +100,30 @@ public class SQLUserDAO implements UserDAO {
             	throw new DAOUserException(DAOUserException.MSG_EMAIL_EXIST);
             }
 
+            logger.debug("SQL query to execute: " + preparedStatement.toString());
+            
             preparedStatement.executeUpdate();
             
-            resultSet = preparedStatement.getGeneratedKeys();
+            ResultSet resultSet = preparedStatement.getGeneratedKeys();
 
             if (resultSet.next()) {
+            	resultSet.close();
             	return true;
             } else {
+            	resultSet.close();
                 return false;
             }
 
 		} catch (ConnectionPoolException e) {
 			logger.error(e);
 			throw new DAOException(e);
+			
 		} catch (SQLException e) {
 			logger.error(e);
 			throw new DAOException(e);
+			
 		} finally {
-			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement, resultSet);
+			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement);
 		}
 		
 	}
@@ -132,45 +140,81 @@ public class SQLUserDAO implements UserDAO {
         	connection.setAutoCommit(false);
 			connection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
         	
-        	preparedStatement = connection.prepareStatement(SQLUserQuery.INSERT_USER, Statement.RETURN_GENERATED_KEYS);
+        	preparedStatement = connection.prepareStatement(SQLUserQuery.INSERT_USER
+        													, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setString(1, employee.getLogin());
             preparedStatement.setInt(2, passwordHash);
             preparedStatement.setString(3, employee.getEmail());
             preparedStatement.setBoolean(4, employee.isAdmin());
-        	
+            
+            logger.debug("SQL query to execute: " + preparedStatement.toString());
+            
             preparedStatement.executeUpdate();
             
             resultSet = preparedStatement.getGeneratedKeys();
-
+            
+            int userId;
             if (!resultSet.next()) {
             	logger.error(DAOUserException.MSG_USR_INS_FAIL);
             	throw new DAOUserException(DAOUserException.MSG_USR_INS_FAIL);
+            	
             } else {
-            	preparedStatement = connection.prepareStatement(SQLUserQuery.INSERT_EMPLOYEE, Statement.RETURN_GENERATED_KEYS);
-                preparedStatement.setString(1, employee.getDepartment());
-                preparedStatement.setString(2, employee.getPosition());
-                preparedStatement.setDouble(3, employee.getSalary());
-                preparedStatement.setInt(4, resultSet.getInt(1));
+            	userId = resultSet.getInt(1);
+            }
+            
+			preparedStatement = connection.prepareStatement(SQLUserQuery.UPDATE_PERSONAL_DATA);
+			preparedStatement.setInt(1, userId);
+			
+			logger.debug("SQL query to execute: " + preparedStatement.toString());
+			
+			preparedStatement.executeUpdate();
+			
+			preparedStatement = connection.prepareStatement(SQLUserQuery.INSERT_PERSONAL_DATA);
+			preparedStatement.setInt(1, userId);
+			preparedStatement.setString(2, employee.getPersonalData().getFirstName());
+			preparedStatement.setString(3, employee.getPersonalData().getLastName());
+			preparedStatement.setDate(4, employee.getPersonalData().getDayOfBirth());
+			preparedStatement.setString(5, employee.getPersonalData().getPassportNumber());
+			preparedStatement.setDate(6, employee.getPersonalData().getIssueDate());
+			preparedStatement.setDate(7, employee.getPersonalData().getExpireDate());
+			preparedStatement.setString(8, employee.getPersonalData().getIdentificationNumber());
+			preparedStatement.setString(9, employee.getPersonalData().getHomeAddress());
+			preparedStatement.setString(10, employee.getPersonalData().getPhone());
+
+			logger.debug("SQL query to execute: " + preparedStatement.toString());
+			
+			preparedStatement.executeUpdate();
+            
+            preparedStatement = connection.prepareStatement(SQLUserQuery.INSERT_EMPLOYEE
+            												, Statement.RETURN_GENERATED_KEYS);
+            	
+            preparedStatement.setString(1, employee.getDepartment());
+            preparedStatement.setString(2, employee.getPosition());
+            preparedStatement.setDouble(3, employee.getSalary());
+            preparedStatement.setInt(4, userId);
                 
-                preparedStatement.executeUpdate();
+            logger.debug("SQL query to execute: " + preparedStatement.toString());
                 
-                resultSet = preparedStatement.getGeneratedKeys();
+            preparedStatement.executeUpdate();
                 
-                if (resultSet.next()) {
-                	connection.commit();
-                	return true;
-                } else {
-                	connection.rollback();
-                    return false;
-                }
+            resultSet = preparedStatement.getGeneratedKeys();
+                
+            if (resultSet.next()) {
+                connection.commit();
+                return true;
+            } else {
+                connection.rollback();
+                return false;
             }
 
 		} catch (ConnectionPoolException e) {
 			logger.error(e);
 			throw new DAOException(e);
+			
 		} catch (SQLException e) {
 			logger.error(e);
 			throw new DAOException(e);
+			
 		} finally {
 			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement, resultSet);
 		}
@@ -190,6 +234,9 @@ public class SQLUserDAO implements UserDAO {
 
 			preparedStatement = connection.prepareStatement(SQLUserQuery.UPDATE_PERSONAL_DATA);
 			preparedStatement.setInt(1, userId);
+			
+			logger.debug("SQL query to execute: " + preparedStatement.toString());
+			
 			preparedStatement.executeUpdate();
 			preparedStatement.close();
 			
@@ -197,14 +244,16 @@ public class SQLUserDAO implements UserDAO {
 			preparedStatement.setInt(1, userId);
 			preparedStatement.setString(2, personalData.getFirstName());
 			preparedStatement.setString(3, personalData.getLastName());
-			preparedStatement.setDate(4, personalData.getBirthday());
+			preparedStatement.setDate(4, personalData.getDayOfBirth());
 			preparedStatement.setString(5, personalData.getPassportNumber());
 			preparedStatement.setDate(6, personalData.getIssueDate());
 			preparedStatement.setDate(7, personalData.getExpireDate());
 			preparedStatement.setString(8, personalData.getIdentificationNumber());
-			preparedStatement.setString(9, personalData.getAddress());
+			preparedStatement.setString(9, personalData.getHomeAddress());
 			preparedStatement.setString(10, personalData.getPhone());
 
+			logger.debug("SQL query to execute: " + preparedStatement.toString());
+			
 			preparedStatement.executeUpdate();
 			
 			connection.commit();
@@ -253,6 +302,8 @@ public class SQLUserDAO implements UserDAO {
         		throw new DAOUserException(DAOUserException.MSG_USR_EXIST);
             }
         	
+        	logger.debug("SQL query to execute: " + preparedStatement.toString());
+        	
         	preparedStatement.executeUpdate();
         	
         	return true;
@@ -260,9 +311,11 @@ public class SQLUserDAO implements UserDAO {
 		} catch (ConnectionPoolException e) {
 			logger.error(e);
 			throw new DAOException(e);
+			
 		} catch (SQLException e) {
 			logger.error(e);
 			throw new DAOException(e);
+			
 		} finally {
 			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement);
 		} 
@@ -281,6 +334,8 @@ public class SQLUserDAO implements UserDAO {
 			preparedStatement.setInt(1, passwordHash);
 			preparedStatement.setInt(1, userId);
         	
+			logger.debug("SQL query to execute: " + preparedStatement.toString());
+			
         	preparedStatement.executeUpdate();
         	
         	return true;
@@ -288,9 +343,11 @@ public class SQLUserDAO implements UserDAO {
 		} catch (ConnectionPoolException e) {
 			logger.error(e);
 			throw new DAOException(e);
+			
 		} catch (SQLException e) {
 			logger.error(e);
 			throw new DAOException(e);
+			
 		} finally {
 			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement);
 		} 
@@ -314,6 +371,8 @@ public class SQLUserDAO implements UserDAO {
             	throw new DAOUserException(DAOUserException.MSG_EMAIL_EXIST);
             }
 			
+			logger.debug("SQL query to execute: " + preparedStatement.toString());
+			
         	preparedStatement.executeUpdate();
         	
         	return true;
@@ -321,9 +380,11 @@ public class SQLUserDAO implements UserDAO {
 		} catch (ConnectionPoolException e) {
 			logger.error(e);
 			throw new DAOException(e);
+			
 		} catch (SQLException e) {
 			logger.error(e);
 			throw new DAOException(e);
+			
 		} finally {
 			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement);
 		} 
@@ -333,7 +394,9 @@ public class SQLUserDAO implements UserDAO {
 		
 		PreparedStatement preparedStatement = connection.prepareStatement(SQLUserQuery.FIND_USER);
 		preparedStatement.setString(1, login);
-		 
+		
+		logger.debug("SQL query to execute: " + preparedStatement.toString());
+		
 		ResultSet resultSet = preparedStatement.executeQuery();
 		
 		int result;
@@ -353,6 +416,8 @@ public class SQLUserDAO implements UserDAO {
         
 		PreparedStatement preparedStatement = connection.prepareStatement(SQLUserQuery.FIND_EMAIL);
 		preparedStatement.setString(1, email);
+		
+		logger.debug("SQL query to execute: " + preparedStatement.toString());
 		
 		ResultSet resultSet = preparedStatement.executeQuery();
 	

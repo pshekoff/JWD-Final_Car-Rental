@@ -15,18 +15,14 @@
   </head>
 
   <body>
-  	<h2>
-  	  <fmt:message key="authorization.header" />
-  	</h2>
-
-	<p>
+  	<p>
   	  ${auth_message}
   	</p>
   	
-	<p style="color:#ff0000">
-  	  ${auth_error}
-  	</p>
-  
+  	<h2>
+  	  <fmt:message key="authorization.header" />
+  	</h2>
+  	
 	<form class="login-form" action="controller" method="post">
 	  <div>
 		<input type="hidden" name="command" value="authorization" />
@@ -34,7 +30,7 @@
 	  
 	  <div>
 		<h4>
-		  <fmt:message key="label.username" />
+		  <fmt:message key="label.login" />
 		</h4>
 		<input type="text" name="login" />
 	  </div>
@@ -49,6 +45,7 @@
 	  <div>
 		<h2></h2>
 		<input type="submit" value=<fmt:message key="authorization.submit" /> />
+		<b style="color:#ff0000">&nbsp;${auth_error}</b>
 	  </div>
 	</form>
 	

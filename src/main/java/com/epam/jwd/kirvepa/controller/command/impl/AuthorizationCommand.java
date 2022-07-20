@@ -9,7 +9,8 @@ import org.apache.logging.log4j.Logger;
 
 import com.epam.jwd.kirvepa.bean.AuthorizedUser;
 import com.epam.jwd.kirvepa.controller.JSPPageName;
-import com.epam.jwd.kirvepa.controller.PageAttributeMessage;
+import com.epam.jwd.kirvepa.controller.ResourceManager;
+import com.epam.jwd.kirvepa.controller.RequestAttributeName;
 import com.epam.jwd.kirvepa.controller.RequestParameterName;
 import com.epam.jwd.kirvepa.controller.command.Command;
 import com.epam.jwd.kirvepa.service.UserService;
@@ -19,13 +20,15 @@ import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
 public class AuthorizationCommand implements Command {
 	private static final Logger logger = LogManager.getLogger(AuthorizationCommand.class);
+	private static final ResourceManager manager = ResourceManager.getInstance();
 	private static final UserService userService = ServiceFactory.getInstance().getUserService();
 	
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
-
-		String login = request.getParameter(RequestParameterName.REQ_PARAM_NAME_USR_LOGIN);
-		int passwordHash = request.getParameter(RequestParameterName.REQ_PARAM_NAME_USR_PASS).hashCode();
+		
+		String login = request.getParameter(RequestParameterName.USR_LOGIN);
+		int passwordHash = request.getParameter(RequestParameterName.USR_PASS)
+								  .hashCode();
 
 		logger.info("User \"" + login + "\" requested to login");
 		
@@ -37,36 +40,51 @@ public class AuthorizationCommand implements Command {
 			if (authUser != null) {
 				
 				HttpSession session = request.getSession(true);
-				session.setAttribute("user_id", authUser.getUserId());
-				session.setAttribute("login", authUser.getLogin());
-				session.setAttribute("email", authUser.getEmail());
-				session.setAttribute("admin", authUser.isAdmin());
+				session.setAttribute(RequestAttributeName.USR_ID , authUser.getUserId());
+				session.setAttribute(RequestAttributeName.USR_LOGIN, authUser.getLogin());
+				session.setAttribute(RequestAttributeName.USR_EMAIL, authUser.getEmail());
+				session.setAttribute(RequestAttributeName.USR_ROLE, authUser.isAdmin());
 				
 				logger.info(authUser.toString() + " authorized.");
 				
 				if (authUser.isAdmin()) {
-					request.setAttribute(PageAttributeMessage.ADMIN_HEADER, PageAttributeMessage.ADMIN_GREETINGS);
+					request.setAttribute(RequestAttributeName.ADM_HEAD
+										 , manager.getValue("label.welcome")
+										 + authUser.getLogin());
+					
 					return JSPPageName.ADMIN_HOMEPAGE;
 				}
 				else {
-					request.setAttribute(PageAttributeMessage.USER_HEADER, PageAttributeMessage.USER_GREETINGS + authUser.getLogin());
+					request.setAttribute(RequestAttributeName.USR_HEAD
+										 , manager.getValue("label.welcome")
+										 + authUser.getLogin());
+					
 					return JSPPageName.USER_HOMEPAGE;
 				}
 
 			}
 			else {
-				logger.error("Null is returned.");
-				request.setAttribute(PageAttributeMessage.AUTH_ERROR, PageAttributeMessage.AUTH_ERROR_MSG);
+				logger.error(manager.getValue("error.unexpected")
+							+ manager.getValue("auth.error.null"));
+				
+				request.setAttribute(RequestAttributeName.AUTH_ERR
+									 , manager.getValue("auth.error"));
+				
 				return JSPPageName.AUTHORIZATION;
 			}
 			
 		} catch (ServiceException e) {
 			logger.error(e);
-			request.setAttribute(PageAttributeMessage.AUTH_ERROR, PageAttributeMessage.AUTH_ERROR_MSG);
+			request.setAttribute(RequestAttributeName.AUTH_ERR
+								 , manager.getValue("auth.error"));
+			
 			return JSPPageName.AUTHORIZATION;
+			
 		} catch (ServiceUserException e) {
 			logger.error(e);
-			request.setAttribute(PageAttributeMessage.AUTH_ERROR, PageAttributeMessage.AUTH_ERROR_MSG + e.getMessage());
+			request.setAttribute(RequestAttributeName.AUTH_ERR
+								 , manager.getValue("auth.error") + e.getMessage());
+			
 			return JSPPageName.AUTHORIZATION;
 		}
 

@@ -22,6 +22,8 @@ import com.epam.jwd.kirvepa.controller.command.impl.PasswordChangingCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.OrderPaymentCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.OrderRegistrationCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.RegistrationCommand;
+import com.epam.jwd.kirvepa.controller.command.impl.SignOutCommand;
+import com.epam.jwd.kirvepa.controller.command.impl.UnknownCommand;
 
 public class CommandProvider {
 	private static final CommandProvider instance = new CommandProvider();
@@ -43,6 +45,8 @@ public class CommandProvider {
 		repository.put(CommandName.CHNGE_PASSWORD, new PasswordChangingCommand());
 		repository.put(CommandName.CHANGE_EMAIL, new EmailChangingCommand());
 		repository.put(CommandName.GET_ORDERS, new GetOrdersCommand());
+		repository.put(CommandName.SIGN_OUT, new SignOutCommand());
+		repository.put(CommandName.UNKNOWN_COMMAND, new UnknownCommand());
 	}
 	
 	public static CommandProvider getInstance() {
@@ -58,7 +62,7 @@ public class CommandProvider {
 			command = repository.get(commandName);
 		} catch(IllegalArgumentException | NullPointerException e){
 			logger.error(e);
-		command = repository.get(CommandName.UNKNOWN_COMMAND);
+			command = repository.get(CommandName.UNKNOWN_COMMAND);
 		}
 		
 		return command;

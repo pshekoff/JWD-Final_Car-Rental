@@ -1,9 +1,10 @@
 package com.epam.jwd.kirvepa.service.impl;
 
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.epam.jwd.kirvepa.bean.AuthorizedUser;
 import com.epam.jwd.kirvepa.bean.Employee;
 import com.epam.jwd.kirvepa.bean.User;
 import com.epam.jwd.kirvepa.dao.UserDAO;
@@ -22,7 +23,7 @@ public class UserServiceImpl implements UserService {
 	private static final UserDAO userDAO = DAOFactory.getInstance().getUserDAO();
 
 	@Override
-	public AuthorizedUser singIn(String login, int passwordHash) throws ServiceException, ServiceUserException {
+	public User singIn(String login, int passwordHash) throws ServiceException, ServiceUserException {
 
 		if(!validator.loginValidation(login)){
 			logger.error(ServiceUserException.MSG_USR_LOGIN_VAL_FAIL);
@@ -39,14 +40,6 @@ public class UserServiceImpl implements UserService {
 			logger.error(e);
 			throw new ServiceUserException(e.getMessage());
 		}
-		
-	}
-
-	@Override
-	public User singOut(String login) throws ServiceException {
-		// TODO Auto-generated method stub
-		User user = new User("login", "email", false); //stub
-		return user;
 		
 	}
 
@@ -146,6 +139,26 @@ public class UserServiceImpl implements UserService {
 		} catch (DAOUserException e) {
 			logger.error(e);
 			throw new ServiceUserException(e.getMessage());
+		}
+	}
+
+	@Override
+	public List<User> getUsers() throws ServiceException {
+		try {
+			return userDAO.getUsers();
+		} catch (DAOException e) {
+			logger.error(e);
+			throw new ServiceException(e);
+		}
+	}
+
+	@Override
+	public void changeUserAccess(int userId) throws ServiceException {
+		try {
+			userDAO.changeUserAccess(userId);
+		} catch (DAOException e) {
+			logger.error(e);
+			throw new ServiceException(e);
 		}
 	}
 

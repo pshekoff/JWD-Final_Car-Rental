@@ -10,21 +10,43 @@
   <head>
 	<meta charset="UTF-8">
 	<title>
-	  <fmt:message key="user_orders.title" />
+	  <fmt:message key="car_handover_return.title" />
 	</title>
+	
+	<style>
+   	  .user_login {
+    	display: inline-block;
+    	position: relative;
+     }
+   	  .user_login:hover::after {
+    	content: attr(data-title);
+    	position: absolute;
+    	left: 20%; top: 30%;
+    	z-index: 1;
+    	background: rgba(255,255,230,0.9);
+    	font-family: Arial, sans-serif;
+    	font-size: 11px;
+    	padding: 5px 10px;
+    	border: 1px solid #333;
+     }
+	</style>
   </head>
   
   <body>
   	<h2>
-	  <fmt:message key="user_orders.header" />
+	  <fmt:message key="car_handover_return.header" />
 	</h2>
-	
-  	<p>
-  	  ${orders_message}
-  	</p>
   	
+  	<form action="controller" method="post">
+  	  <label>
+  	  	<fmt:message key="car_handover_return.label.search" />
+  	  </label>
+  	  <input type="hidden" name="command" value="find_order" />
+  	  <input type="text" name="order_id" placeholder=<fmt:message key="car_handover_return.placeholder.search" /> required />
+  	  <input type="submit" value=<fmt:message key="car_handover_return.submit.order.search" /> />
+  	</form>
 	<p style="color:#ff0000">
-  	  ${user_orders_error}
+  	  ${car_handover_error}
   	</p>
 
 	<form class="orders" action="controller" method="post">
@@ -60,7 +82,12 @@
 		  	  <label>
 		  	  	<fmt:message key="label.status" />
 		  	  </label>
-		  	</th>		  		  	
+		  	</th>
+			<th>
+		  	  <label>
+		  	  	<fmt:message key="label.user_login" />
+		  	  </label>
+		  	</th>	  		  	
 	  	  </tr>
 	  		  	
 		<c:forEach var="order" items="${orders}">
@@ -89,7 +116,7 @@
 		  	
 		  	<td width="600" height="8">
 		  	  <label for="${order}">
-		  	  	${order.getCar().toShortString()}
+		  	  	${order.getCar().toString()}
 		  	  </label>
 		  	</td>
 
@@ -103,27 +130,27 @@
 			  <label for="${order}">
 		  	  	${order.getStatus()}
 			  </label>
-		  	</td>		 
-		  	
-		  	<td>
-		  	  <button type="submit" name="command" value="cancel_order">
-		  	  	<fmt:message key="user_orders.button.cancel" />
-			  </button>
 		  	</td>
-		  	
-		  	<td>
-		  	  <button type="submit" name="command" value="pay_order">
-		  	  	<fmt:message key="user_orders.button.pay" />
-			  </button>
+
+		  	<td width="100" height="8">
+			  <label class="user_login" data-title="${order.getUser().toString()}" for="${order}">
+		  	  	${order.getUser().getLogin()}
+			  </label>
 		  	</td>
 		  </tr>
 		</c:forEach>
 	  </table> 
-	  <p></p>
+	  <p>
+	  	<input type="hidden" name="command" value="car_handover_return" />
+	  	<input type="submit" value=<fmt:message key="car_handover_return.button.handover_return" /> />
+	  </p>
+	  
+	  <b style="color:red;">&nbsp;${handover_return_error}</b>
+	  <p style="color:green;">${handover_return_message}</p>
 	</form>
 	
 	<p>  
-	  <a href="user_home.jsp">
+	  <a href="admin_home.jsp">
 	  	<fmt:message key="href.back" />
 	  </a>	
 	</p>

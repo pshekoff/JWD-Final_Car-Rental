@@ -1,58 +1,47 @@
 package com.epam.jwd.kirvepa.controller.command.impl;
 
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.epam.jwd.kirvepa.bean.Order;
+import com.epam.jwd.kirvepa.controller.CommandProvider;
 import com.epam.jwd.kirvepa.controller.JSPPageName;
 import com.epam.jwd.kirvepa.controller.RequestAttributeName;
 import com.epam.jwd.kirvepa.controller.RequestParameterName;
 import com.epam.jwd.kirvepa.controller.ResourceManager;
 import com.epam.jwd.kirvepa.controller.command.Command;
-import com.epam.jwd.kirvepa.service.OrderService;
+import com.epam.jwd.kirvepa.service.UserService;
 import com.epam.jwd.kirvepa.service.exception.ServiceException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
-public class GetOrdersCommand implements Command{
+public class UserAccessChangingCommand implements Command {
 	private static final Logger logger = LogManager.getLogger(AuthorizationCommand.class);
 	private static final ResourceManager manager = ResourceManager.getInstance();
-	private static final OrderService orderService = ServiceFactory.getInstance().getOrderService();
-	
+	private static final UserService userService = ServiceFactory.getInstance().getUserService();
+
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
 		
-		String filter = request.getParameter(RequestParameterName.ORDER_FILTER);
+		int userId = Integer.parseInt(request.getParameter(RequestParameterName.USR_ID));
 		
 		try {
-			List<Order> orders = orderService.getOrders(filter);
-			request.setAttribute(RequestAttributeName.ORDER_LIST, orders);
+			userService.changeUserAccess(userId);
 			
-			if (filter.equals("all")) {
-				return JSPPageName.ALL_ORDERS;
-			}
-			else if (filter.equals("new")) {
-				return JSPPageName.NEW_ORDERS;
-			}
-			else if (filter.equals("handover_return")) {
-				return JSPPageName.CAR_HANDOVER_RETURN;
-			}
-			else {
-				logger.error(RequestAttributeName.ERR, manager.getValue("new_orders.error"));
-				request.setAttribute(RequestAttributeName.ERR, manager.getValue("new_orders.error"));
-				return JSPPageName.ERROR_PAGE;
-			}
+			String page = CommandProvider.getInstance()
+						   				 .getCommand(CommandName.GET_USERS.name())
+						   				 .execute(request, response);
+			
+			return page;
 
-			
 		} catch (ServiceException e) {
 			logger.error(e);
-			request.setAttribute(RequestAttributeName.ERR, manager.getValue("get_orders.error"));
+			request.setAttribute(RequestAttributeName.ERR
+								, manager.getValue("user_list.access_change.error"));
 			return JSPPageName.ERROR_PAGE;
-		}
+		} 
+
 	}
 
 }

@@ -18,39 +18,31 @@ import com.epam.jwd.kirvepa.service.OrderService;
 import com.epam.jwd.kirvepa.service.exception.ServiceException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
-public class GetOrdersCommand implements Command{
-	private static final Logger logger = LogManager.getLogger(AuthorizationCommand.class);
+public class OrderRejectionCommand implements Command {
+	private static final Logger logger = LogManager.getLogger(OrderCreationCommand.class);
 	private static final ResourceManager manager = ResourceManager.getInstance();
 	private static final OrderService orderService = ServiceFactory.getInstance().getOrderService();
 	
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
 		
-		String filter = request.getParameter(RequestParameterName.ORDER_FILTER);
+		int orderId = Integer.parseInt(request.getParameter(RequestParameterName.ORDER_ID));
 		
 		try {
-			List<Order> orders = orderService.getOrders(filter);
-			request.setAttribute(RequestAttributeName.ORDER_LIST, orders);
+			orderService.rejectOrder(orderId);
+			List<Order> orders = orderService.getOrders("new");
 			
-			if (filter.equals("all")) {
-				return JSPPageName.ALL_ORDERS;
-			}
-			else if (filter.equals("new")) {
-				return JSPPageName.NEW_ORDERS;
-			}
-			else if (filter.equals("handover_return")) {
-				return JSPPageName.CAR_HANDOVER_RETURN;
-			}
-			else {
-				logger.error(RequestAttributeName.ERR, manager.getValue("new_orders.error"));
-				request.setAttribute(RequestAttributeName.ERR, manager.getValue("new_orders.error"));
-				return JSPPageName.ERROR_PAGE;
-			}
+			request.setAttribute(RequestAttributeName.ORDER_LIST, orders);
+			request.setAttribute(RequestAttributeName.NEW_ORDERS
+		 			 , orderId + manager.getValue("new_orders.order.rejected"));
 
+			return JSPPageName.NEW_ORDERS;
 			
 		} catch (ServiceException e) {
 			logger.error(e);
-			request.setAttribute(RequestAttributeName.ERR, manager.getValue("get_orders.error"));
+			request.setAttribute(RequestAttributeName.ERR
+								 , manager.getValue("error.order.rejection"));
+			
 			return JSPPageName.ERROR_PAGE;
 		}
 	}

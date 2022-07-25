@@ -20,9 +20,9 @@ import com.epam.jwd.kirvepa.service.exception.ServiceException;
 import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
-public class AddEmployeeCommand implements Command {
+public class EmployeeAddingCommand implements Command {
 	private static final boolean admin = true;
-	private static final Logger logger = LogManager.getLogger(AddEmployeeCommand.class);
+	private static final Logger logger = LogManager.getLogger(EmployeeAddingCommand.class);
 	private static final ResourceManager manager = ResourceManager.getInstance();
 	private static final UserService userService = ServiceFactory.getInstance().getUserService();
 	
@@ -95,10 +95,10 @@ public class AddEmployeeCommand implements Command {
 			
 		} catch (ServiceException e) {
 			logger.error(e);
-			request.setAttribute(RequestAttributeName.ADD_EMP_ERR
+			request.setAttribute(RequestAttributeName.ERR
 								 , manager.getValue("add_employee.error"));
 			
-			return JSPPageName.ADMIN_HOMEPAGE;
+			return JSPPageName.ERROR_PAGE;
 
 		} catch (ServiceUserException e) {
 			logger.error(e);
@@ -106,7 +106,7 @@ public class AddEmployeeCommand implements Command {
 								 , manager.getValue("add_employee.error")
 								 + e.getMessage());
 			
-			return JSPPageName.ADMIN_HOMEPAGE;
+			return JSPPageName.ADD_EMPLOYEE;
 		}
 
 	}

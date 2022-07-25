@@ -15,4 +15,7 @@ public interface OrderService {
 	boolean cancelOrder(int orderId) throws ServiceException, ServiceUserException;
 	boolean payOrder(int orderId) throws ServiceException, ServiceUserException;
 	List<Order> getUserOrders(int UserId) throws ServiceException;
+	List<Order> getOrders(String filter) throws ServiceException;
+	void approveOrder(int orderId) throws ServiceException, ServiceUserException;
+	void rejectOrder(int orderId) throws ServiceException;
 }

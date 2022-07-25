@@ -2,8 +2,11 @@ package com.epam.jwd.kirvepa.bean;
 
 import java.io.Serializable;
 
+import com.epam.jwd.kirvepa.controller.ResourceManager;
+
 public class Car implements Serializable {
 	private static final long serialVersionUID = 1L;
+	private static final ResourceManager manager = ResourceManager.getInstance();
 	
 	private int id;
 	private String manufacturer;
@@ -17,6 +20,7 @@ public class Car implements Serializable {
 	private String driveType;
 	private String color;
 	private int weight;
+	private boolean available;
 	
 	public Car() {}
 	
@@ -31,7 +35,8 @@ public class Car implements Serializable {
 			, String transmission
 			, String driveType
 			, String color
-			, int weight) {
+			, int weight
+			, boolean available) {
 		setId(id);
 		setManufacturer(manufacturer);
 		setModel(model);
@@ -44,6 +49,33 @@ public class Car implements Serializable {
 		setDriveType(driveType);
 		setColor(color);
 		setWeight(weight);
+		setAvailable(available);
+	}
+	
+	public Car(String manufacturer
+			, String model
+			, String licensePlate
+			, String vin
+			, String bodyType
+			, int issueYear
+			, String engine
+			, String transmission
+			, String driveType
+			, String color
+			, int weight
+			, boolean available) {
+		setManufacturer(manufacturer);
+		setModel(model);
+		setLicensePlate(licensePlate);
+		setVin(vin);
+		setBodyType(bodyType);
+		setIssueYear(issueYear);
+		setEngine(engine);
+		setTransmission(transmission);
+		setDriveType(driveType);
+		setColor(color);
+		setWeight(weight);
+		setAvailable(available);
 	}
 	
 	public Car(String manufacturer
@@ -143,6 +175,13 @@ public class Car implements Serializable {
 	public void setWeight(int weight) {
 		this.weight = weight;
 	}
+	
+	public boolean getAvailable() {
+		return available;
+	}
+	public void setAvailable(boolean available) {
+		this.available = available;
+	}
 
 	@Override
 	public int hashCode() {
@@ -160,6 +199,7 @@ public class Car implements Serializable {
 		result = prime * result + ((transmission == null) ? 0 : transmission.hashCode());
 		result = prime * result + ((vin == null) ? 0 : vin.hashCode());
 		result = prime * result + weight;
+		result = prime * result + (available ? 1231 : 1237);
 		return result;
 	}
 
@@ -186,13 +226,27 @@ public class Car implements Serializable {
 				&& this.model.equals(other.model)
 				&& this.transmission.equals(other.transmission)
 				&& this.vin.equals(other.vin)
-				&& weight == other.weight;
+				&& this.weight == other.weight
+				&& this.available == other.available;
 	}
 
-	@Override
-	public String toString() {
-		return String.format("%s %s %s, двигатель %s, %s, %s",
+	public String toShortString() {
+		return String.format("%s %s %s, " + manager.getValue("string.format.engine") + " %s, %s, %s",
 				manufacturer, model, bodyType, engine, transmission, driveType);
+	}
+	
+	public String toLongString() {
+		return String.format("%s %s %d, %s, %s, " + manager.getValue("string.format.engine")
+							+ " %s, %s, %s, " + manager.getValue("string.format.weight") + " %s",
+				manufacturer, model, issueYear, color, bodyType, engine, transmission, driveType, weight);
+	}
+	
+	public String getStatus() {
+		if (available) {
+			return "Available";
+		} else {
+			return "Not available";
+		}
 	}
 	
 }

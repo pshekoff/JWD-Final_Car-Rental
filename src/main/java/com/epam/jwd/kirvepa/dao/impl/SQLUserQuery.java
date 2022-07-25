@@ -12,7 +12,7 @@ public final class SQLUserQuery {
 	
 	protected static final String FIND_EMAIL = "SELECT email FROM users WHERE email = ?";
 	
-	protected static final String CHECK_PERSONAL_DATA = "SELECT 1"
+	protected static final String CHECK_PERSONAL_DATA = "SELECT user_id"
 			+ " FROM personal_data"
 			+ " WHERE user_id = ?"
 			+ " AND valid = TRUE;";
@@ -44,6 +44,16 @@ public final class SQLUserQuery {
 			+ " (user_id, first_name, last_name, day_of_birth, passport_number, passport_issue_date,"
 			+ " passport_expire_date, identification_number, home_address, phone, datetime_created, valid)"
 			+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, SYSDATE(), TRUE);";
+	
+	protected static final String GET_USER_LIST = "SELECT"
+			+ " id, login, email, admin, active"
+			+ " FROM users"
+			+ " WHERE login != 'root'"
+			+ " ORDER BY admin, id";
+	
+	protected static final String CHANGE_USER_ACCESS = "UPDATE users"
+			+ " SET active = NOT active"
+			+ " WHERE id = ?;";
 
 	private SQLUserQuery() {}
 

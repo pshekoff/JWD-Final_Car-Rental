@@ -7,7 +7,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.epam.jwd.kirvepa.bean.AuthorizedUser;
+import com.epam.jwd.kirvepa.bean.User;
 import com.epam.jwd.kirvepa.controller.JSPPageName;
 import com.epam.jwd.kirvepa.controller.ResourceManager;
 import com.epam.jwd.kirvepa.controller.RequestAttributeName;
@@ -32,32 +32,32 @@ public class AuthorizationCommand implements Command {
 
 		logger.info("User \"" + login + "\" requested to login");
 		
-		AuthorizedUser authUser;
+		User user;
 		
 		try {
-			authUser = userService.singIn(login, passwordHash);
+			user = userService.singIn(login, passwordHash);
 			
-			if (authUser != null) {
+			if (user != null) {
 				
 				HttpSession session = request.getSession(true);
-				session.setAttribute(RequestAttributeName.USR_ID , authUser.getUserId());
-				session.setAttribute(RequestAttributeName.USR_LOGIN, authUser.getLogin());
-				session.setAttribute(RequestAttributeName.USR_EMAIL, authUser.getEmail());
-				session.setAttribute(RequestAttributeName.USR_ROLE, authUser.isAdmin());
+				session.setAttribute(RequestAttributeName.USR_ID , user.getUserId());
+				session.setAttribute(RequestAttributeName.USR_LOGIN, user.getLogin());
+				session.setAttribute(RequestAttributeName.USR_EMAIL, user.getEmail());
+				session.setAttribute(RequestAttributeName.USR_ROLE, user.isAdmin());
 				
-				logger.info(authUser.toString() + " authorized.");
+				logger.info(user.toString() + " authorized.");
 				
-				if (authUser.isAdmin()) {
+				if (user.isAdmin()) {
 					request.setAttribute(RequestAttributeName.ADM_HEAD
 										 , manager.getValue("label.welcome")
-										 + authUser.getLogin());
+										 + user.getLogin());
 					
 					return JSPPageName.ADMIN_HOMEPAGE;
 				}
 				else {
 					request.setAttribute(RequestAttributeName.USR_HEAD
 										 , manager.getValue("label.welcome")
-										 + authUser.getLogin());
+										 + user.getLogin());
 					
 					return JSPPageName.USER_HOMEPAGE;
 				}

@@ -1,6 +1,6 @@
 package com.epam.jwd.kirvepa.controller.command.impl;
 
-import java.sql.Date;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -9,7 +9,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.epam.jwd.kirvepa.bean.Order;
-import com.epam.jwd.kirvepa.bean.PersonalData;
 import com.epam.jwd.kirvepa.controller.JSPPageName;
 import com.epam.jwd.kirvepa.controller.RequestAttributeName;
 import com.epam.jwd.kirvepa.controller.RequestParameterName;
@@ -20,7 +19,7 @@ import com.epam.jwd.kirvepa.service.exception.ServiceException;
 import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
-public class OrderCreationCommand implements Command{
+public class OrderApprovingCommand implements Command {
 	private static final Logger logger = LogManager.getLogger(OrderCreationCommand.class);
 	private static final ResourceManager manager = ResourceManager.getInstance();
 	private static final OrderService orderService = ServiceFactory.getInstance().getOrderService();
@@ -28,49 +27,33 @@ public class OrderCreationCommand implements Command{
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
 		
-		//user personal data
-		String firstName = request.getParameter(RequestParameterName.USR_F_NAME);
-		String lastName = request.getParameter(RequestParameterName.USR_L_NAME);
-		Date dayOfBirth = Date.valueOf(request.getParameter(RequestParameterName.USR_BIRTHDAY));
-		String docNum = request.getParameter(RequestParameterName.USR_DOC_NUM);
-		Date docIssueDate = Date.valueOf(request.getParameter(RequestParameterName.USR_DOC_ISSUE_DATE));
-		Date docExpDate = Date.valueOf(request.getParameter(RequestParameterName.USR_DOC_EXP_DATE));
-		String IdNum = request.getParameter(RequestParameterName.USR_ID_NUM);
-		String address = request.getParameter(RequestParameterName.USR_ADDRESS);
-		String phone = request.getParameter(RequestParameterName.USR_PHONE);
-
-		int userId = (int) request.getSession().getAttribute(RequestAttributeName.USR_ID);
 		int orderId = Integer.parseInt(request.getParameter(RequestParameterName.ORDER_ID));
 		
-		PersonalData personalData = new PersonalData(firstName, lastName, dayOfBirth, docNum
-													, docIssueDate, docExpDate, IdNum, address, phone);
-		
 		try {
-			Order order = orderService.createOrder(userId, orderId, personalData);
+			orderService.approveOrder(orderId);
+			List<Order> orders = orderService.getOrders("new");
 			
-			request.setAttribute(RequestAttributeName.ORDER_ID, order.getId());
-			request.setAttribute(RequestAttributeName.ORDER_AMOUNT, order.getAmount());
-			request.setAttribute(RequestAttributeName.ORDER_HEAD
-								, manager.getValue("user_home.order.created") );
-			
-			return JSPPageName.ORDER_CREATED;
+			request.setAttribute(RequestAttributeName.ORDER_LIST, orders);
+			request.setAttribute(RequestAttributeName.NEW_ORDERS
+		 			 , orderId + manager.getValue("new_orders.order.approved"));
+
+			return JSPPageName.NEW_ORDERS;
 			
 		} catch (ServiceException e) {
 			logger.error(e);
 			request.setAttribute(RequestAttributeName.ERR
-								 , manager.getValue("error.order.creation"));
+								 , manager.getValue("error.order.approving"));
 			
 			return JSPPageName.ERROR_PAGE;
 			
 		} catch (ServiceUserException e) {
 			logger.error(e);
 			request.setAttribute(RequestAttributeName.ERR
-								 , manager.getValue("error.car.booking")
+								 , manager.getValue("error.order.approving")
 								 + e.getMessage());
 			
 			return JSPPageName.ERROR_PAGE;
 		}
-
 	}
 
 }

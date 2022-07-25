@@ -5,11 +5,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.epam.jwd.kirvepa.bean.AuthorizedUser;
 import com.epam.jwd.kirvepa.bean.Employee;
 import com.epam.jwd.kirvepa.bean.PersonalData;
 import com.epam.jwd.kirvepa.bean.User;
@@ -23,7 +24,7 @@ public class SQLUserDAO implements UserDAO {
 	private static final Logger logger = LogManager.getLogger(SQLUserDAO.class);
 			
 	@Override
-	public AuthorizedUser authorization(String login, int passwordHash) throws DAOException, DAOUserException {
+	public User authorization(String login, int passwordHash) throws DAOException, DAOUserException {
 		
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -54,10 +55,11 @@ public class SQLUserDAO implements UserDAO {
             }
             else {
             	int userId = resultSet.getInt(1);
+            	boolean active = resultSet.getBoolean(2);
             	boolean admin = resultSet.getBoolean(3);
             	String email = resultSet.getString(4);
             	
-                return new AuthorizedUser(userId, login, email, admin);
+                return new User(userId, login, email, admin, active);
             }
 
 		} catch (ConnectionPoolException e) {
@@ -390,7 +392,73 @@ public class SQLUserDAO implements UserDAO {
 		} 
 	}
 	
-	public int findUser(String login, Connection connection) throws SQLException {
+	@Override
+	public List<User> getUsers() throws DAOException {
+        
+		Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        
+        try {
+			connection = ConnectionPool.getInstance().takeConnection();
+			
+			preparedStatement = connection.prepareStatement(SQLUserQuery.GET_USER_LIST);
+			
+			logger.debug("SQL query to execute: " + preparedStatement.toString());
+			
+			resultSet = preparedStatement.executeQuery();
+			
+			List<User> users = new ArrayList<>();
+			while (resultSet.next()) {
+				int userId = resultSet.getInt(1);
+				String login = resultSet.getString(2);
+				String email = resultSet.getString(3);
+				boolean admin = resultSet.getBoolean(4);
+				boolean active = resultSet.getBoolean(5);
+				
+				users.add(new User(userId, login, email, admin, active));
+			}
+			
+			return users;
+			
+		} catch (ConnectionPoolException e) {
+			logger.error(e);
+			throw new DAOException(e);
+		} catch (SQLException e) {
+			logger.error(e);
+			throw new DAOException(e);
+		} finally {
+			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement);
+		} 
+
+	}
+	
+	@Override
+	public void changeUserAccess(int userId) throws DAOException {
+		
+		Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        
+        try {
+			connection = ConnectionPool.getInstance().takeConnection();
+			
+			preparedStatement = connection.prepareStatement(SQLUserQuery.CHANGE_USER_ACCESS);
+			preparedStatement.setInt(1, userId);
+			
+			preparedStatement.executeUpdate();
+			
+		} catch (ConnectionPoolException e) {
+			logger.error(e);
+			throw new DAOException(e);
+		} catch (SQLException e) {
+			logger.error(e);
+			throw new DAOException(e);
+		} finally {
+			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement);
+		} 
+	}
+	
+	public static int findUser(String login, Connection connection) throws SQLException {
 		
 		PreparedStatement preparedStatement = connection.prepareStatement(SQLUserQuery.FIND_USER);
 		preparedStatement.setString(1, login);
@@ -412,7 +480,7 @@ public class SQLUserDAO implements UserDAO {
         return result;
 	}
 	
-	public boolean checkEmailExist(String email, Connection connection) throws SQLException {
+	public static boolean checkEmailExist(String email, Connection connection) throws SQLException {
         
 		PreparedStatement preparedStatement = connection.prepareStatement(SQLUserQuery.FIND_EMAIL);
 		preparedStatement.setString(1, email);
@@ -433,7 +501,5 @@ public class SQLUserDAO implements UserDAO {
         
         return result;
 	}
-
-
 
 }

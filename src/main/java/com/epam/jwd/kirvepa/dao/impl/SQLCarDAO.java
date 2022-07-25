@@ -5,6 +5,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,16 +15,18 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.epam.jwd.kirvepa.bean.Car;
+import com.epam.jwd.kirvepa.bean.Order.OrderStatus;
 import com.epam.jwd.kirvepa.dao.CarDAO;
 import com.epam.jwd.kirvepa.dao.connection.ConnectionPool;
 import com.epam.jwd.kirvepa.dao.connection.ConnectionPoolException;
 import com.epam.jwd.kirvepa.dao.exception.DAOException;
+import com.epam.jwd.kirvepa.dao.exception.DAOUserException;
 
 public class SQLCarDAO implements CarDAO {
 	private static final Logger logger = LogManager.getLogger(SQLCarDAO.class);
 	
 	@Override
-	public List<String> getCarBodyList() throws DAOException {
+	public List<String> getCarBodyList(String filter) throws DAOException {
 		
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -32,7 +35,13 @@ public class SQLCarDAO implements CarDAO {
         try {
 			connection = ConnectionPool.getInstance().takeConnection();
 			
-			preparedStatement = connection.prepareStatement(SQLCarQuery.GET_BODY_TYPE_LIST_RU);
+			if (filter.equals("all")) {
+				preparedStatement = connection.prepareStatement(SQLCarQuery.GET_BODYTYPES_ALL);
+			}
+			else if (filter.equals("exist")) {
+				preparedStatement = connection.prepareStatement(SQLCarQuery.GET_BODYTYPES_EXIST);
+			}
+			
 	        
 			logger.debug("SQL query to execute: " + preparedStatement.toString());
 			
@@ -47,9 +56,11 @@ public class SQLCarDAO implements CarDAO {
 	        return bodyTypes;
 	        
 		} catch (ConnectionPoolException e) {
+			logger.error(e);
 			throw new DAOException(e);
 			
 		} catch (SQLException e) {
+			logger.error(e);
 			throw new DAOException(e);
 			
 		} finally {
@@ -104,15 +115,209 @@ public class SQLCarDAO implements CarDAO {
 	        return carsPrice;
 			
 		} catch (ConnectionPoolException e) {
+			logger.error(e);
 			throw new DAOException(e);
 			
 		} catch (SQLException e) {
+			logger.error(e);
 			throw new DAOException(e);
 			
 		} finally {
 			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement, resultSet);
 		}
         
+	}
+	
+	@Override
+	public void handoverReturnCar(int orderId) throws DAOException, DAOUserException {
+		
+		Connection connection = null;
+        PreparedStatement preparedStatement = null;
+		
+        try {
+			connection = ConnectionPool.getInstance().takeConnection();
+			connection.setAutoCommit(false);
+			
+			preparedStatement = connection.prepareStatement(SQLOrderQuery.UPDATE_ORDER_STATUS);
+			
+			String orderStatus = SQLOrderDAO.checkStatus(orderId, connection);
+			
+			if (orderStatus.equals(OrderStatus.APPROVED.name())) {
+				preparedStatement.setString(1, OrderStatus.IN_PROGRESS.name());
+			}
+			else if (orderStatus.equals(OrderStatus.IN_PROGRESS.name())) {
+				preparedStatement.setString(1, OrderStatus.COMPLETED.name());
+			}
+			else {
+           		logger.error(DAOUserException.MSG_ORDER_HANDOVER_RETURN_FAIL + orderStatus);
+        		throw new DAOUserException(DAOUserException.MSG_ORDER_HANDOVER_RETURN_FAIL + orderStatus);
+			}
+			preparedStatement.setInt(2, orderId);
+			
+			SQLOrderDAO.autoUpdateOrderHistory(orderId, connection);
+
+			logger.debug("SQL query to execute: " + preparedStatement.toString());
+			
+			preparedStatement.executeUpdate();
+
+			connection.commit();
+			
+		} catch (ConnectionPoolException e) {
+			logger.error(e);
+			throw new DAOException(e);
+			
+		} catch (SQLException e) {
+
+			if (connection != null) {
+				try {
+					connection.rollback();
+				} catch (SQLException e1) {
+					logger.error(e1);
+					throw new DAOException(e1);
+				}
+			}
+			
+			logger.error(e);
+			throw new DAOException(e);
+			
+		} finally {
+			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement);
+		}
+	}
+	
+
+	@Override
+	public boolean insertCar(Car car) throws DAOException {
+
+		Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        		
+        try {
+			connection = ConnectionPool.getInstance().takeConnection();
+			
+			preparedStatement = connection.prepareStatement(SQLCarQuery.INSERT_CAR
+															, Statement.RETURN_GENERATED_KEYS);
+			preparedStatement.setString(1, car.getManufacturer());
+			preparedStatement.setString(2, car.getModel());
+			preparedStatement.setString(3, car.getLicensePlate());
+			preparedStatement.setString(4, car.getBodyType());
+			preparedStatement.setInt(5, car.getIssueYear());
+			preparedStatement.setString(6, car.getEngine());
+			preparedStatement.setString(7, car.getTransmission());
+			preparedStatement.setString(8, car.getDriveType());
+			preparedStatement.setString(9, car.getColor());
+			preparedStatement.setInt(10, car.getWeight());
+			preparedStatement.setString(11, car.getVin());
+			
+			logger.debug("SQL query to execute: " + preparedStatement.toString());
+            
+			preparedStatement.executeUpdate();
+            
+            ResultSet resultSet = preparedStatement.getGeneratedKeys();
+            
+            if (resultSet.next()) {
+            	resultSet.close();
+            	return true;
+            } else {
+            	resultSet.close();
+                return false;
+            }
+			
+		} catch (ConnectionPoolException e) {
+			logger.error(e);
+			throw new DAOException(e);
+		} catch (SQLException e) {
+			logger.error(e);
+			throw new DAOException(e);
+		} finally {
+			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement);
+		}
+        
+	}
+	
+
+	@Override
+	public List<Car> getCars() throws DAOException {
+
+		Connection connection = null;
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
+		
+		try {
+			connection = ConnectionPool.getInstance().takeConnection();
+			
+			preparedStatement = connection.prepareStatement(SQLCarQuery.GET_ALL_CARS);
+			
+			logger.debug("SQL query to execute: " + preparedStatement.toString());
+			
+			resultSet = preparedStatement.executeQuery();
+			
+			List<Car> cars = new ArrayList<>();
+			
+			while (resultSet.next()) {
+				int carId = resultSet.getInt(1);
+				String manufacturer = resultSet.getString(2);
+				String model = resultSet.getString(3);
+				String licensePlate = resultSet.getString(4);
+				String bodyType = resultSet.getString(5);
+				int issueYear = resultSet.getInt(6);
+				String engine = resultSet.getString(7);
+				String transmission = resultSet.getString(8);
+				String driveType = resultSet.getString(9);
+				String color = resultSet.getString(10);
+				int weight = resultSet.getInt(11);
+				String vin = resultSet.getString(12);
+				boolean available = resultSet.getBoolean(13);
+				
+				cars.add(new Car(carId
+								, manufacturer
+								, model
+								, licensePlate
+								, vin
+								, bodyType
+								, issueYear
+								, engine
+								, transmission
+								, driveType
+								, color
+								, weight
+								, available) );
+			}
+			
+			return cars;
+			
+		} catch (ConnectionPoolException e) {
+			logger.error(e);
+			throw new DAOException(e);
+		} catch (SQLException e) {
+			logger.error(e);
+			throw new DAOException(e);
+		} finally {
+			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement, resultSet);
+		}
+	}
+
+	@Override
+	public void blockUnblockCar(int carId) throws DAOException {
+
+		Connection connection = null;
+		PreparedStatement preparedStatement = null;
+		
+		try {
+			connection = ConnectionPool.getInstance().takeConnection();
+			
+			preparedStatement = connection.prepareStatement(SQLCarQuery.BLOCK_UNBLOCK_CAR);
+			preparedStatement.setInt(1, carId);
+			
+			preparedStatement.executeUpdate();
+			
+		} catch (ConnectionPoolException e) {
+			logger.error(e);
+			throw new DAOException(e);
+		} catch (SQLException e) {
+			logger.error(e);
+			throw new DAOException(e);
+		}
 	}
 	
 	public static int getCarId(Car car, Date from, Date to, Connection connection) throws SQLException {

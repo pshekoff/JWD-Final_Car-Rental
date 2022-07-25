@@ -17,12 +17,14 @@
   
   <body>
   	<h2>
-  	  ${user_header}
+  	  <fmt:message key="label.welcome" />&nbsp;${sessionScope.login}
   	</h2>
 	
 	<div>
 	  <form action="controller" method="post">
 		<input type="hidden" name="command" value="get_car_body_list" />
+		<input type="hidden" name="filter" value="exist" />
+		<input type="hidden" name="next_page" value="/jsp/car_finder.jsp" />
 		<input type="submit" value=<fmt:message key="user_home.submit.rent_car" /> />
 	  </form>
 	</div>
@@ -31,7 +33,7 @@
 	
 	<div>
 		<form action="controller" method="post">
-			<input type="hidden" name="command" value="get_orders" />
+			<input type="hidden" name="command" value="get_user_orders" />
 			<input type="submit" value=<fmt:message key="user_home.submit.orders" /> />
 		</form>
 	</div>	

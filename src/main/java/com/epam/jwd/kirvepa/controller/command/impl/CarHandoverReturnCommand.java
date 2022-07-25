@@ -14,45 +14,48 @@ import com.epam.jwd.kirvepa.controller.RequestAttributeName;
 import com.epam.jwd.kirvepa.controller.RequestParameterName;
 import com.epam.jwd.kirvepa.controller.ResourceManager;
 import com.epam.jwd.kirvepa.controller.command.Command;
+import com.epam.jwd.kirvepa.service.CarService;
 import com.epam.jwd.kirvepa.service.OrderService;
 import com.epam.jwd.kirvepa.service.exception.ServiceException;
+import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
-public class GetOrdersCommand implements Command{
-	private static final Logger logger = LogManager.getLogger(AuthorizationCommand.class);
+public class CarHandoverReturnCommand implements Command {
+	private static final Logger logger = LogManager.getLogger(OrderCreationCommand.class);
 	private static final ResourceManager manager = ResourceManager.getInstance();
+	private static final CarService carService = ServiceFactory.getInstance().getCarService();
 	private static final OrderService orderService = ServiceFactory.getInstance().getOrderService();
 	
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
 		
-		String filter = request.getParameter(RequestParameterName.ORDER_FILTER);
+		int orderId = Integer.parseInt(request.getParameter(RequestParameterName.ORDER_ID));
 		
 		try {
-			List<Order> orders = orderService.getOrders(filter);
+			carService.handoverReturnCar(orderId);
+			List<Order> orders = orderService.getOrders("handover_return");
+			
 			request.setAttribute(RequestAttributeName.ORDER_LIST, orders);
-			
-			if (filter.equals("all")) {
-				return JSPPageName.ALL_ORDERS;
-			}
-			else if (filter.equals("new")) {
-				return JSPPageName.NEW_ORDERS;
-			}
-			else if (filter.equals("handover_return")) {
-				return JSPPageName.CAR_HANDOVER_RETURN;
-			}
-			else {
-				logger.error(RequestAttributeName.ERR, manager.getValue("new_orders.error"));
-				request.setAttribute(RequestAttributeName.ERR, manager.getValue("new_orders.error"));
-				return JSPPageName.ERROR_PAGE;
-			}
+			request.setAttribute(RequestAttributeName.CAR_HANDOVER_RETURN
+		 			 , manager.getValue("car_handover_return.complete"));
 
-			
+			return JSPPageName.CAR_HANDOVER_RETURN;
 		} catch (ServiceException e) {
 			logger.error(e);
-			request.setAttribute(RequestAttributeName.ERR, manager.getValue("get_orders.error"));
+			request.setAttribute(RequestAttributeName.ERR
+								 , manager.getValue("error.car.handover_return"));
+			
+			return JSPPageName.ERROR_PAGE;
+		} catch (ServiceUserException e) {
+			logger.error(e);
+			request.setAttribute(RequestAttributeName.ERR
+								 , manager.getValue("error.car.handover_return")
+								 + e.getMessage());
+			
 			return JSPPageName.ERROR_PAGE;
 		}
+		
+
 	}
 
 }

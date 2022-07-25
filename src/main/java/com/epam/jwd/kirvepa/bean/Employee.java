@@ -81,7 +81,7 @@ public class Employee extends User {
 	
 	@Override
 	public String toString() {
-		return this.getClass()
+		return this.getClass().getName()
 				+ "{"
 				+ "name=" + this.getPersonalData().getFirstName()
 				+ " " + this.getPersonalData().getLastName()

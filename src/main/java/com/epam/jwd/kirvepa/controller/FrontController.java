@@ -33,7 +33,15 @@ public class FrontController extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		doPost(request, response);
+		boolean isAdmin = (boolean) request.getSession().getAttribute(RequestAttributeName.USR_ROLE);
+		String page;
+		if (isAdmin) {
+			page = JSPPageName.ADMIN_HOMEPAGE;
+		} else {
+			page = JSPPageName.USER_HOMEPAGE;
+		}
+		request.getRequestDispatcher(page).forward(request, response);
+		logger.info("Forward to \"" + page + "\".");
 	}
 
 	/**
@@ -45,15 +53,16 @@ public class FrontController extends HttpServlet {
 
 		String commandName = request.getParameter(RequestParameterName.COMMAND);
 		logger.info("Command \"" + commandName + "\" was requested.");
-		
+
 		Command command = provider.getCommand(commandName); 
 
 		String page = command.execute(request, response);
 		logger.info("Command \"" + commandName + "\" was executed.");
+		logger.info("Forwarding to \"" + page + "\".");
 		
 		RequestDispatcher dispatcher = request.getRequestDispatcher(page);
 		dispatcher.forward(request, response);
-		logger.info("Forward to \"" + page + "\".");
+		
 
 	}
 

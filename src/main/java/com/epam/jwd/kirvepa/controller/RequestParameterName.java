@@ -3,6 +3,7 @@ package com.epam.jwd.kirvepa.controller;
 public final class RequestParameterName {
 	
 	public static final String COMMAND = "command";
+	public static final String USR_ID = "user_id";
 	public static final String USR_LOGIN = "login";
 	public static final String USR_PASS = "password";
 	public static final String USR_PASS_REPEAT = "password_repeat";
@@ -22,16 +23,24 @@ public final class RequestParameterName {
 	public static final String DATE_FROM = "date_from";
 	public static final String DATE_TO = "date_to";
 	public static final String ORDER_ID = "order_id";
-	public static final String CAR= "car";
+	public static final String ORDER_FILTER = "filter";
+	public static final String CAR = "car";
+	public static final String CAR_ID = "car_id";
 	public static final String CAR_PRICE= "price";
 	public static final String CAR_MANUF = "manufacturer";
 	public static final String CAR_MODEL = "model";
+	public static final String CAR_LPN = "licensePlate";
+	public static final String CAR_VIN = "vin";
 	public static final String CAR_BODY = "body";
+	public static final String CAR_ISSUE_YEAR = "issueYear";
 	public static final String CAR_ENGINE = "engine";
 	public static final String CAR_TRANSM = "transmission";
 	public static final String CAR_DRIVE = "drive";
-	public static final String CAR_BODY_LIST = "bodylist";
-	
+	public static final String CAR_COLOR = "drive";
+	public static final String CAR_WEIGHT = "drive";
+	public static final String CAR_BODY_FILTER = "filter";
+	public static final String NEXT_PAGE = "next_page";
+		
 	private RequestParameterName() {}
 	
 }

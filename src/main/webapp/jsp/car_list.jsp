@@ -33,10 +33,14 @@
 	  	<tr>
 		  <th></th>
 		  <th>
-			<label>Car</label>
+			<label>
+			  <fmt:message key="car_list.label.car" />
+			</label>
 		  </th>
 		  <th>
-		  	<label>Total price</label>
+		  	<label>
+		  	  <fmt:message key="car_list.label.price" />
+		  	</label>
 		  </th>
 	  	</tr>
 	  		  	
@@ -51,11 +55,13 @@
 			  <input type="hidden" name="engine" value="${car.key.getEngine()}"> 
 			  <input type="hidden" name="transmission" value="${car.key.getTransmission()}"> 
 			  <input type="hidden" name="drive" value="${car.key.getDriveType()}"> 
-			  <input type="hidden" name="price" value="${car.value}"> 
+			  <input type="hidden" name="price" value="${car.value}">
+			  <input type="hidden" name="date_from" value="${date_from}"> 
+			  <input type="hidden" name="date_to" value="${date_to}"> 
 		  	</td>
 		  	<td width="700" height="8">
 		  	  <label for="${car}">
-		  	  	${car.key}
+		  	  	${car.key.toShortString()}
 		  	  </label>
 		  	</td>
 		  	<td width="150" height="8">
@@ -68,6 +74,12 @@
 	  </table> 
 	  <p></p>
 	  <input type="submit" value=<fmt:message key="car_list.submit" /> />
-	</form>  
+	</form>
+	
+	<p>
+	  <a href="user_home.jsp">
+	  	<fmt:message key="href.homepage" />
+	  </a>
+	</p> 
  </body>
 </html>

@@ -82,5 +82,11 @@
 		<input type="submit" value=<fmt:message key="new_order.submit" /> />
 	  </div>
 	</form>
+	
+	<p>
+	  <a href="user_home.jsp">
+	  	<fmt:message key="href.homepage" />
+	  </a>
+	</p> 
   </body>
 </html>

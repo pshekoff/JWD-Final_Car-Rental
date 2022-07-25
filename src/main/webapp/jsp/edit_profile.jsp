@@ -27,43 +27,55 @@
   	  ${profile_message}
   	</h3>  	
 
-	<form class="login-form" action="controller" method="post">
-	  <div>
-		<input type="hidden" name="command" value="change_login" />
-		<fmt:message key="label.login" />&nbsp;${sessionScope.login}
-		<p>
-		  <input type="text" name="login" required />
-		  <input type="submit" value=<fmt:message key="edit_profile.submit.login" /> />
-		</p>
-	  </div>
+	<form action="controller" method="post">
+	  <input type="hidden" name="command" value="change_login" />
+	  <table style="with: 50%">
+		<tr>
+		  <td><fmt:message key="label.login" />&nbsp;<b>${sessionScope.login}</b></td>
+		</tr>
+		<tr>
+		  <td><input type="text" name="login" required /></td>
+		  <td><input type="submit" value=<fmt:message key="edit_profile.submit.login" /> /></td>
+		</tr>
+	  </table>
 	</form>
 	
-	<form class="login-form" action="controller" method="post">
-	  <div>
-		<input type="hidden" name="command" value="change_password" />
-		<fmt:message key="label.password" />
-		<input type="password" name="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title=<fmt:message key="message.password.requirements" /> required />
-		<p>
-		  <fmt:message key="label.password_repeat" />
-		  <input type="password" name="password_repeat" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title=<fmt:message key="message.password.requirements" /> required />
-		  <input type="submit" value=<fmt:message key="edit_profile.submit.password" /> />
-		</p>
-	  </div>
+	<h1></h1>
+	
+	<form action="controller" method="post">
+	  <input type="hidden" name="command" value="change_password" />
+	  <table style="with: 50%">
+		<tr>
+		  <td><fmt:message key="label.new_password" /></td>
+		  <td><input type="password" name="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title=<fmt:message key="message.password.requirements" /> required /></td>
+		</tr>
+		<tr>
+		  <td><fmt:message key="label.password_repeat" /></td>
+		  <td><input type="password" name="password_repeat" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title=<fmt:message key="message.password.requirements" /> required /></td>
+		</tr>
+		<tr>
+		  <td><input type="submit" value=<fmt:message key="edit_profile.submit.password" /> /></td>
+		</tr>
+	  </table>
 	</form>
 	
-	<form>
-	  <div>
-		<input type="hidden" name="command" value="change_email" />
-		<fmt:message key="label.email" />&nbsp;${sessionScope.email}
-		<p>
-		  <input type="email" name="email" required />
-		  <input type="submit" value=<fmt:message key="edit_profile.submit.email" /> />
-		</p>
-	  </div>
+	<h1></h1>
+	
+	<form action="controller" method="post">
+	  <input type="hidden" name="command" value="change_email" />
+	  <table style="with: 50%">
+	  	<tr>
+	  	  <td><fmt:message key="label.email" />&nbsp;<b>${sessionScope.email}</b></td>
+	  	</tr>
+	  	<tr>
+	  	  <td><input type="email" name="email" required /></td>
+	  	  <td><input type="submit" value=<fmt:message key="edit_profile.submit.email" /> /></td>
+	  	</tr>
+	  </table>
 	</form>
-    
+
     <p>
-	  <a href="user_home.jsp">
+	  <a href="controller">
 		<fmt:message key="href.back" />
 	  </a>
 	</p>

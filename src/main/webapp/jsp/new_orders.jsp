@@ -10,13 +10,31 @@
   <head>
 	<meta charset="UTF-8">
 	<title>
-	  <fmt:message key="user_orders.title" />
+	  <fmt:message key="new_orders.title" />
 	</title>
+	
+	<style>
+   	  .user_login {
+    	display: inline-block; /* Строчно-блочный элемент */
+    	position: relative; /* Относительное позиционирование */
+     }
+   	  .user_login:hover::after {
+    	content: attr(data-title); /* Выводим текст */
+    	position: absolute; /* Абсолютное позиционирование */
+    	left: 20%; top: 30%; /* Положение подсказки */
+    	z-index: 1; /* Отображаем подсказку поверх других элементов */
+    	background: rgba(255,255,230,0.9); /* Полупрозрачный цвет фона */
+    	font-family: Arial, sans-serif; /* Гарнитура шрифта */
+    	font-size: 11px; /* Размер текста подсказки */
+    	padding: 5px 10px; /* Поля */
+    	border: 1px solid #333; /* Параметры рамки */
+     }
+	</style>
   </head>
   
   <body>
   	<h2>
-	  <fmt:message key="user_orders.header" />
+	  <fmt:message key="new_orders.header" />
 	</h2>
 	
   	<p>
@@ -24,7 +42,7 @@
   	</p>
   	
 	<p style="color:#ff0000">
-  	  ${user_orders_error}
+  	  ${orders_error}
   	</p>
 
 	<form class="orders" action="controller" method="post">
@@ -60,7 +78,12 @@
 		  	  <label>
 		  	  	<fmt:message key="label.status" />
 		  	  </label>
-		  	</th>		  		  	
+		  	</th>
+			<th>
+		  	  <label>
+		  	  	<fmt:message key="label.user_login" />
+		  	  </label>
+		  	</th>	  		  	
 	  	  </tr>
 	  		  	
 		<c:forEach var="order" items="${orders}">
@@ -89,7 +112,7 @@
 		  	
 		  	<td width="600" height="8">
 		  	  <label for="${order}">
-		  	  	${order.getCar().toShortString()}
+		  	  	${order.getCar().toString()}
 		  	  </label>
 		  	</td>
 
@@ -103,17 +126,23 @@
 			  <label for="${order}">
 		  	  	${order.getStatus()}
 			  </label>
-		  	</td>		 
+		  	</td>
+
+		  	<td width="100" height="8">
+			  <label class="user_login" data-title="${order.getUser().toString()}" for="${order}">
+		  	  	${order.getUser().getLogin()}
+			  </label>
+		  	</td>	 
 		  	
 		  	<td>
-		  	  <button type="submit" name="command" value="cancel_order">
-		  	  	<fmt:message key="user_orders.button.cancel" />
+		  	  <button type="submit" name="command" value="approve_order">
+		  	  	<fmt:message key="new_orders.button.approve" />
 			  </button>
 		  	</td>
 		  	
 		  	<td>
-		  	  <button type="submit" name="command" value="pay_order">
-		  	  	<fmt:message key="user_orders.button.pay" />
+		  	  <button type="submit" name="command" value="reject_order">
+		  	  	<fmt:message key="new_orders.button.reject" />
 			  </button>
 		  	</td>
 		  </tr>
@@ -123,7 +152,7 @@
 	</form>
 	
 	<p>  
-	  <a href="user_home.jsp">
+	  <a href="admin_home.jsp">
 	  	<fmt:message key="href.back" />
 	  </a>	
 	</p>

@@ -53,7 +53,7 @@ public class CarDataValidator {
 		}
 	}
 	
-	public static Date getDateTruncted() {
+	public static Date getDateTruncated() {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(Calendar.getInstance().getTime());
         cal.set(Calendar.HOUR_OF_DAY, 0);

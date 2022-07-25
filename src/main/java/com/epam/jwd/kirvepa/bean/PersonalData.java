@@ -143,7 +143,7 @@ public class PersonalData implements Serializable{
 	
 	@Override
 	public String toString() {
-		return this.getClass()
+		return this.getClass().getName()
 				+ "{"
 				+ "firstName=" + this.firstName
 				+ ", lastName=" + this.lastName

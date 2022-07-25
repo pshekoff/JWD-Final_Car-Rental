@@ -17,9 +17,26 @@ public class Order implements Serializable {
 	private OrderStatus status;
 	
 	public Order(int id
-			, Car car
 			, User user
+			, Car car
 			, Employee employee
+			, Date dateFrom
+			, Date dateTo
+			, double amount
+			, OrderStatus status) {
+		setId(id);
+		setCar(car);
+		setUser(user);
+		setEmployee(employee);
+		setDateFrom(dateFrom);
+		setDateTo(dateTo);
+		setAmount(amount);
+		setStatus(status);
+	}
+	
+	public Order(int id
+			, User user
+			, Car car
 			, Date dateFrom
 			, Date dateTo
 			, double amount
@@ -156,12 +173,12 @@ public class Order implements Serializable {
 	
 	@Override
 	public String toString() {
-		return this.getClass()
+		return this.getClass().getName()
 				+ "{"
 				+ "id=" + id
 				+ ", car=" + car.toString()
-				+ ", user=" + user.getLogin()
-				+ ", employee=" + employee.getLogin()
+			//	+ ", user=" + user.getLogin()
+			//	+ ", employee=" + employee.getLogin()
 				+ ", dateFrom=" + dateFrom
 				+ ", dateTo=" + dateTo
 				+ ", amount=" + amount

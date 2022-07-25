@@ -23,10 +23,10 @@
 	  <b style="color:#ff0000">${error}</b>
 	</p>
 	
-	<p>  
-	  <a href="/CarRental/index.jsp">
+    <p>
+	  <a href="controller">
 		<fmt:message key="href.homepage" />
-	  </a>	
+	  </a>
 	</p>
   </body>
 </html>

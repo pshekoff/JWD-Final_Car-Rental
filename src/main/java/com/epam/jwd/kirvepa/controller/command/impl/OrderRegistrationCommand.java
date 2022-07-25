@@ -30,7 +30,6 @@ public class OrderRegistrationCommand implements Command {
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
 
 		int userId = (int) request.getSession().getAttribute(RequestAttributeName.USR_ID);
-		System.out.println("user ID = " + userId);
 		
 		//car data
 		String manufacturer = request.getParameter(RequestParameterName.CAR_MANUF);
@@ -42,8 +41,8 @@ public class OrderRegistrationCommand implements Command {
 		
 		double price = Double.parseDouble(request.getParameter(RequestParameterName.CAR_PRICE));
 		
-		Date dateFrom = (Date) request.getSession().getAttribute(RequestParameterName.DATE_FROM);
-		Date dateTo = (Date) request.getSession().getAttribute(RequestParameterName.DATE_TO);
+		Date dateFrom = Date.valueOf(request.getParameter(RequestParameterName.DATE_FROM));
+		Date dateTo = Date.valueOf(request.getParameter(RequestParameterName.DATE_TO));
 
 		Car car = new Car(manufacturer, model, bodyType, engine, transmission, driveType);
 				

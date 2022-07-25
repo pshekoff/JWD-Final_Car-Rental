@@ -96,13 +96,47 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	public List<Order> getUserOrders(int UserId) throws ServiceException {
-		
 		try {
 			return orderDAO.getUserOrders(UserId);
 		} catch (DAOException e) {
 			logger.error(e);
 			throw new ServiceException(e);
 		}
+	}
+
+	@Override
+	public List<Order> getOrders(String filter) throws ServiceException {
+		try {
+			return orderDAO.getOrders(filter);
+		} catch (DAOException e) {
+			logger.error(e);
+			throw new ServiceException(e);
+		}
+	}
+
+	@Override
+	public void approveOrder(int orderId) throws ServiceException, ServiceUserException {
+		try {
+			orderDAO.approveOrder(orderId);
+		} catch (DAOException e) {
+			logger.error(e);
+			throw new ServiceException(e);
+		} catch (DAOUserException e) {
+			logger.error(e);
+			throw new ServiceUserException(e);
+		}
+		
+	}
+
+	@Override
+	public void rejectOrder(int orderId) throws ServiceException {
+		try {
+			orderDAO.rejectOrder(orderId);
+		} catch (DAOException e) {
+			logger.error(e);
+			throw new ServiceException(e);
+		}
+		
 	}
 
 

@@ -30,18 +30,12 @@ public class OrderPaymentCommand implements Command {
 			boolean success = orderService.payOrder(orderId);
 			
 			if (!success) {
-				logger.error(manager.getValue("error.unexpected")
-							+ manager.getValue("error.order.payment"));
-			
-				request.setAttribute(RequestAttributeName.ERR
-					 			 	, manager.getValue("error.order.payment"));
-
-			return JSPPageName.ERROR_PAGE;
+				request.setAttribute(RequestAttributeName.ORDER_ID, orderId);
+				return JSPPageName.PERSONAL_DATA_PAGE;
 			}
-			
 			else {
 				request.setAttribute(RequestAttributeName.USR_HEAD
-									 , manager.getValue("user_home.order.created"));
+									 , manager.getValue("user_home.order.paid"));
 				
 				return JSPPageName.USER_HOMEPAGE;
 			}
@@ -55,11 +49,11 @@ public class OrderPaymentCommand implements Command {
 			
 		} catch (ServiceUserException e) {
 			logger.error(e);
-			request.setAttribute(RequestAttributeName.ERR
-								 , manager.getValue("error.order.payment")
+			request.setAttribute(RequestAttributeName.USR_ORDERS_ERR
+								 , manager.getValue("user_orders.payment.error")
 								 + e.getMessage());
 			
-			return JSPPageName.ERROR_PAGE;
+			return JSPPageName.USER_ORDERS;
 		}
 
 	}

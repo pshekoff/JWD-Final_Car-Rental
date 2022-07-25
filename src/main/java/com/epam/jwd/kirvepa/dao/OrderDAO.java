@@ -15,4 +15,7 @@ public interface OrderDAO {
 	boolean cancelOrder(int orderId) throws DAOException, DAOUserException;
 	boolean payOrder(int orderId) throws DAOException, DAOUserException;
 	List<Order> getUserOrders(int userId) throws DAOException;
+	List<Order> getOrders(String filter) throws DAOException;
+	void approveOrder(int orderId) throws DAOException, DAOUserException;
+	void rejectOrder(int orderId) throws DAOException;
 }

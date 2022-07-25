@@ -13,9 +13,13 @@ public class DAOUserException extends Exception{
 	public static final String MSG_CAR_ABSENT = "Selected car is missing. ";
 	public static final String MSG_ORDER_ABSENT = "Created order is missing. ";
 	public static final String MSG_ORDER_PERS_DATA = "Failed to save personal data. ";
-	public static final String MSG_ORDER_CANCELLED = "Order is already cancelled. ";
-	public static final String MSG_ORDER_PAID = "Order is already paid. ";
-
+	public static final String MSG_ORDER_CANCEL_FAIL = " order may not be CANCELLED. ";
+	public static final String MSG_ORDER_PAID_FAIL = " order may not be PAID. ";
+	public static final String MSG_ORDER_APPROVE_FAIL = " order may not be APPROVED. ";
+	public static final String MSG_ORDER_REJECT_FAIL = " order may not be REJECTED. ";
+	public static final String MSG_ORDER_HANDOVER_RETURN_FAIL = "Car may not be HANDOVER or RETURN for the order ";
+	public static final String MSG_ORDER_UNKNOWN = "Failed to get order status. ";
+	public static final String MSG_CHG_ROOT = "Root user may not be changed. ";
 	
 	public DAOUserException() {
 		super();

@@ -7,7 +7,8 @@ public final class RequestAttributeName {
 	public static final String USR_LOGIN = "login";
 	public static final String USR_EMAIL = "email";
 	public static final String USR_ROLE = "role";
-	public static final String USR_HEAD = "user_header";
+	public static final String USR_HOME_MSG = "user_home_message";
+	public static final String USR_HOME_ERR = "user_home_error";
 	public static final String USR_LIST = "users";
 	public static final String USR_LIST_ERR = "user_list_error";
 	public static final String USR_ORDERS_ERR = "user_orders_error";
@@ -23,12 +24,14 @@ public final class RequestAttributeName {
 	public static final String ADD_EMP_ERR = "add_emp_error";
 	public static final String CAR_BODY_LIST = "bodylist";
 	public static final String CAR_LIST = "cars";
-	public static final String CAR_FINDER = "car_finder_error";
+	public static final String CAR_FINDER_ERR = "car_finder_error";
 	public static final String DATE_FROM = "date_from";
 	public static final String DATE_TO = "date_to";
 	public static final String ADD_CAR_ERR = "add_car_error";
 	public static final String NEW_ORDERS = "orders_message";
 	public static final String CAR_HANDOVER_RETURN = "handover_return_message";
+	public static final String PERS_DATA_ERR = "pers_data_error";
+	public static final String PERS_DATA_MSG = "pers_data_message";
 	public static final String ERR = "error";
 
 	private RequestAttributeName() {}

@@ -76,7 +76,7 @@
 
     <p>
 	  <a href="controller">
-		<fmt:message key="href.back" />
+		<fmt:message key="href.homepage" />
 	  </a>
 	</p>
   </body>

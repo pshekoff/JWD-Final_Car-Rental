@@ -41,8 +41,7 @@ public class SQLCarDAO implements CarDAO {
 			else if (filter.equals("exist")) {
 				preparedStatement = connection.prepareStatement(SQLCarQuery.GET_BODYTYPES_EXIST);
 			}
-			
-	        
+			  
 			logger.debug("SQL query to execute: " + preparedStatement.toString());
 			
 	        resultSet = preparedStatement.executeQuery();
@@ -111,7 +110,7 @@ public class SQLCarDAO implements CarDAO {
 	        	
 	        	carsPrice.put(new Car(manufacturer, model, bodyType, engine, transmission, driveType), price);
             }
-	        
+
 	        return carsPrice;
 			
 		} catch (ConnectionPoolException e) {
@@ -140,7 +139,7 @@ public class SQLCarDAO implements CarDAO {
 			
 			preparedStatement = connection.prepareStatement(SQLOrderQuery.UPDATE_ORDER_STATUS);
 			
-			String orderStatus = SQLOrderDAO.checkStatus(orderId, connection);
+			String orderStatus = SQLOrderDAO.getOrderStatus(orderId, connection);
 			
 			if (orderStatus.equals(OrderStatus.APPROVED.name())) {
 				preparedStatement.setString(1, OrderStatus.IN_PROGRESS.name());

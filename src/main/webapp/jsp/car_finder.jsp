@@ -15,9 +15,6 @@
   </head>
 
   <body>
-    <p>
-	  ${car_finder_error}
-  	</p>
   	
 	<h1>
 	  <fmt:message key="car_finder.label.search" />
@@ -43,12 +40,15 @@
 	  
 	  <input type="hidden" name="command" value="find_car" />
 	  <input type="submit" value=<fmt:message key="car_finder.submit.search" /> />
+	  <b style="color:red">&nbsp;${car_finder_error}</b>
   	</form>
 	
 	<p>
 	  <a href="user_home.jsp">
-	  	<fmt:message key="href.back" />
+	  	<fmt:message key="href.homepage" />
 	  </a>
 	</p>
+	
+
   </body>
 </html>

@@ -124,17 +124,23 @@ public final class ConnectionPool {
 	
 	public void closeConnectionQueue(Connection con, Statement st, ResultSet rs) {
 		try {
-			con.close();
+			if (con != null) {
+				con.close();
+			}
 		} catch (SQLException e) {
 			logger.error("Connection isn't return to the pool.", e);
 		}
 		try {
-			rs.close();
+			if (rs != null) {
+				rs.close();
+			}
 		} catch (SQLException e) {
 			logger.error("Result set isn't closed.", e);
 		}
 		try {
-			st.close();
+			if (st != null) {
+				st.close();
+			}
 		} catch (SQLException e) {
 			logger.error("Statement isn't closed.", e);
 		}
@@ -142,14 +148,28 @@ public final class ConnectionPool {
 	
 	public void closeConnectionQueue(Connection con, Statement st) {
 		try {
-			con.close();
+			if (con != null) {
+				con.close();
+			}
 		} catch (SQLException e) {
 			logger.error("Connection isn't return to the pool.", e);
 		}
 		try {
-			st.close();
+			if (st != null) {
+				st.close();
+			}
 		} catch (SQLException e) {
 			logger.error("Statement isn't closed.", e);
+		}
+	}
+	
+	public void closeConnectionQueue(Connection con) {
+		try {
+			if (con != null) {
+				con.close();
+			}
+		} catch (SQLException e) {
+			logger.error("Connection isn't return to the pool.", e);
 		}
 	}
 	

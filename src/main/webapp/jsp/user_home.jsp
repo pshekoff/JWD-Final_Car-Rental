@@ -19,6 +19,9 @@
   	<h2>
   	  <fmt:message key="label.welcome" />&nbsp;${sessionScope.login}
   	</h2>
+
+	<p><b style="color:green">${user_home_message}</b></p>
+	<p><b style="color:red">${user_home_error}</b></p>
 	
 	<div>
 	  <form action="controller" method="post">
@@ -33,13 +36,24 @@
 	
 	<div>
 		<form action="controller" method="post">
-			<input type="hidden" name="command" value="get_user_orders" />
+			<input type="hidden" name="command" value="get_orders" />
+			<input type="hidden" name="filter" value="user" />
 			<input type="submit" value=<fmt:message key="user_home.submit.orders" /> />
 		</form>
 	</div>	
 	
 	<h1></h1>
 	
+	<div>
+		<form id="addPersData" action="personal_data.jsp">
+			<button type="submit" id="btnAddPersData" name="btnAddPersData">
+				<fmt:message key="user_home.button.add_personal_data" />
+			</button>
+		</form>
+	</div>
+	
+	<h1></h1>
+		
 	<div>
 		<form action="controller" method="post">
 			<input type="hidden" name="command" value="edit_profile" />

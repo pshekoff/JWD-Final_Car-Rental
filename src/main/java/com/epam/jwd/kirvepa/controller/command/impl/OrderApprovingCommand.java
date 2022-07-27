@@ -20,7 +20,7 @@ import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
 public class OrderApprovingCommand implements Command {
-	private static final Logger logger = LogManager.getLogger(OrderCreationCommand.class);
+	private static final Logger logger = LogManager.getLogger(OrderApprovingCommand.class);
 	private static final ResourceManager manager = ResourceManager.getInstance();
 	private static final OrderService orderService = ServiceFactory.getInstance().getOrderService();
 	
@@ -31,7 +31,7 @@ public class OrderApprovingCommand implements Command {
 		
 		try {
 			orderService.approveOrder(orderId);
-			List<Order> orders = orderService.getOrders("new");
+			List<Order> orders = orderService.getOrders("new",0);
 			
 			request.setAttribute(RequestAttributeName.ORDER_LIST, orders);
 			request.setAttribute(RequestAttributeName.NEW_ORDERS

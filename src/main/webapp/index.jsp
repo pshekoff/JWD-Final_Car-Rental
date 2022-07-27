@@ -16,32 +16,22 @@
   </head>
   
   <body>
-	<div>
-	  <h2>
-		<fmt:message key="index.label.welcome" />
-	  </h2>
-	</div>
+	<h2><fmt:message key="index.label.welcome" /></h2>
 	
-	<div>
-	  <h3>
-	    <fmt:message key="index.label.logination" />
-	  </h3>
-	</div>
+	<h3><fmt:message key="index.label.logination" /></h3>
+	
+	<form action="/CarRental/jsp/authorization.jsp">
+      <button type="submit" id="btnAuth" name="btnAuth">
+      	<fmt:message key="index.button.login" />
+      </button>
+	</form>	
+	
+	<p></p>	
 	
 	<form action="/CarRental/jsp/registration.jsp">
       <button type="submit" id="btnReg" name="btnReg">
       	<fmt:message key="index.button.registration" />
       </button>
 	</form>
-	
-	<p></p>
-	
-	<form action="/CarRental/jsp/authorization.jsp">
-      <button type="submit" id="btnAuth" name="btnAuth">
-      	<fmt:message key="index.button.login" />
-      </button>
-	</form>
-
-    <h2></h2>
   </body>
 </html>

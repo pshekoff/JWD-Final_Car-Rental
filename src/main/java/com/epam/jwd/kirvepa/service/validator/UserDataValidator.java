@@ -10,7 +10,7 @@ public class UserDataValidator {
 	}
 	
 	public boolean loginValidation(String login) {
-		if(login == null || login.isEmpty()){
+		if(login == null || login.isEmpty() || login.isBlank()) {
 			return false;
 		}
 		else {
@@ -19,7 +19,7 @@ public class UserDataValidator {
 	}
 	
 	public boolean emailValidation(String email) {
-		if(email == null || email.isEmpty()){
+		if(email == null || email.isEmpty() || email.isBlank()) {
 			return false;
 		}
 		else {

@@ -13,15 +13,25 @@ public class SQLOrderQuery {
 			+ " AND order_status_id ="
 			+ "		 (SELECT id FROM order_statuses WHERE description = 'PREPARED');";
 	
-	protected static final String CHECK_STATUS = "SELECT description"
+	protected static final String CHECK_STATUS = "SELECT os.description"
 			+ " FROM orders o"
 			+ " LEFT JOIN order_statuses os"
 			+ " ON o.order_status_id = os.id"
 			+ " WHERE o.id = ?;";
 	
+	protected static final String SELECT_PREPADER_ORDERS_ID = "SELECT o.id"
+			+ " FROM orders o"
+			+ " LEFT JOIN order_statuses os ON os.id = o.order_status_id"
+			+ " WHERE user_id = ?"
+			+ " AND os.description = 'PREPARED';";
+	
 	protected static final String UPDATE_ORDER_STATUS = "UPDATE orders"
 			+ " SET order_status_id = (SELECT id FROM order_statuses WHERE description = ?)"
 			+ ", datetime_updated = SYSDATE()"
+			+ " WHERE id = ?;";
+	
+	protected static final String UPDATE_PREPARED_ORDER = "UPDATE orders"
+			+ " SET order_status_id = (SELECT id FROM order_statuses WHERE description = 'CREATED')"
 			+ " WHERE id = ?;";
 	
 	protected static final String GET_ORDER = "SELECT"
@@ -39,17 +49,17 @@ public class SQLOrderQuery {
 			+ " FROM orders o"
 			+ " LEFT JOIN order_statuses os ON os.id = o.order_status_id"
 			+ " WHERE o.user_id = ?"
-			+ " ORDER BY o.date_handover;";
+			+ " ORDER BY o.id DESC;";
 	
 	protected static final String GET_ORDERS_ID_ALL = "SELECT o.id"
 			+ " FROM orders o"
-			+ " ORDER BY o.date_handover";
+			+ " ORDER BY o.id DESC";
 	
 	protected static final String GET_ORDERS_ID_FILTERED = "SELECT o.id"
 			+ " FROM orders o"
 			+ " LEFT JOIN order_statuses os ON os.id = o.order_status_id"
 			+ " WHERE FIND_IN_SET (os.description, ?) <> 0"
-			+ " ORDER BY o.date_handover";
+			+ " ORDER BY o.id DESC";
 	
 	protected static final String CHECK_PAYMENT = "SELECT"
 			+ " payment_method_id, amount"
@@ -58,8 +68,9 @@ public class SQLOrderQuery {
 			+ " AND payment_type_id = (SELECT id FROM payment_types WHERE description = 'PAYMENT');";
 	
 	protected static final String AUTO_UPDATE_ORDER_HISTORY = "INSERT INTO orders_history"
-			+ " (datetime_created, order_id, order_status_id, comment)"
-			+ " VALUES (SYSDATE(), ?, (SELECT order_status_id FROM orders WHERE id = ?), 'AUTO');";
+			+ " (datetime_created, order_id, comment, order_status_id)"
+			+ " VALUES (SYSDATE(), ?, 'AUTO', (SELECT order_status_id FROM orders WHERE id = ?"
+			+ "	AND datetime_created = (SELECT max(datetime_created) FROM orders WHERE id = ?)));";
 	
 	protected static final String ORDER_PAYMENT = "INSERT INTO payments"
 			+ " (order_id, payment_type_id, payment_method_id, amount, datetime_created, datetime_updated)"

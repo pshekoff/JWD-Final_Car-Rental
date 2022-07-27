@@ -30,8 +30,8 @@ public class GetCarBodyListCommand implements Command {
 		
 		try {
 			List<String> bodyList = carService.getCarBodyList(filter);
-			request.setAttribute(RequestAttributeName.CAR_BODY_LIST
-								 , bodyList);
+			request.getSession(false).setAttribute(RequestAttributeName.CAR_BODY_LIST
+								 				  , bodyList);
 			
 			return nextPage;
 			

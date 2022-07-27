@@ -29,11 +29,11 @@
 		</tr>
 		<tr>
 		  <td><fmt:message key="label.password" /></td>
-		  <td><input type="text" name="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title=<fmt:message key="message.password.requirements" /> required /></td>
+		  <td><input type="password" name="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title=<fmt:message key="message.password.requirements" /> required /></td>
 		</tr>
 		<tr>
 		  <td><fmt:message key="label.password_repeat" /></td>
-		  <td><input type="text" name="password_repeat" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title=<fmt:message key="message.password.requirements" /> required /></td>
+		  <td><input type="password" name="password_repeat" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title=<fmt:message key="message.password.requirements" /> required /></td>
 		</tr>
 		<tr>
 		  <td><fmt:message key="label.email" /></td>

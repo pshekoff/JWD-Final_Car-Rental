@@ -43,7 +43,7 @@ public class CarServiceImpl implements CarService{
 		switch (validator.DateValidation(from, to)) {
 			case (1):
 				try {
-					return carDAO.getCarList(from , to, bodies);
+					return carDAO.getCarList(from, to, bodies);
 				} catch (DAOException e) {
 					logger.error(e);
 					throw new ServiceException(e);
@@ -52,13 +52,14 @@ public class CarServiceImpl implements CarService{
 				logger.error(ServiceUserException.MSG_CAR_DATE_NULL);
 				throw new ServiceUserException(ServiceUserException.MSG_CAR_DATE_NULL);
 			case (-1):
-				logger.error(ServiceUserException.MSG_CAR_DATES_DISCREPANCY);
-				throw new ServiceUserException(ServiceUserException.MSG_CAR_DATES_DISCREPANCY);
-			case (-2):
 				logger.error(ServiceUserException.MSG_CAR_DATE_PAST);
 				throw new ServiceUserException(ServiceUserException.MSG_CAR_DATE_PAST);
+			case (-2):
+				logger.error(ServiceUserException.MSG_CAR_DATES_DISCREPANCY);
+				throw new ServiceUserException(ServiceUserException.MSG_CAR_DATES_DISCREPANCY);
 			default:
-				return null;
+				logger.error(ServiceUserException.MSG_CAR_DATES_UNKNOWN);
+				throw new ServiceException(ServiceUserException.MSG_CAR_DATES_UNKNOWN);
 		}
 
 	}
@@ -73,7 +74,7 @@ public class CarServiceImpl implements CarService{
 			throw new ServiceException(e);
 		} catch (DAOUserException e) {
 			logger.error(e);
-			throw new ServiceUserException(e);
+			throw new ServiceUserException(e.getMessage());
 		}
 		
 	}

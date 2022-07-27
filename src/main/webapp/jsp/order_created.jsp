@@ -33,11 +33,11 @@
 	<p></p>
 	
 	<div>
-		<form action="controller" method="post">
-			<input type="hidden" name="command" value="cancel_order" />
-			<input type="hidden" name="order_id" value="${order_id}" />
-			<input type="submit" value=<fmt:message key="order_created.submit.order_cancel" /> />
-		</form>
+	  <form action="controller" method="post">
+		<input type="hidden" name="command" value="cancel_order" />
+		<input type="hidden" name="order_id" value="${order_id}" />
+		<input type="submit" value=<fmt:message key="order_created.submit.order_cancel" /> />
+	  </form>
 	</div>	
 
 </body>

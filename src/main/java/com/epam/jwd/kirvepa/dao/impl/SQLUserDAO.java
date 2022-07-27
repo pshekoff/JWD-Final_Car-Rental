@@ -77,7 +77,7 @@ public class SQLUserDAO implements UserDAO {
 	}
 
 	@Override
-	public synchronized boolean insertUser(User user, int passwordHash) throws DAOException, DAOUserException {
+	public synchronized int insertUser(User user, int passwordHash) throws DAOException, DAOUserException {
 		
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -107,13 +107,14 @@ public class SQLUserDAO implements UserDAO {
             preparedStatement.executeUpdate();
             
             ResultSet resultSet = preparedStatement.getGeneratedKeys();
-
+            
+            int userId;
             if (resultSet.next()) {
-            	resultSet.close();
-            	return true;
+            	userId = resultSet.getInt(1);
+            	return userId;
             } else {
             	resultSet.close();
-                return false;
+                return 0;
             }
 
 		} catch (ConnectionPoolException e) {
@@ -142,54 +143,18 @@ public class SQLUserDAO implements UserDAO {
         	connection.setAutoCommit(false);
 			connection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
         	
-        	preparedStatement = connection.prepareStatement(SQLUserQuery.INSERT_USER
-        													, Statement.RETURN_GENERATED_KEYS);
-            preparedStatement.setString(1, employee.getLogin());
-            preparedStatement.setInt(2, passwordHash);
-            preparedStatement.setString(3, employee.getEmail());
-            preparedStatement.setBoolean(4, employee.isAdmin());
-            
-            logger.debug("SQL query to execute: " + preparedStatement.toString());
-            
-            preparedStatement.executeUpdate();
-            
-            resultSet = preparedStatement.getGeneratedKeys();
-            
-            int userId;
-            if (!resultSet.next()) {
+            preparedStatement = connection.prepareStatement(SQLUserQuery.INSERT_EMPLOYEE
+					, Statement.RETURN_GENERATED_KEYS);
+
+			int userId = insertUser(employee, passwordHash);
+			
+            if (userId == 0) {
             	logger.error(DAOUserException.MSG_USR_INS_FAIL);
             	throw new DAOUserException(DAOUserException.MSG_USR_INS_FAIL);
-            	
-            } else {
-            	userId = resultSet.getInt(1);
             }
             
-			preparedStatement = connection.prepareStatement(SQLUserQuery.UPDATE_PERSONAL_DATA);
-			preparedStatement.setInt(1, userId);
-			
-			logger.debug("SQL query to execute: " + preparedStatement.toString());
-			
-			preparedStatement.executeUpdate();
-			
-			preparedStatement = connection.prepareStatement(SQLUserQuery.INSERT_PERSONAL_DATA);
-			preparedStatement.setInt(1, userId);
-			preparedStatement.setString(2, employee.getPersonalData().getFirstName());
-			preparedStatement.setString(3, employee.getPersonalData().getLastName());
-			preparedStatement.setDate(4, employee.getPersonalData().getDayOfBirth());
-			preparedStatement.setString(5, employee.getPersonalData().getPassportNumber());
-			preparedStatement.setDate(6, employee.getPersonalData().getIssueDate());
-			preparedStatement.setDate(7, employee.getPersonalData().getExpireDate());
-			preparedStatement.setString(8, employee.getPersonalData().getIdentificationNumber());
-			preparedStatement.setString(9, employee.getPersonalData().getHomeAddress());
-			preparedStatement.setString(10, employee.getPersonalData().getPhone());
-
-			logger.debug("SQL query to execute: " + preparedStatement.toString());
-			
-			preparedStatement.executeUpdate();
+            insertPersonalData(userId, employee.getPersonalData());
             
-            preparedStatement = connection.prepareStatement(SQLUserQuery.INSERT_EMPLOYEE
-            												, Statement.RETURN_GENERATED_KEYS);
-            	
             preparedStatement.setString(1, employee.getDepartment());
             preparedStatement.setString(2, employee.getPosition());
             preparedStatement.setDouble(3, employee.getSalary());
@@ -224,7 +189,7 @@ public class SQLUserDAO implements UserDAO {
 	}
 	
 	@Override
-	public boolean insertUserPersonalData(int userId, PersonalData personalData) throws DAOException {
+	public void insertPersonalData(int userId, PersonalData personalData) throws DAOException {
 
 		Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -232,15 +197,6 @@ public class SQLUserDAO implements UserDAO {
         try {
 			connection = ConnectionPool.getInstance().takeConnection();
 			connection.setAutoCommit(false);
-			connection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
-
-			preparedStatement = connection.prepareStatement(SQLUserQuery.UPDATE_PERSONAL_DATA);
-			preparedStatement.setInt(1, userId);
-			
-			logger.debug("SQL query to execute: " + preparedStatement.toString());
-			
-			preparedStatement.executeUpdate();
-			preparedStatement.close();
 			
 			preparedStatement = connection.prepareStatement(SQLUserQuery.INSERT_PERSONAL_DATA);
 			preparedStatement.setInt(1, userId);
@@ -253,14 +209,16 @@ public class SQLUserDAO implements UserDAO {
 			preparedStatement.setString(8, personalData.getIdentificationNumber());
 			preparedStatement.setString(9, personalData.getHomeAddress());
 			preparedStatement.setString(10, personalData.getPhone());
+			
+			updatePersonalData(userId, connection);
 
 			logger.debug("SQL query to execute: " + preparedStatement.toString());
 			
 			preparedStatement.executeUpdate();
 			
+			SQLOrderDAO.updatePreparedOrders(userId, connection);
+			
 			connection.commit();
-
-			return true;
 
 		} catch (ConnectionPoolException e) {
 			logger.error(e);
@@ -456,6 +414,16 @@ public class SQLUserDAO implements UserDAO {
 		} finally {
 			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement);
 		} 
+	}
+	
+	public static void updatePersonalData(int userId, Connection connection) throws SQLException {
+		PreparedStatement preparedStatement = connection.prepareStatement(SQLUserQuery.UPDATE_PERSONAL_DATA);
+		preparedStatement.setInt(1, userId);
+		
+		logger.debug("SQL query to execute: " + preparedStatement.toString());
+		
+		preparedStatement.executeUpdate();
+		preparedStatement.close();
 	}
 	
 	public static int findUser(String login, Connection connection) throws SQLException {

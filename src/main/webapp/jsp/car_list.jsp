@@ -48,14 +48,7 @@
 		
 		  <tr>
 		  	<td width="32" height="8">
-			  <input type="radio" id="${car}" name="car" value="${car}"> 
-			  <input type="hidden" name="manufacturer" value="${car.key.getManufacturer()}">
-			  <input type="hidden" name="model" value="${car.key.getModel()}"> 
-			  <input type="hidden" name="body" value="${car.key.getBodyType()}"> 
-			  <input type="hidden" name="engine" value="${car.key.getEngine()}"> 
-			  <input type="hidden" name="transmission" value="${car.key.getTransmission()}"> 
-			  <input type="hidden" name="drive" value="${car.key.getDriveType()}"> 
-			  <input type="hidden" name="price" value="${car.value}">
+			  <input type="radio" id="${car}" name="car" value="${car.key.getManufacturer()};${car.key.getModel()};${car.key.getBodyType()};${car.key.getEngine()};${car.key.getTransmission()};${car.key.getDriveType()};${car.value}" required> 
 			  <input type="hidden" name="date_from" value="${date_from}"> 
 			  <input type="hidden" name="date_to" value="${date_to}"> 
 		  	</td>

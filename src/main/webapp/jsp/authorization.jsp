@@ -15,10 +15,6 @@
   </head>
 
   <body>
-  	<p>
-  	  ${auth_message}
-  	</p>
-  	
   	<h2>
   	  <fmt:message key="authorization.header" />
   	</h2>
@@ -32,20 +28,20 @@
 		<h4>
 		  <fmt:message key="label.login" />
 		</h4>
-		<input type="text" name="login" />
+		<input type="text" name="login" required/>
 	  </div>
 	  
 	  <div>
 		<h4>
 		  <fmt:message key="label.password" />
 		</h4>
-		<input type="password" name="password" />
+		<input type="password" name="password" required/>
 	  </div>
 	  
 	  <div>
 		<h2></h2>
 		<input type="submit" value=<fmt:message key="authorization.submit" /> />
-		<b style="color:#ff0000">&nbsp;${auth_error}</b>
+		<b style="color:red">&nbsp;${auth_error}</b>
 	  </div>
 	</form>
 	

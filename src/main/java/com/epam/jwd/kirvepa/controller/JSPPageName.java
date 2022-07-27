@@ -11,7 +11,7 @@ public final class JSPPageName {
 	public final static String CAR_FINDER = "/jsp/car_finder.jsp";
 	public final static String CAR_LIST = "/jsp/car_list.jsp";
 	public final static String ORDER_CREATED = "/jsp/order_created.jsp";
-	public final static String PERSONAL_DATA_PAGE = "/jsp/personal_data.jsp";
+	public final static String PERSONAL_DATA = "/jsp/personal_data.jsp";
 	public final static String EDIT_PROFILE = "/jsp/edit_profile.jsp";
 	public final static String USER_ORDERS = "/jsp/user_orders.jsp";
 	public final static String USER_LIST = "/jsp/user_list.jsp";

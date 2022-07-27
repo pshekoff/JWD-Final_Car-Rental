@@ -2,7 +2,6 @@ package com.epam.jwd.kirvepa.controller.command.impl;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,9 +17,7 @@ public class EditProfileCommand implements Command {
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
 
-		HttpSession session = request.getSession();
-
-		if (session != null) {
+		if (request.getSession(false) != null) {
 			return JSPPageName.EDIT_PROFILE;
 		}
 		else {

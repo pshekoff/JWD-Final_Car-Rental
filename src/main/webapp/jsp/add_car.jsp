@@ -75,12 +75,12 @@
 		</tr>
 	  </table>
 	  <input type="submit" value=<fmt:message key="add_car.submit" /> />
-	  <b style="color:#ff0000">&nbsp;${add_car_error}</b>
+	  <b style="color:red">&nbsp;${add_car_error}</b>
 	</form>
 	
 	<p>
 	  <a href="admin_home.jsp">
-	  	<fmt:message key="href.back" />
+	  	<fmt:message key="href.homepage" />
 	  </a>
 	</p>
   </body>

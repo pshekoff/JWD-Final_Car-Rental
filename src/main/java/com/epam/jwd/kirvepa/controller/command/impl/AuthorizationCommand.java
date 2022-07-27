@@ -25,17 +25,15 @@ public class AuthorizationCommand implements Command {
 	
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
-		
-		String login = request.getParameter(RequestParameterName.USR_LOGIN);
-		int passwordHash = request.getParameter(RequestParameterName.USR_PASS)
-								  .hashCode();
 
+		String login = request.getParameter(RequestParameterName.USR_LOGIN);
+		int passwordHash = request.getParameter(RequestParameterName.USR_PASS).hashCode();
+		
 		logger.info("User \"" + login + "\" requested to login");
 		
 		User user;
-		
 		try {
-			user = userService.singIn(login, passwordHash);
+			user = userService.authorization(login, passwordHash);
 			
 			if (user != null) {
 				
@@ -45,20 +43,12 @@ public class AuthorizationCommand implements Command {
 				session.setAttribute(RequestAttributeName.USR_EMAIL, user.getEmail());
 				session.setAttribute(RequestAttributeName.USR_ROLE, user.isAdmin());
 				
-				logger.info(user.toString() + " authorized.");
+				logger.info(user.toString() + " has been authorized.");
 				
 				if (user.isAdmin()) {
-					request.setAttribute(RequestAttributeName.ADM_HEAD
-										 , manager.getValue("label.welcome")
-										 + user.getLogin());
-					
 					return JSPPageName.ADMIN_HOMEPAGE;
 				}
 				else {
-					request.setAttribute(RequestAttributeName.USR_HEAD
-										 , manager.getValue("label.welcome")
-										 + user.getLogin());
-					
 					return JSPPageName.USER_HOMEPAGE;
 				}
 
@@ -67,18 +57,18 @@ public class AuthorizationCommand implements Command {
 				logger.error(manager.getValue("error.unexpected")
 							+ manager.getValue("auth.error.null"));
 				
-				request.setAttribute(RequestAttributeName.AUTH_ERR
+				request.setAttribute(RequestAttributeName.ERR
 									 , manager.getValue("auth.error"));
 				
-				return JSPPageName.AUTHORIZATION;
+				return JSPPageName.ERROR_PAGE;
 			}
 			
 		} catch (ServiceException e) {
 			logger.error(e);
-			request.setAttribute(RequestAttributeName.AUTH_ERR
+			request.setAttribute(RequestAttributeName.ERR
 								 , manager.getValue("auth.error"));
 			
-			return JSPPageName.AUTHORIZATION;
+			return JSPPageName.ERROR_PAGE;
 			
 		} catch (ServiceUserException e) {
 			logger.error(e);

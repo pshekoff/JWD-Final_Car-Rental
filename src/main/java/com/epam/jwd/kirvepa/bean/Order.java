@@ -16,6 +16,8 @@ public class Order implements Serializable {
 	private double amount;
 	private OrderStatus status;
 	
+	public Order() {}
+	
 	public Order(int id
 			, User user
 			, Car car

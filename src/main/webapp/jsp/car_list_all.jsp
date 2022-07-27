@@ -92,7 +92,7 @@
 	
 	<p>
 	  <a href="admin_home.jsp">
-	  	<fmt:message key="href.back" />
+	  	<fmt:message key="href.homepage" />
 	  </a>
 	</p>
  </body>

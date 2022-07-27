@@ -21,7 +21,7 @@ import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
 public class CarHandoverReturnCommand implements Command {
-	private static final Logger logger = LogManager.getLogger(OrderCreationCommand.class);
+	private static final Logger logger = LogManager.getLogger(CarHandoverReturnCommand.class);
 	private static final ResourceManager manager = ResourceManager.getInstance();
 	private static final CarService carService = ServiceFactory.getInstance().getCarService();
 	private static final OrderService orderService = ServiceFactory.getInstance().getOrderService();
@@ -33,7 +33,7 @@ public class CarHandoverReturnCommand implements Command {
 		
 		try {
 			carService.handoverReturnCar(orderId);
-			List<Order> orders = orderService.getOrders("handover_return");
+			List<Order> orders = orderService.getOrders("handover_return",0);
 			
 			request.setAttribute(RequestAttributeName.ORDER_LIST, orders);
 			request.setAttribute(RequestAttributeName.CAR_HANDOVER_RETURN

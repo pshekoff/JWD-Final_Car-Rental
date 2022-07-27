@@ -31,29 +31,31 @@ public class OrderRegistrationCommand implements Command {
 
 		int userId = (int) request.getSession().getAttribute(RequestAttributeName.USR_ID);
 		
-		//car data
-		String manufacturer = request.getParameter(RequestParameterName.CAR_MANUF);
-		String model = request.getParameter(RequestParameterName.CAR_MODEL);
-		String bodyType = request.getParameter(RequestParameterName.CAR_BODY);
-		String engine = request.getParameter(RequestParameterName.CAR_ENGINE);
-		String transmission = request.getParameter(RequestParameterName.CAR_TRANSM);
-		String driveType = request.getParameter(RequestParameterName.CAR_DRIVE);
-		
-		double price = Double.parseDouble(request.getParameter(RequestParameterName.CAR_PRICE));
-		
+		String[] carParams = request.getParameter(RequestParameterName.CAR).split(";");
+		double price = Double.parseDouble(carParams[6]);
 		Date dateFrom = Date.valueOf(request.getParameter(RequestParameterName.DATE_FROM));
 		Date dateTo = Date.valueOf(request.getParameter(RequestParameterName.DATE_TO));
-
+		
+		String manufacturer = carParams[0];
+		String model = carParams[1];
+		String bodyType = carParams[2];
+		String engine = carParams[3];
+		String transmission = carParams[4];
+		String driveType = carParams[5];
+		
 		Car car = new Car(manufacturer, model, bodyType, engine, transmission, driveType);
-				
+		
 		try {
-			Order order = orderService.placeOrder(userId, car, dateFrom, dateTo, price);
+			Order order = orderService.registerOrder(userId, car, dateFrom, dateTo, price);
 			
 			request.setAttribute(RequestAttributeName.ORDER_ID, order.getId());
 
 			if (order.getStatus().equals(OrderStatus.PREPARED)) {
-				
-				return JSPPageName.PERSONAL_DATA_PAGE;
+				request.setAttribute(RequestAttributeName.PERS_DATA_MSG
+									, manager.getValue("user_home.order.created")
+									+ manager.getValue("personal_data.add.message"));
+	
+				return JSPPageName.PERSONAL_DATA;
 				
 			} else if (order.getStatus().equals(OrderStatus.CREATED)) {
 				

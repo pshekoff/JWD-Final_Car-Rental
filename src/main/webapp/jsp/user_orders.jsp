@@ -19,11 +19,11 @@
 	  <fmt:message key="user_orders.header" />
 	</h2>
 	
-  	<p>
+  	<p style="color:green">
   	  ${orders_message}
   	</p>
   	
-	<p style="color:#ff0000">
+	<p style="color:red">
   	  ${user_orders_error}
   	</p>
 
@@ -104,27 +104,23 @@
 		  	  	${order.getStatus()}
 			  </label>
 		  	</td>		 
-		  	
-		  	<td>
-		  	  <button type="submit" name="command" value="cancel_order">
-		  	  	<fmt:message key="user_orders.button.cancel" />
-			  </button>
-		  	</td>
-		  	
-		  	<td>
-		  	  <button type="submit" name="command" value="pay_order">
-		  	  	<fmt:message key="user_orders.button.pay" />
-			  </button>
-		  	</td>
 		  </tr>
 		</c:forEach>
 	  </table> 
-	  <p></p>
+  	  <p>
+	  	<button type="submit" name="command" value="pay_order">
+		  <fmt:message key="user_orders.button.pay" />
+	  	</button>
+	  	
+  	  	<button type="submit" name="command" value="cancel_order">
+		  <fmt:message key="user_orders.button.cancel" />
+	  	</button>
+	  </p>
 	</form>
 	
 	<p>  
 	  <a href="user_home.jsp">
-	  	<fmt:message key="href.back" />
+	  	<fmt:message key="href.homepage" />
 	  </a>	
 	</p>
   </body>

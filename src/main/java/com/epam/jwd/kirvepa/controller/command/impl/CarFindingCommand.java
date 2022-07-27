@@ -48,7 +48,7 @@ public class CarFindingCommand implements Command {
 			return JSPPageName.ERROR_PAGE;
 		} catch (ServiceUserException e) {
 			logger.error(e);
-			request.setAttribute(RequestAttributeName.CAR_FINDER
+			request.setAttribute(RequestAttributeName.CAR_FINDER_ERR
 					 , manager.getValue("car_finder.error") + e.getMessage());
 
 			return JSPPageName.CAR_FINDER;

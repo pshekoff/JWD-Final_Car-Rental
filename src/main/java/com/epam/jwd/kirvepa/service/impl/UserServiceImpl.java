@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.epam.jwd.kirvepa.bean.Employee;
+import com.epam.jwd.kirvepa.bean.PersonalData;
 import com.epam.jwd.kirvepa.bean.User;
 import com.epam.jwd.kirvepa.dao.UserDAO;
 import com.epam.jwd.kirvepa.dao.exception.DAOException;
@@ -18,12 +19,11 @@ import com.epam.jwd.kirvepa.service.validator.UserDataValidator;
 
 public class UserServiceImpl implements UserService {
 	private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
-	
 	private static final UserDataValidator validator = UserDataValidator.getInstance();
 	private static final UserDAO userDAO = DAOFactory.getInstance().getUserDAO();
 
 	@Override
-	public User singIn(String login, int passwordHash) throws ServiceException, ServiceUserException {
+	public User authorization(String login, int passwordHash) throws ServiceException, ServiceUserException {
 
 		if(!validator.loginValidation(login)){
 			logger.error(ServiceUserException.MSG_USR_LOGIN_VAL_FAIL);
@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public boolean registration(User user, int passwordHash) throws ServiceException, ServiceUserException {
+	public int registration(User user, int passwordHash) throws ServiceException, ServiceUserException {
 		
 		if(!validator.loginValidation(user.getLogin())) {
 			logger.error(ServiceUserException.MSG_USR_LOGIN_VAL_FAIL);
@@ -59,7 +59,7 @@ public class UserServiceImpl implements UserService {
 			return userDAO.insertUser(user, passwordHash);
 		} catch (DAOException e) {
 			logger.error(e);
-			throw new ServiceException(e.getMessage());
+			throw new ServiceException(e);
 		} catch (DAOUserException e) {
 			logger.error(e);
 			throw new ServiceUserException(e.getMessage());
@@ -116,7 +116,7 @@ public class UserServiceImpl implements UserService {
 			return userDAO.updatePassword(userId, passwordHash);
 		} catch (DAOException e) {
 			logger.error(e);
-			throw new ServiceException(e.getMessage());
+			throw new ServiceException(e);
 		} catch (DAOUserException e) {
 			logger.error(e);
 			throw new ServiceUserException(e.getMessage());
@@ -160,6 +160,20 @@ public class UserServiceImpl implements UserService {
 			logger.error(e);
 			throw new ServiceException(e);
 		}
+	}
+
+	@Override
+	public void addPersonalData(int userId, PersonalData personalData) throws ServiceException, ServiceUserException {
+		try {
+			userDAO.insertPersonalData(userId, personalData);
+		} catch (DAOException e) {
+			logger.error(e);
+			throw new ServiceException(e);
+		} catch (DAOUserException e) {
+			logger.error(e);
+			throw new ServiceUserException(e.getMessage());
+		}
+		
 	}
 
 }

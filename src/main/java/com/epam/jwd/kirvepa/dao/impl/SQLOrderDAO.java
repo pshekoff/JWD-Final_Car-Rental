@@ -15,20 +15,18 @@ import org.apache.logging.log4j.Logger;
 import com.epam.jwd.kirvepa.bean.Car;
 import com.epam.jwd.kirvepa.bean.Order;
 import com.epam.jwd.kirvepa.bean.Order.OrderStatus;
-import com.epam.jwd.kirvepa.bean.PersonalData;
 import com.epam.jwd.kirvepa.bean.User;
 import com.epam.jwd.kirvepa.dao.OrderDAO;
 import com.epam.jwd.kirvepa.dao.connection.ConnectionPool;
 import com.epam.jwd.kirvepa.dao.connection.ConnectionPoolException;
 import com.epam.jwd.kirvepa.dao.exception.DAOException;
 import com.epam.jwd.kirvepa.dao.exception.DAOUserException;
-import com.epam.jwd.kirvepa.dao.factory.DAOFactory;
 
 public class SQLOrderDAO implements OrderDAO {
 	private static final Logger logger = LogManager.getLogger(SQLOrderDAO.class);
 	
 	@Override
-	public Order placeOrder(int userId, Car car, Date from, Date to, double price) throws DAOException, DAOUserException {
+	public synchronized Order registerOrder(int userId, Car car, Date from, Date to, double price) throws DAOException, DAOUserException {
 		
 		Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -40,7 +38,12 @@ public class SQLOrderDAO implements OrderDAO {
 
 			preparedStatement = connection.prepareStatement(SQLOrderQuery.PREPARE_ORDER, Statement.RETURN_GENERATED_KEYS);
 
-			String status = checkPersonalData(userId, connection);
+			String orderStatus;
+			if (isPersonalDataExist(userId, connection)) {
+				orderStatus = OrderStatus.CREATED.name();
+			} else {
+				orderStatus = OrderStatus.PREPARED.name();
+			}
 
 			int carId = SQLCarDAO.getCarId(car, from, to, connection);
 
@@ -54,7 +57,7 @@ public class SQLOrderDAO implements OrderDAO {
 			preparedStatement.setDate(3, from);
 			preparedStatement.setDate(4, to);
 			preparedStatement.setDouble(5, price);
-			preparedStatement.setString(6, status);
+			preparedStatement.setString(6, orderStatus);
 
 			logger.debug("SQL query to execute: " + preparedStatement.toString());
 			
@@ -62,19 +65,24 @@ public class SQLOrderDAO implements OrderDAO {
 
 			resultSet = preparedStatement.getGeneratedKeys();
 
+			int orderId;
 			if (!resultSet.next()) {
 				connection.rollback();
 				logger.error(DAOUserException.MSG_ORDER_ABSENT);
 				throw new DAOUserException(DAOUserException.MSG_ORDER_ABSENT);
+			} else {
+				orderId = resultSet.getInt(1);
 			}
 
-			Order order = getOrder(resultSet.getInt(1), connection);
+			Order order = getOrder(orderId, connection);
 
 			if (order == null) {
 				connection.rollback();
 				logger.error(DAOUserException.MSG_ORDER_ABSENT);
 				throw new DAOUserException(DAOUserException.MSG_ORDER_ABSENT);
 			}
+			
+			autoUpdateOrderHistory(orderId, connection);
 			
 			connection.commit();
 
@@ -103,110 +111,36 @@ public class SQLOrderDAO implements OrderDAO {
 		}
 
 	}
-	
-	@Override
-	public Order createOrder(int userId, int orderId, PersonalData personalData) throws DAOException, DAOUserException {
-
-		boolean success = DAOFactory.getInstance().getUserDAO().insertUserPersonalData(userId, personalData);
-
-		if (!success) {
-			logger.error(DAOUserException.MSG_ORDER_PERS_DATA);
-			throw new DAOUserException(DAOUserException.MSG_ORDER_PERS_DATA);
-		}
-
-		Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        
-        try {
-			connection = ConnectionPool.getInstance().takeConnection();
-			connection.setAutoCommit(false);
-			
-			preparedStatement = connection.prepareStatement(SQLOrderQuery.UPDATE_ORDER_STATUS);
-			
-			autoUpdateOrderHistory(orderId, connection);
-			
-			preparedStatement.setString(1, OrderStatus.CREATED.name());
-			preparedStatement.setInt(2, orderId);
-			
-			logger.debug("SQL query to execute: " + preparedStatement.toString());
-			
-	        preparedStatement.executeUpdate();
-	        
-	        Order order = getOrder(orderId, connection);
-			
-			if (order == null) {
-				connection.rollback();
-				logger.error(DAOUserException.MSG_ORDER_ABSENT);
-				throw new DAOUserException(DAOUserException.MSG_ORDER_ABSENT);
-			}
-			
-			connection.commit();
-			
-			return order;
-	        
-		} catch (ConnectionPoolException e) {
-			logger.error(e);
-			throw new DAOException(e);
-			
-		} catch (SQLException e) {
-			
-			if (connection != null) {
-				try {
-					connection.rollback();
-				} catch (SQLException e1) {
-					logger.error(e1);
-					throw new DAOException(e1);
-				}
-			}
-			
-			logger.error(e);
-			throw new DAOException(e);
-			
-		} finally {
-			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement);
-		}
-
-	}
 
 	@Override
-	public boolean cancelOrder(int orderId) throws DAOException, DAOUserException {
+	public void cancelOrder(int orderId) throws DAOException, DAOUserException {
 		
 		Connection connection = null;
-        PreparedStatement preparedStatement = null;
 
         try {
 			connection = ConnectionPool.getInstance().takeConnection();
 			connection.setAutoCommit(false);
 			
-			preparedStatement = connection.prepareStatement(SQLOrderQuery.UPDATE_ORDER_STATUS);
-			
-			String orderStatus = checkStatus(orderId, connection);
-        	if (!orderStatus.equals(OrderStatus.PREPARED)
-        			|| !orderStatus.equals(OrderStatus.CREATED)
-        			|| !orderStatus.equals(OrderStatus.PAID)
-        			|| !orderStatus.equals(OrderStatus.APPROVED)) {
+			String orderStatus = getOrderStatus(orderId, connection);
+        	if (!orderStatus.equals(OrderStatus.PREPARED.name())
+        			&& !orderStatus.equals(OrderStatus.CREATED.name())
+        			&& !orderStatus.equals(OrderStatus.PAID.name())
+        			&& !orderStatus.equals(OrderStatus.APPROVED.name())) {
         		
-        		logger.error(DAOUserException.MSG_ORDER_CANCEL_FAIL);
-        		throw new DAOUserException(DAOUserException.MSG_ORDER_CANCEL_FAIL);
+        		logger.error(orderStatus + DAOUserException.MSG_ORDER_CANCEL_FAIL);
+        		throw new DAOUserException(orderStatus + DAOUserException.MSG_ORDER_CANCEL_FAIL);
         	}
         	
         	boolean paymentExist = checkPayment(orderId, connection);
         	if (paymentExist) {
         		refundPayment(orderId, connection);
         	}
-			
-        	autoUpdateOrderHistory(orderId, connection);
         	
-        	preparedStatement.setString(1, OrderStatus.CANCELLED.name());
-			preparedStatement.setInt(2, orderId);
-			
-			logger.debug("SQL query to execute: " + preparedStatement.toString());
-			
-			preparedStatement.executeUpdate();
+        	updateOrderStatus(orderId, OrderStatus.CANCELLED, connection);
+        	
+        	autoUpdateOrderHistory(orderId, connection);
 
 			connection.commit();
-			
-			return true;
 			
 		} catch (ConnectionPoolException e) {
 			logger.error(e);
@@ -227,47 +161,47 @@ public class SQLOrderDAO implements OrderDAO {
 			throw new DAOException(e);
 			
 		} finally {
-			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement);
+			ConnectionPool.getInstance().closeConnectionQueue(connection);
 		}
 
 	}
 
 	@Override
-	public boolean payOrder(int orderId) throws DAOException, DAOUserException {
+	public boolean payOrder(int orderId, int userId) throws DAOException, DAOUserException {
 		
 		Connection connection = null;
-        PreparedStatement preparedStatement = null;
         
         try {
 			connection = ConnectionPool.getInstance().takeConnection();
 			connection.setAutoCommit(false);
 			
-			preparedStatement = connection.prepareStatement(SQLOrderQuery.UPDATE_ORDER_STATUS);
-			
-			String orderStatus = checkStatus(orderId, connection);
-		
-			if (orderStatus.equals(OrderStatus.PREPARED)) {
+			String orderStatus = getOrderStatus(orderId, connection);
+
+			if (!isPersonalDataExist(userId, connection)) {
 				return false;
-			}
-			
-			else if (orderStatus.equals(OrderStatus.CREATED)) {
-				createPayment(orderId, connection);
-				autoUpdateOrderHistory(orderId, connection);
-				
-				preparedStatement.setString(1, OrderStatus.PAID.name());
-				preparedStatement.setInt(2, orderId);
-				
-				logger.debug("SQL query to execute: " + preparedStatement.toString());
-				
-				preparedStatement.executeUpdate();
+			} else {
+				if (orderStatus.equals(OrderStatus.PREPARED.name())) {
+					updateOrderStatus(orderId, OrderStatus.CREATED, connection);
+					autoUpdateOrderHistory(orderId, connection);
+					
+					connection.commit();
+					
+					createPayment(orderId, connection);
+					updateOrderStatus(orderId, OrderStatus.PAID, connection);
+					autoUpdateOrderHistory(orderId, connection);
+				}
+				else if (orderStatus.equals(OrderStatus.CREATED.name())) {
+					createPayment(orderId, connection);
+					updateOrderStatus(orderId, OrderStatus.PAID, connection);
+					autoUpdateOrderHistory(orderId, connection);
+				} else {
+	           		logger.error(orderStatus + DAOUserException.MSG_ORDER_PAID_FAIL);
+	        		throw new DAOUserException(orderStatus + DAOUserException.MSG_ORDER_PAID_FAIL);
+				}
 				
 				connection.commit();
 				
 				return true;
-				
-			} else {
-           		logger.error(orderStatus + DAOUserException.MSG_ORDER_PAID_FAIL);
-        		throw new DAOUserException(orderStatus + DAOUserException.MSG_ORDER_PAID_FAIL);
 			}
 
 		} catch (ConnectionPoolException e) {
@@ -289,54 +223,13 @@ public class SQLOrderDAO implements OrderDAO {
 			throw new DAOException(e);
 			
 		} finally {
-			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement);
-		}
-
-	}
-
-	@Override
-	public List<Order> getUserOrders(int userId) throws DAOException {
-
-		Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        
-        try {
-			connection = ConnectionPool.getInstance().takeConnection();
-			
-			preparedStatement = connection.prepareStatement(SQLOrderQuery.GET_USER_ORDERS_ID);
-			preparedStatement.setInt(1, userId);
-			
-			logger.debug("SQL query to execute: " + preparedStatement.toString());
-			
-			resultSet = preparedStatement.executeQuery();
-			
-			List<Order> orders = new ArrayList<>();
-			
-			int orderId;
-			while (resultSet.next()) {
-				orderId = resultSet.getInt(1);
-				orders.add(getOrder(orderId, connection));
-			}
-			
-			return orders;
-			
-		} catch (ConnectionPoolException e) {
-			logger.error(e);
-			throw new DAOException(e);
-			
-		} catch (SQLException e) {
-			logger.error(e);
-			throw new DAOException(e);
-			
-		} finally {
-			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement, resultSet);
+			ConnectionPool.getInstance().closeConnectionQueue(connection);
 		}
 
 	}
 	
 	@Override
-	public List<Order> getOrders(String filter) throws DAOException {
+	public List<Order> getOrders(String filter, int userId) throws DAOException {
 
 		Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -345,7 +238,11 @@ public class SQLOrderDAO implements OrderDAO {
         try {
 			connection = ConnectionPool.getInstance().takeConnection();
 			
-			if (filter.equals("all")) {
+			if (filter.equals("user")) {
+				preparedStatement = connection.prepareStatement(SQLOrderQuery.GET_USER_ORDERS_ID);
+				preparedStatement.setInt(1, userId);
+			}
+			else if (filter.equals("all")) {
 				preparedStatement = connection.prepareStatement(SQLOrderQuery.GET_ORDERS_ID_ALL);
 			}
 			else if (filter.equals("new")) {
@@ -392,15 +289,12 @@ public class SQLOrderDAO implements OrderDAO {
 	public void approveOrder(int orderId) throws DAOException, DAOUserException {
 		
 		Connection connection = null;
-        PreparedStatement preparedStatement = null;
         
         try {
 			connection = ConnectionPool.getInstance().takeConnection();
 			connection.setAutoCommit(false);
 			
-			preparedStatement = connection.prepareStatement(SQLOrderQuery.UPDATE_ORDER_STATUS);
-			
-			String orderStatus = checkStatus(orderId, connection);
+			String orderStatus = getOrderStatus(orderId, connection);
 		
 			if (!orderStatus.equals(OrderStatus.PAID.name())) {
            		logger.error(orderStatus + DAOUserException.MSG_ORDER_APPROVE_FAIL);
@@ -412,15 +306,10 @@ public class SQLOrderDAO implements OrderDAO {
         		refundPayment(orderId, connection);
         	}
         	
+			updateOrderStatus(orderId, OrderStatus.APPROVED, connection);	
+			
 			autoUpdateOrderHistory(orderId, connection);
-				
-			preparedStatement.setString(1, OrderStatus.APPROVED.name());
-			preparedStatement.setInt(2, orderId);
-				
-			logger.debug("SQL query to execute: " + preparedStatement.toString());
-				
-			preparedStatement.executeUpdate();
-				
+
 			connection.commit();
 
 		} catch (ConnectionPoolException e) {
@@ -442,7 +331,7 @@ public class SQLOrderDAO implements OrderDAO {
 			throw new DAOException(e);
 			
 		} finally {
-			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement);
+			ConnectionPool.getInstance().closeConnectionQueue(connection);
 		}
 		
 	}
@@ -451,27 +340,19 @@ public class SQLOrderDAO implements OrderDAO {
 	public void rejectOrder(int orderId) throws DAOException {
 		
 		Connection connection = null;
-        PreparedStatement preparedStatement = null;
 
         try {
 			connection = ConnectionPool.getInstance().takeConnection();
 			connection.setAutoCommit(false);
 			
-			preparedStatement = connection.prepareStatement(SQLOrderQuery.UPDATE_ORDER_STATUS);
-			
         	boolean paymentExist = checkPayment(orderId, connection);
         	if (paymentExist) {
         		refundPayment(orderId, connection);
         	}
-			
-        	autoUpdateOrderHistory(orderId, connection);
         	
-        	preparedStatement.setString(1, OrderStatus.REJECTED.name());
-			preparedStatement.setInt(2, orderId);
-			
-			logger.debug("SQL query to execute: " + preparedStatement.toString());
-			
-			preparedStatement.executeUpdate();
+        	updateOrderStatus(orderId, OrderStatus.REJECTED, connection);     	
+        	
+        	autoUpdateOrderHistory(orderId, connection);
 
 			connection.commit();
 			
@@ -494,7 +375,7 @@ public class SQLOrderDAO implements OrderDAO {
 			throw new DAOException(e);
 			
 		} finally {
-			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement);
+			ConnectionPool.getInstance().closeConnectionQueue(connection);
 		}
 		
 	}
@@ -536,43 +417,54 @@ public class SQLOrderDAO implements OrderDAO {
 	}
 	
 	protected static void autoUpdateOrderHistory(int orderId, Connection connection) throws SQLException {
-		PreparedStatement preparedStatement = connection.prepareStatement(SQLOrderQuery.AUTO_UPDATE_ORDER_HISTORY);
+		PreparedStatement preparedStatement = null;
+		
+		preparedStatement = connection.prepareStatement(SQLOrderQuery.AUTO_UPDATE_ORDER_HISTORY);
 		preparedStatement.setInt(1, orderId);
 		preparedStatement.setInt(2, orderId);
+		preparedStatement.setInt(3, orderId);
 		
 		logger.debug("SQL query to execute: " + preparedStatement.toString());
 		
 		preparedStatement.executeUpdate();
+		
+		preparedStatement.close();
 	}
 	
-	private static String checkPersonalData(int userId, Connection connection) throws SQLException {
-		PreparedStatement preparedStatement = connection.prepareStatement(SQLUserQuery.CHECK_PERSONAL_DATA);
+	private static boolean isPersonalDataExist(int userId, Connection connection) throws SQLException {
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
+		
+		preparedStatement = connection.prepareStatement(SQLUserQuery.CHECK_PERSONAL_DATA);
 		preparedStatement.setInt(1, userId);
 		
 		logger.debug("SQL query to execute: " + preparedStatement.toString());
 		
-		ResultSet resultSet = preparedStatement.executeQuery();
+		resultSet = preparedStatement.executeQuery();
 		
-		String status;
+		boolean exist;
 		if (resultSet.next()) {
-			status = OrderStatus.CREATED.name();
+			exist = true;
 		} else {
-			status = OrderStatus.PREPARED.name();
+			exist = false;
 		}
 		
 		resultSet.close();
 		preparedStatement.close();
 		
-		return status;
+		return exist;
 	}
 	
 	private static boolean checkPayment(int orderId, Connection connection) throws SQLException {
-		PreparedStatement preparedStatement = connection.prepareStatement(SQLOrderQuery.CHECK_PAYMENT);
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
+		
+		preparedStatement = connection.prepareStatement(SQLOrderQuery.CHECK_PAYMENT);
 		preparedStatement.setInt(1, orderId);
 		
 		logger.debug("SQL query to execute: " + preparedStatement.toString());
 		
-		ResultSet resultSet = preparedStatement.executeQuery();
+		resultSet = preparedStatement.executeQuery();
 		
 		boolean result;
 		if (resultSet.next()) {
@@ -588,17 +480,22 @@ public class SQLOrderDAO implements OrderDAO {
 	}
 
 	private static void createPayment(int orderId, Connection connection) throws SQLException {
-		PreparedStatement preparedStatement = connection.prepareStatement(SQLOrderQuery.ORDER_PAYMENT);
+		PreparedStatement preparedStatement = null;
+		
+		preparedStatement = connection.prepareStatement(SQLOrderQuery.ORDER_PAYMENT);
 		preparedStatement.setInt(1, orderId);
 		
 		logger.debug("SQL query to execute: " + preparedStatement.toString());
 		
 		preparedStatement.executeUpdate();
+		
 		preparedStatement.close();
 	}
 	
 	private static void refundPayment(int orderId, Connection connection) throws SQLException {
-		PreparedStatement preparedStatement = connection.prepareStatement(SQLOrderQuery.ORDER_REFUND);
+		PreparedStatement preparedStatement = null;
+		
+		preparedStatement = connection.prepareStatement(SQLOrderQuery.ORDER_REFUND);
 		preparedStatement.setInt(1, orderId);
 		
 		logger.debug("SQL query to execute: " + preparedStatement.toString());
@@ -607,12 +504,28 @@ public class SQLOrderDAO implements OrderDAO {
 		preparedStatement.close();
 	}
 	
-	protected static String checkStatus(int orderId, Connection connection) throws SQLException, DAOUserException {
-		PreparedStatement preparedStatement = connection.prepareStatement(SQLOrderQuery.CHECK_STATUS);
+	private static void updateOrderStatus(int orderId, OrderStatus orderstatus, Connection connection) throws SQLException {
+		PreparedStatement preparedStatement = null;
+		preparedStatement =connection.prepareStatement(SQLOrderQuery.UPDATE_ORDER_STATUS);
+		
+		preparedStatement.setString(1, orderstatus.name());
+		preparedStatement.setInt(2, orderId);
+			
+		logger.debug("SQL query to execute: " + preparedStatement.toString());
+			
+		preparedStatement.executeUpdate();
+		
+		preparedStatement.close();
+	}
+	
+	protected static String getOrderStatus(int orderId, Connection connection) throws SQLException, DAOUserException {
+		PreparedStatement preparedStatement = null;
+		
+		preparedStatement = connection.prepareStatement(SQLOrderQuery.CHECK_STATUS);
 		preparedStatement.setInt(1, orderId);
 		
 		logger.debug("SQL query to execute: " + preparedStatement.toString());
-		//error
+		
 		ResultSet resultSet = preparedStatement.executeQuery();
 
 		if (!resultSet.next()) {
@@ -626,6 +539,48 @@ public class SQLOrderDAO implements OrderDAO {
 		preparedStatement.close();
 
 		return status;
+	}
+	
+	protected static void updatePreparedOrders(int userId, Connection connection) throws DAOException {
+
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        
+		try {
+			preparedStatement = connection.prepareStatement(SQLOrderQuery.SELECT_PREPADER_ORDERS_ID);
+			preparedStatement.setInt(1, userId);
+			
+	        logger.debug("SQL query to execute: " + preparedStatement.toString());
+	        
+	        resultSet = preparedStatement.executeQuery();
+	        
+	        while (resultSet.next()) {
+	        	int orderId = resultSet.getInt(1);
+	        	updatePreparedOrder(orderId, connection);
+	        	autoUpdateOrderHistory(orderId, connection);
+	        }
+	        
+	        resultSet.close();
+	        preparedStatement.close();
+   
+		} catch (SQLException e) {
+			logger.error(e);
+			throw new DAOException(e);
+		}
+
+	}
+	
+	private static void updatePreparedOrder(int orderId, Connection connection) throws SQLException {
+        PreparedStatement preparedStatement = null;
+        
+		preparedStatement = connection.prepareStatement(SQLOrderQuery.UPDATE_PREPARED_ORDER);
+		preparedStatement.setInt(1, orderId);
+		
+		logger.debug("SQL query to execute: " + preparedStatement.toString());
+		
+		preparedStatement.executeUpdate();
+		
+		preparedStatement.close();
 	}
 
 }

@@ -39,12 +39,12 @@ public class RegistrationCommand implements Command {
 			return JSPPageName.REGISTRATION;
 		}
 
-		boolean success;
+		int userId;
 		try {
 			logger.info("Registration attempt with username (" + login + "), email(" + email + ")");
-			success = userService.registration(new User(login, email, admin), password.hashCode());
+			userId = userService.registration(new User(login, email, admin), password.hashCode());
 			
-			if (!success) {
+			if (userId == 0) {
 				logger.error(manager.getValue("reg.error") + manager.getValue("error.unexpected"));
 				request.setAttribute(RequestAttributeName.REG_ERR
 									 , manager.getValue("reg.error"));
@@ -52,7 +52,7 @@ public class RegistrationCommand implements Command {
 				return JSPPageName.REGISTRATION;
 			}
 			else {
-				logger.info("User " + login + " has been registered.");
+				logger.info("User " + login + "ID=" + userId + " has been registered.");
 				request.setAttribute(RequestAttributeName.AUTH_MSG
 								 	 , manager.getValue("reg.success.message"));
 				

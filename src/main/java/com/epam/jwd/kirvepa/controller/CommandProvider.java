@@ -19,13 +19,12 @@ import com.epam.jwd.kirvepa.controller.command.impl.EmailChangingCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.GetCarBodyListCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.GetCarsCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.GetOrdersCommand;
-import com.epam.jwd.kirvepa.controller.command.impl.GetUserOrdersCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.GetUsersCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.LoginChangingCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.OrderApprovingCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.OrderCancellationCommand;
-import com.epam.jwd.kirvepa.controller.command.impl.OrderCreationCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.PasswordChangingCommand;
+import com.epam.jwd.kirvepa.controller.command.impl.PersonalDataAddingCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.OrderPaymentCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.OrderRegistrationCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.OrderRejectionCommand;
@@ -46,14 +45,12 @@ public class CommandProvider {
 		repository.put(CommandName.EDIT_PROFILE, new EditProfileCommand());
 		repository.put(CommandName.GET_CAR_BODY_LIST, new GetCarBodyListCommand());
 		repository.put(CommandName.FIND_CAR, new CarFindingCommand());
-		repository.put(CommandName.CREATE_ORDER, new OrderCreationCommand());
 		repository.put(CommandName.REGISTER_ORDER, new OrderRegistrationCommand());
 		repository.put(CommandName.CANCEL_ORDER, new OrderCancellationCommand());
 		repository.put(CommandName.PAY_ORDER, new OrderPaymentCommand());
 		repository.put(CommandName.CHANGE_LOGIN, new LoginChangingCommand());
 		repository.put(CommandName.CHNGE_PASSWORD, new PasswordChangingCommand());
 		repository.put(CommandName.CHANGE_EMAIL, new EmailChangingCommand());
-		repository.put(CommandName.GET_USER_ORDERS, new GetUserOrdersCommand());
 		repository.put(CommandName.SIGN_OUT, new SignOutCommand());
 		repository.put(CommandName.UNKNOWN_COMMAND, new UnknownCommand());
 		repository.put(CommandName.GET_USERS, new GetUsersCommand());
@@ -65,6 +62,7 @@ public class CommandProvider {
 		repository.put(CommandName.ADD_CAR, new CarAddingCommand());
 		repository.put(CommandName.GET_CARS, new GetCarsCommand());
 		repository.put(CommandName.BLOCK_UNBLOCK_CAR, new CarBlockingUnblockingCommand());
+		repository.put(CommandName.ADD_PERSONAL_DATA, new PersonalDataAddingCommand());
 	}
 	
 	public static CommandProvider getInstance() {

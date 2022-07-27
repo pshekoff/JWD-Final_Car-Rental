@@ -26,13 +26,17 @@ public class GetOrdersCommand implements Command{
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
 		
+		int userId = (int) request.getSession().getAttribute(RequestAttributeName.USR_ID);
 		String filter = request.getParameter(RequestParameterName.ORDER_FILTER);
 		
 		try {
-			List<Order> orders = orderService.getOrders(filter);
+			List<Order> orders = orderService.getOrders(filter, userId);
 			request.setAttribute(RequestAttributeName.ORDER_LIST, orders);
 			
-			if (filter.equals("all")) {
+			if (filter.equals("user")) {
+				return JSPPageName.USER_ORDERS;
+			}
+			else if (filter.equals("all")) {
 				return JSPPageName.ALL_ORDERS;
 			}
 			else if (filter.equals("new")) {

@@ -15,7 +15,7 @@
   	
   	<error-page>
     	<error-code>404</error-code>
-    	<location>/error/404.html</location>
+    	<location>/error/404.http</location>
   	</error-page>
   	
   	<error-page>

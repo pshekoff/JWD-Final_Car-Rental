@@ -1,5 +1,8 @@
 package com.epam.jwd.kirvepa.controller.command.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -21,17 +24,32 @@ public class EmailChangingCommand implements Command {
 	private static final Logger logger = LogManager.getLogger(EmailChangingCommand.class);
 	private static final ResourceManager manager = ResourceManager.getInstance();
 	private static final UserService userService = ServiceFactory.getInstance().getUserService();
-	
+
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
 		
-		HttpSession session = request.getSession();
-		
+		HttpSession session = request.getSession(false);
+		if (session == null) {
+			request.setAttribute(RequestAttributeName.AUTH_ERR
+					 , manager.getValue("session.expired"));
+			return forward(JSPPageName.AUTHORIZATION);
+		}
+
 		int userId = (int) session.getAttribute(RequestAttributeName.USR_ID);
-		String newEmail = request.getParameter(RequestParameterName.USR_EMAIL);
+		String currentEmail = (String) session.getAttribute(RequestAttributeName.USR_EMAIL);
+		String newEmail = request.getParameter(RequestParameterName.USR_EMAIL).trim();
 
 		String error = manager.getValue("edit_profile.email.error");
 		String message = manager.getValue("edit_profile.email.message");
+		String sameEmails = manager.getValue("edit_profile.email.same");
+
+		if (newEmail.equals(currentEmail)) {
+			logger.error(error + sameEmails);
+			request.setAttribute(RequestAttributeName.PROFILE_ERR, error + sameEmails);
+			return forward(JSPPageName.EDIT_PROFILE);
+		}
+		
+		Map<String, String> parameters = new HashMap<>();
 		
 		boolean success;
 		try {
@@ -39,25 +57,31 @@ public class EmailChangingCommand implements Command {
 			
 			if (!success) {
 				logger.error(error);
-				request.setAttribute(RequestAttributeName.PROFILE_ERR, error);
-				return JSPPageName.EDIT_PROFILE;
+				
+				parameters.put(RequestAttributeName.ERR
+					 	   , manager.getValue("error.unexpected"));
+				
+				return redirect(JSPPageName.ERROR_PAGE, parameters);
 				
 			} else {
-				session.setAttribute("email", newEmail);
-				logger.info(message);
-				request.setAttribute(RequestAttributeName.PROFILE_MSG, message + newEmail);
-				return JSPPageName.EDIT_PROFILE;
+				session.setAttribute(RequestAttributeName.USR_EMAIL, newEmail);
+				logger.info(message + newEmail);
+				
+				parameters.put(RequestAttributeName.PROFILE_MSG
+				 	   	  	  , message + newEmail);
+
+				return redirect(JSPPageName.EDIT_PROFILE, parameters);
 			}
 			
 		} catch (ServiceException e) {
 			logger.error(error + e);
-			request.setAttribute(RequestAttributeName.PROFILE_ERR, error);
-			return JSPPageName.EDIT_PROFILE;
+			parameters.put(RequestAttributeName.ERR, error);
+			return redirect(JSPPageName.ERROR_PAGE, parameters);
 			
 		} catch (ServiceUserException e) {
-			logger.error(e);
-			request.setAttribute(RequestAttributeName.PROFILE_ERR, error + e.getMessage());
-			return JSPPageName.EDIT_PROFILE;
+			logger.error(error + e);
+			parameters.put(RequestAttributeName.PROFILE_ERR, error + e.getMessage());
+			return redirect(JSPPageName.EDIT_PROFILE, parameters);
 		}
 	}
 

@@ -1,6 +1,7 @@
 package com.epam.jwd.kirvepa.controller.command.impl;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -8,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.epam.jwd.kirvepa.bean.Order;
 import com.epam.jwd.kirvepa.controller.JSPPageName;
 import com.epam.jwd.kirvepa.controller.RequestAttributeName;
 import com.epam.jwd.kirvepa.controller.RequestParameterName;
@@ -28,22 +28,22 @@ public class OrderRejectionCommand implements Command {
 		
 		int orderId = Integer.parseInt(request.getParameter(RequestParameterName.ORDER_ID));
 		
+		Map<String, String> parameters = new HashMap<>();
+		
 		try {
 			orderService.rejectOrder(orderId);
-			List<Order> orders = orderService.getOrders("new",0);
-			
-			request.setAttribute(RequestAttributeName.ORDER_LIST, orders);
-			request.setAttribute(RequestAttributeName.NEW_ORDERS
-		 			 , orderId + manager.getValue("new_orders.order.rejected"));
-
-			return JSPPageName.NEW_ORDERS;
+			parameters.put(RequestAttributeName.NOTIFICATION_MSG
+			 	   	  	  , manager.getValue("notification.order.rejected"));
+	
+			return redirect(JSPPageName.NOTIFICATION, parameters);
 			
 		} catch (ServiceException e) {
 			logger.error(e);
-			request.setAttribute(RequestAttributeName.ERR
+			parameters.put(RequestAttributeName.ERR
 								 , manager.getValue("error.order.rejection"));
 			
-			return JSPPageName.ERROR_PAGE;
+			return redirect(JSPPageName.ERROR_PAGE, parameters);
+			
 		}
 	}
 

@@ -1,6 +1,8 @@
 package com.epam.jwd.kirvepa.controller.command.impl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,20 +26,23 @@ public class GetUsersCommand implements Command {
 	
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
-
+		
+		Map<String, String> parameters = new HashMap<>();
+		
 		try {
 			List<User> users = userService.getUsers();
 			
-			request.setAttribute(RequestAttributeName.USR_LIST
-					 , users);
+			request.setAttribute(RequestAttributeName.USR_LIST, users);
 			
-			return JSPPageName.USER_LIST;
+			return forward(JSPPageName.USER_LIST);
 			
 		} catch (ServiceException e) {
 			logger.error(e);
-			request.setAttribute(RequestAttributeName.ERR
-								, manager.getValue("user_list.error"));
-			return JSPPageName.ERROR_PAGE;
+			parameters.put(RequestAttributeName.ERR
+			 	   	  	  , manager.getValue("user_list.error"));
+	
+			return redirect(JSPPageName.ERROR_PAGE, parameters);
+
 		}
 		
 	}

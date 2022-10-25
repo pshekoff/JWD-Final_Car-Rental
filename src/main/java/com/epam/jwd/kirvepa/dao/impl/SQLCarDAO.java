@@ -24,6 +24,8 @@ import com.epam.jwd.kirvepa.dao.exception.DAOUserException;
 
 public class SQLCarDAO implements CarDAO {
 	private static final Logger logger = LogManager.getLogger(SQLCarDAO.class);
+	private static final String FILTER_ALL = "all";
+	private static final String FILTER_EXIST = "exist";
 	
 	@Override
 	public List<String> getCarBodyList(String filter) throws DAOException {
@@ -35,14 +37,16 @@ public class SQLCarDAO implements CarDAO {
         try {
 			connection = ConnectionPool.getInstance().takeConnection();
 			
-			if (filter.equals("all")) {
+			if (filter.equals(FILTER_ALL)) {
 				preparedStatement = connection.prepareStatement(SQLCarQuery.GET_BODYTYPES_ALL);
 			}
-			else if (filter.equals("exist")) {
+			else if (filter.equals(FILTER_EXIST)) {
 				preparedStatement = connection.prepareStatement(SQLCarQuery.GET_BODYTYPES_EXIST);
 			}
-			  
-			logger.debug("SQL query to execute: " + preparedStatement.toString());
+			
+			if (logger.isDebugEnabled()) {
+				logger.debug(preparedStatement.toString());
+			}
 			
 	        resultSet = preparedStatement.executeQuery();
 	        
@@ -55,11 +59,9 @@ public class SQLCarDAO implements CarDAO {
 	        return bodyTypes;
 	        
 		} catch (ConnectionPoolException e) {
-			logger.error(e);
 			throw new DAOException(e);
 			
 		} catch (SQLException e) {
-			logger.error(e);
 			throw new DAOException(e);
 			
 		} finally {
@@ -77,14 +79,13 @@ public class SQLCarDAO implements CarDAO {
         
         try {
 			connection = ConnectionPool.getInstance().takeConnection();
-			
-			preparedStatement = connection.prepareStatement(SQLCarQuery.GET_CAR_LIST);
-			
+
 			StringBuffer bodiesList = new StringBuffer(bodies[0]);
 			for (int i = 1; i < bodies.length; i++) {
 				bodiesList.append(",").append(bodies[i]);
 			}
 			
+			preparedStatement = connection.prepareStatement(SQLCarQuery.GET_CAR_LIST);
 			preparedStatement.setDate(1, to);
 			preparedStatement.setDate(2, from);
 			preparedStatement.setString(3, bodiesList.toString());
@@ -93,11 +94,13 @@ public class SQLCarDAO implements CarDAO {
 			preparedStatement.setDate(6, from);
 			preparedStatement.setDate(7, to);
 			
-			logger.debug("SQL query to execute: " + preparedStatement.toString());
+			if (logger.isDebugEnabled()) {
+				logger.debug(preparedStatement.toString());
+			}
 			
 	        resultSet = preparedStatement.executeQuery();
 
-	        Map<Car, Double> carsPrice = new HashMap<>();
+	        Map<Car, Double> cars = new HashMap<>();
 	        
 	        while(resultSet.next()) {
 	        	String manufacturer = resultSet.getString(1);
@@ -108,17 +111,15 @@ public class SQLCarDAO implements CarDAO {
 	        	String bodyType = resultSet.getString(6);
 	        	Double price = resultSet.getDouble(7);
 	        	
-	        	carsPrice.put(new Car(manufacturer, model, bodyType, engine, transmission, driveType), price);
+	        	cars.put(new Car(manufacturer, model, bodyType, engine, transmission, driveType), price);
             }
 
-	        return carsPrice;
+	        return cars;
 			
 		} catch (ConnectionPoolException e) {
-			logger.error(e);
 			throw new DAOException(e);
 			
 		} catch (SQLException e) {
-			logger.error(e);
 			throw new DAOException(e);
 			
 		} finally {
@@ -148,21 +149,21 @@ public class SQLCarDAO implements CarDAO {
 				preparedStatement.setString(1, OrderStatus.COMPLETED.name());
 			}
 			else {
-           		logger.error(DAOUserException.MSG_ORDER_HANDOVER_RETURN_FAIL + orderStatus);
         		throw new DAOUserException(DAOUserException.MSG_ORDER_HANDOVER_RETURN_FAIL + orderStatus);
 			}
 			preparedStatement.setInt(2, orderId);
 			
 			SQLOrderDAO.autoUpdateOrderHistory(orderId, connection);
 
-			logger.debug("SQL query to execute: " + preparedStatement.toString());
+			if (logger.isDebugEnabled()) {
+				logger.debug(preparedStatement.toString());
+			}
 			
 			preparedStatement.executeUpdate();
 
 			connection.commit();
 			
 		} catch (ConnectionPoolException e) {
-			logger.error(e);
 			throw new DAOException(e);
 			
 		} catch (SQLException e) {
@@ -171,12 +172,10 @@ public class SQLCarDAO implements CarDAO {
 				try {
 					connection.rollback();
 				} catch (SQLException e1) {
-					logger.error(e1);
 					throw new DAOException(e1);
 				}
 			}
-			
-			logger.error(e);
+
 			throw new DAOException(e);
 			
 		} finally {
@@ -190,6 +189,7 @@ public class SQLCarDAO implements CarDAO {
 
 		Connection connection = null;
         PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
         		
         try {
 			connection = ConnectionPool.getInstance().takeConnection();
@@ -208,33 +208,30 @@ public class SQLCarDAO implements CarDAO {
 			preparedStatement.setInt(10, car.getWeight());
 			preparedStatement.setString(11, car.getVin());
 			
-			logger.debug("SQL query to execute: " + preparedStatement.toString());
-            
+			if (logger.isDebugEnabled()) {
+				logger.debug(preparedStatement.toString());
+			}
+			
 			preparedStatement.executeUpdate();
             
-            ResultSet resultSet = preparedStatement.getGeneratedKeys();
+            resultSet = preparedStatement.getGeneratedKeys();
             
             if (resultSet.next()) {
-            	resultSet.close();
             	return true;
             } else {
-            	resultSet.close();
                 return false;
             }
 			
 		} catch (ConnectionPoolException e) {
-			logger.error(e);
 			throw new DAOException(e);
 		} catch (SQLException e) {
-			logger.error(e);
 			throw new DAOException(e);
 		} finally {
-			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement);
+			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement, resultSet);
 		}
         
 	}
 	
-
 	@Override
 	public List<Car> getCars() throws DAOException {
 
@@ -247,7 +244,9 @@ public class SQLCarDAO implements CarDAO {
 			
 			preparedStatement = connection.prepareStatement(SQLCarQuery.GET_ALL_CARS);
 			
-			logger.debug("SQL query to execute: " + preparedStatement.toString());
+			if (logger.isDebugEnabled()) {
+				logger.debug(preparedStatement.toString());
+			}
 			
 			resultSet = preparedStatement.executeQuery();
 			
@@ -286,10 +285,8 @@ public class SQLCarDAO implements CarDAO {
 			return cars;
 			
 		} catch (ConnectionPoolException e) {
-			logger.error(e);
 			throw new DAOException(e);
 		} catch (SQLException e) {
-			logger.error(e);
 			throw new DAOException(e);
 		} finally {
 			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement, resultSet);
@@ -311,10 +308,8 @@ public class SQLCarDAO implements CarDAO {
 			preparedStatement.executeUpdate();
 			
 		} catch (ConnectionPoolException e) {
-			logger.error(e);
 			throw new DAOException(e);
 		} catch (SQLException e) {
-			logger.error(e);
 			throw new DAOException(e);
 		}
 	}
@@ -333,8 +328,10 @@ public class SQLCarDAO implements CarDAO {
 		preparedStatement.setDate(8, to);
 		preparedStatement.setDate(9, from);
 		preparedStatement.setDate(10, to);
-			
-		logger.debug("SQL query to execute: " + preparedStatement.toString());
+		
+		if (logger.isDebugEnabled()) {
+			logger.debug(preparedStatement.toString());
+		}
 		
 		ResultSet resultSet = preparedStatement.executeQuery();
 		

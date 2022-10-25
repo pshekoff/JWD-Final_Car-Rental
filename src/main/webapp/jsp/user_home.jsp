@@ -35,40 +35,40 @@
 	<h1></h1>
 	
 	<div>
-		<form action="controller" method="post">
-			<input type="hidden" name="command" value="get_orders" />
-			<input type="hidden" name="filter" value="user" />
-			<input type="submit" value=<fmt:message key="user_home.submit.orders" /> />
-		</form>
+	  <form action="controller" method="post">
+		<input type="hidden" name="command" value="get_orders" />
+		<input type="hidden" name="filter" value="user" />
+		<input type="submit" value=<fmt:message key="user_home.submit.orders" /> />
+	  </form>
 	</div>	
 	
 	<h1></h1>
 	
 	<div>
-		<form id="addPersData" action="personal_data.jsp">
-			<button type="submit" id="btnAddPersData" name="btnAddPersData">
-				<fmt:message key="user_home.button.add_personal_data" />
-			</button>
-		</form>
+	  <form id="addPersData" action="personal_data.jsp">
+		<button type="submit" id="btnAddPersData" name="pers_data_message">
+		  <fmt:message key="user_home.button.add_personal_data" />
+		</button>
+	  </form>
 	</div>
 	
 	<h1></h1>
 		
 	<div>
-		<form action="controller" method="post">
-			<input type="hidden" name="command" value="edit_profile" />
-			<input type="submit" value=<fmt:message key="user_home.submit.edit_profile" /> />
-		</form>
+	  <form id="editProfile" action="edit_profile.jsp">
+	  	<button type="submit" id="btnEditProfile" name="editProfile" >
+		  <fmt:message key="user_home.button.edit_profile" />
+		</button>
+	  </form>
 	</div>
 	
 	<h1></h1>
 	
 	<div>
-		<form action="controller" method="post">
-			<input type="hidden" name="command" value="sign_out" />
-			<input type="submit" value=<fmt:message key="user_home.submit.sign_out" /> />
-		</form>
+	  <form action="controller" method="post">
+		<input type="hidden" name="command" value="sign_out" />
+		<input type="submit" value=<fmt:message key="user_home.submit.sign_out" /> />
+	  </form>
 	</div>
-	
-</body>
+  </body>
 </html>

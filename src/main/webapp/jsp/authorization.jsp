@@ -50,6 +50,7 @@
 		<fmt:message key="href.forgot_credentials" />
 	  </a>
 	</p>
+	
 	<p>
 	  <a href="/CarRental/index.jsp">
 	  	<fmt:message key="href.homepage" />

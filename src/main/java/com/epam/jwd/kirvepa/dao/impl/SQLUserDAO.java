@@ -37,12 +37,13 @@ public class SQLUserDAO implements UserDAO {
             preparedStatement.setInt(1, passwordHash);
             preparedStatement.setString(2, login);
             
-            logger.debug("SQL query to execute: " + preparedStatement.toString());
+            if (logger.isDebugEnabled()) {
+            	logger.debug(preparedStatement.toString());
+            }
             
             resultSet = preparedStatement.executeQuery();
 
             if (!resultSet.next()) {
-            	logger.error(DAOUserException.MSG_USR_ABSENT);
             	throw new DAOUserException(DAOUserException.MSG_USR_ABSENT);
             }
             else if (!resultSet.getBoolean(2)) {
@@ -50,7 +51,6 @@ public class SQLUserDAO implements UserDAO {
             	throw new DAOUserException(DAOUserException.MSG_USR_BLOCKED);
             }
             else if (resultSet.getString(5) == null) {
-            	logger.error(DAOUserException.MSG_PWD_INVALID);
             	throw new DAOUserException(DAOUserException.MSG_PWD_INVALID);
             }
             else {
@@ -63,11 +63,9 @@ public class SQLUserDAO implements UserDAO {
             }
 
 		} catch (ConnectionPoolException e) {
-			logger.error(e);
 			throw new DAOException(e);
 			
 		} catch (SQLException e) {
-			logger.error(e);
 			throw new DAOException(e);
 			
 		} finally {
@@ -81,6 +79,7 @@ public class SQLUserDAO implements UserDAO {
 		
         Connection connection = null;
         PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
         
         try {
         	connection = ConnectionPool.getInstance().takeConnection();
@@ -93,40 +92,37 @@ public class SQLUserDAO implements UserDAO {
             preparedStatement.setBoolean(4, user.isAdmin());
             
         	if (findUser(user.getLogin(), connection) != 0) {
-        		logger.error(DAOUserException.MSG_USR_EXIST);
         		throw new DAOUserException(DAOUserException.MSG_USR_EXIST);
             }
 
             if (checkEmailExist(user.getEmail(), connection)) {
-        		logger.error(DAOUserException.MSG_EMAIL_EXIST);
             	throw new DAOUserException(DAOUserException.MSG_EMAIL_EXIST);
             }
 
-            logger.debug("SQL query to execute: " + preparedStatement.toString());
+            if (logger.isDebugEnabled()) {
+            	logger.debug(preparedStatement.toString());
+            }
             
             preparedStatement.executeUpdate();
             
-            ResultSet resultSet = preparedStatement.getGeneratedKeys();
+            resultSet = preparedStatement.getGeneratedKeys();
             
             int userId;
             if (resultSet.next()) {
             	userId = resultSet.getInt(1);
             	return userId;
             } else {
-            	resultSet.close();
-                return 0;
+                 return 0;
             }
 
 		} catch (ConnectionPoolException e) {
-			logger.error(e);
 			throw new DAOException(e);
 			
 		} catch (SQLException e) {
-			logger.error(e);
 			throw new DAOException(e);
 			
 		} finally {
-			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement);
+			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement, resultSet);
 		}
 		
 	}
@@ -141,15 +137,13 @@ public class SQLUserDAO implements UserDAO {
         try {
         	connection = ConnectionPool.getInstance().takeConnection();
         	connection.setAutoCommit(false);
-			connection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
         	
             preparedStatement = connection.prepareStatement(SQLUserQuery.INSERT_EMPLOYEE
-					, Statement.RETURN_GENERATED_KEYS);
+															, Statement.RETURN_GENERATED_KEYS);
 
 			int userId = insertUser(employee, passwordHash);
 			
             if (userId == 0) {
-            	logger.error(DAOUserException.MSG_USR_INS_FAIL);
             	throw new DAOUserException(DAOUserException.MSG_USR_INS_FAIL);
             }
             
@@ -159,9 +153,11 @@ public class SQLUserDAO implements UserDAO {
             preparedStatement.setString(2, employee.getPosition());
             preparedStatement.setDouble(3, employee.getSalary());
             preparedStatement.setInt(4, userId);
-                
-            logger.debug("SQL query to execute: " + preparedStatement.toString());
-                
+               
+            if (logger.isDebugEnabled()) {
+            	logger.debug(preparedStatement.toString());
+            }
+            
             preparedStatement.executeUpdate();
                 
             resultSet = preparedStatement.getGeneratedKeys();
@@ -175,11 +171,9 @@ public class SQLUserDAO implements UserDAO {
             }
 
 		} catch (ConnectionPoolException e) {
-			logger.error(e);
 			throw new DAOException(e);
 			
 		} catch (SQLException e) {
-			logger.error(e);
 			throw new DAOException(e);
 			
 		} finally {
@@ -212,7 +206,9 @@ public class SQLUserDAO implements UserDAO {
 			
 			updatePersonalData(userId, connection);
 
-			logger.debug("SQL query to execute: " + preparedStatement.toString());
+			if (logger.isDebugEnabled()) {
+				logger.debug(preparedStatement.toString());
+			}
 			
 			preparedStatement.executeUpdate();
 			
@@ -221,7 +217,6 @@ public class SQLUserDAO implements UserDAO {
 			connection.commit();
 
 		} catch (ConnectionPoolException e) {
-			logger.error(e);
 			throw new DAOException(e);
 			
 		} catch (SQLException e) {
@@ -230,12 +225,10 @@ public class SQLUserDAO implements UserDAO {
 				try {
 					connection.rollback();
 				} catch (SQLException e1) {
-					logger.error(e1);
 					throw new DAOException(e1);
 				}
 			}
-			
-			logger.error(e);
+
 			throw new DAOException(e);
 			
 		} finally {
@@ -258,22 +251,21 @@ public class SQLUserDAO implements UserDAO {
 			preparedStatement.setInt(2, userId);
 			
         	if (findUser(login, connection) != 0) {
-        		logger.error(DAOUserException.MSG_USR_EXIST);
         		throw new DAOUserException(DAOUserException.MSG_USR_EXIST);
             }
         	
-        	logger.debug("SQL query to execute: " + preparedStatement.toString());
+        	if (logger.isDebugEnabled()) {
+        		logger.debug(preparedStatement.toString());
+        	}
         	
         	preparedStatement.executeUpdate();
         	
         	return true;
 			
 		} catch (ConnectionPoolException e) {
-			logger.error(e);
 			throw new DAOException(e);
 			
 		} catch (SQLException e) {
-			logger.error(e);
 			throw new DAOException(e);
 			
 		} finally {
@@ -292,20 +284,20 @@ public class SQLUserDAO implements UserDAO {
 			
 			preparedStatement = connection.prepareStatement(SQLUserQuery.UPDATE_PASSWORD);
 			preparedStatement.setInt(1, passwordHash);
-			preparedStatement.setInt(1, userId);
+			preparedStatement.setInt(2, userId);
         	
-			logger.debug("SQL query to execute: " + preparedStatement.toString());
+			if (logger.isDebugEnabled()) {
+				logger.debug(preparedStatement.toString());
+			}
 			
         	preparedStatement.executeUpdate();
         	
         	return true;
 			
 		} catch (ConnectionPoolException e) {
-			logger.error(e);
 			throw new DAOException(e);
 			
 		} catch (SQLException e) {
-			logger.error(e);
 			throw new DAOException(e);
 			
 		} finally {
@@ -324,25 +316,24 @@ public class SQLUserDAO implements UserDAO {
 			
 			preparedStatement = connection.prepareStatement(SQLUserQuery.UPDATE_EMAIL);
 			preparedStatement.setString(1, email);
-			preparedStatement.setInt(1, userId);
+			preparedStatement.setInt(2, userId);
             
 			if (checkEmailExist(email, connection)) {
-        		logger.error(DAOUserException.MSG_EMAIL_EXIST);
             	throw new DAOUserException(DAOUserException.MSG_EMAIL_EXIST);
             }
 			
-			logger.debug("SQL query to execute: " + preparedStatement.toString());
+			if (logger.isDebugEnabled()) {
+				logger.debug(preparedStatement.toString());
+			}
 			
         	preparedStatement.executeUpdate();
         	
         	return true;
 			
 		} catch (ConnectionPoolException e) {
-			logger.error(e);
 			throw new DAOException(e);
 			
 		} catch (SQLException e) {
-			logger.error(e);
 			throw new DAOException(e);
 			
 		} finally {
@@ -362,7 +353,9 @@ public class SQLUserDAO implements UserDAO {
 			
 			preparedStatement = connection.prepareStatement(SQLUserQuery.GET_USER_LIST);
 			
-			logger.debug("SQL query to execute: " + preparedStatement.toString());
+			if (logger.isDebugEnabled()) {
+				logger.debug(preparedStatement.toString());
+			}
 			
 			resultSet = preparedStatement.executeQuery();
 			
@@ -380,10 +373,8 @@ public class SQLUserDAO implements UserDAO {
 			return users;
 			
 		} catch (ConnectionPoolException e) {
-			logger.error(e);
 			throw new DAOException(e);
 		} catch (SQLException e) {
-			logger.error(e);
 			throw new DAOException(e);
 		} finally {
 			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement);
@@ -406,10 +397,8 @@ public class SQLUserDAO implements UserDAO {
 			preparedStatement.executeUpdate();
 			
 		} catch (ConnectionPoolException e) {
-			logger.error(e);
 			throw new DAOException(e);
 		} catch (SQLException e) {
-			logger.error(e);
 			throw new DAOException(e);
 		} finally {
 			ConnectionPool.getInstance().closeConnectionQueue(connection, preparedStatement);
@@ -420,7 +409,9 @@ public class SQLUserDAO implements UserDAO {
 		PreparedStatement preparedStatement = connection.prepareStatement(SQLUserQuery.UPDATE_PERSONAL_DATA);
 		preparedStatement.setInt(1, userId);
 		
-		logger.debug("SQL query to execute: " + preparedStatement.toString());
+		if (logger.isDebugEnabled()) {
+			logger.debug(preparedStatement.toString());
+		}
 		
 		preparedStatement.executeUpdate();
 		preparedStatement.close();
@@ -431,7 +422,9 @@ public class SQLUserDAO implements UserDAO {
 		PreparedStatement preparedStatement = connection.prepareStatement(SQLUserQuery.FIND_USER);
 		preparedStatement.setString(1, login);
 		
-		logger.debug("SQL query to execute: " + preparedStatement.toString());
+		if (logger.isDebugEnabled()) {
+			logger.debug(preparedStatement.toString());
+		}
 		
 		ResultSet resultSet = preparedStatement.executeQuery();
 		
@@ -453,7 +446,9 @@ public class SQLUserDAO implements UserDAO {
 		PreparedStatement preparedStatement = connection.prepareStatement(SQLUserQuery.FIND_EMAIL);
 		preparedStatement.setString(1, email);
 		
-		logger.debug("SQL query to execute: " + preparedStatement.toString());
+		if (logger.isDebugEnabled()) {
+			logger.debug(preparedStatement.toString());
+		}
 		
 		ResultSet resultSet = preparedStatement.executeQuery();
 	

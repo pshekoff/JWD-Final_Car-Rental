@@ -46,10 +46,10 @@ public class AuthorizationCommand implements Command {
 				logger.info(user.toString() + " has been authorized.");
 				
 				if (user.isAdmin()) {
-					return JSPPageName.ADMIN_HOMEPAGE;
+					return forward(JSPPageName.ADMIN_HOMEPAGE);
 				}
 				else {
-					return JSPPageName.USER_HOMEPAGE;
+					return forward(JSPPageName.USER_HOMEPAGE);
 				}
 
 			}
@@ -60,7 +60,7 @@ public class AuthorizationCommand implements Command {
 				request.setAttribute(RequestAttributeName.ERR
 									 , manager.getValue("auth.error"));
 				
-				return JSPPageName.ERROR_PAGE;
+				return forward(JSPPageName.ERROR_PAGE);
 			}
 			
 		} catch (ServiceException e) {
@@ -68,14 +68,14 @@ public class AuthorizationCommand implements Command {
 			request.setAttribute(RequestAttributeName.ERR
 								 , manager.getValue("auth.error"));
 			
-			return JSPPageName.ERROR_PAGE;
+			return forward(JSPPageName.ERROR_PAGE);
 			
 		} catch (ServiceUserException e) {
 			logger.error(e);
 			request.setAttribute(RequestAttributeName.AUTH_ERR
 								 , manager.getValue("auth.error") + e.getMessage());
 			
-			return JSPPageName.AUTHORIZATION;
+			return forward(JSPPageName.AUTHORIZATION);
 		}
 
 	}

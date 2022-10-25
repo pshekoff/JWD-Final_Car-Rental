@@ -39,20 +39,22 @@ public class CarHandoverReturnCommand implements Command {
 			request.setAttribute(RequestAttributeName.CAR_HANDOVER_RETURN
 		 			 , manager.getValue("car_handover_return.complete"));
 
-			return JSPPageName.CAR_HANDOVER_RETURN;
+			return forward(JSPPageName.CAR_HANDOVER_RETURN);
+			
 		} catch (ServiceException e) {
 			logger.error(e);
 			request.setAttribute(RequestAttributeName.ERR
 								 , manager.getValue("error.car.handover_return"));
 			
-			return JSPPageName.ERROR_PAGE;
+			return forward(JSPPageName.ERROR_PAGE);
+			
 		} catch (ServiceUserException e) {
 			logger.error(e);
 			request.setAttribute(RequestAttributeName.ERR
 								 , manager.getValue("error.car.handover_return")
 								 + e.getMessage());
 			
-			return JSPPageName.ERROR_PAGE;
+			return forward(JSPPageName.ERROR_PAGE);
 		}
 		
 

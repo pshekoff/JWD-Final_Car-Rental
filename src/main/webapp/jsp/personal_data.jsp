@@ -16,9 +16,9 @@
   </head>
 
   <body>
-  	<p style="color:green">
-  	  ${pers_data_message}
-  	</p>
+  	<% if (request.getParameter("pers_data_message") != null) {
+		out.println("<p style=\"color:green\">" + request.getParameter("pers_data_message") + "</p>");
+	} %>
   	
 	<h3>
       <fmt:message key="personal_data.header" />
@@ -65,7 +65,9 @@
 		</tr>
 	  </table>
 	  <input type="submit" value=<fmt:message key="personal_data.submit" /> />
-	  <b style="color:red">&nbsp;${pers_data_error}</b>
+	  <% if (request.getParameter("pers_data_error") != null) {
+		out.println("<b style=\"color:green\">" + request.getParameter("pers_data_error") + "</b>");
+	  } %>
   	</form>
 	
 	<p>

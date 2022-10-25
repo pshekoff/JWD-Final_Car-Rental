@@ -11,7 +11,7 @@ public class SignOutCommand implements Command {
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
 		request.getSession().invalidate();
-		return JSPPageName.HOMEPAGE;
+		return forward(JSPPageName.HOMEPAGE);
 	}
 
 }

@@ -9,40 +9,24 @@
 <html lang="${param.lang}">
   <head>
 	<meta charset="UTF-8">
+	
 	<title>
-	  <fmt:message key="error_page.title" />
+	  <fmt:message key="notification.title" />
 	</title>
   </head>
-
+  
   <body>
-	<h4>
-	  <fmt:message key="error_page.header" />
-	</h4>
-
-	<p>
-	  <b style="color:#ff0000">${error}</b>
-	</p>
-	
-	<% if (request.getParameter("error") != null) {
-		out.println("<b style=\"color:#ff0000\">" + request.getParameter("error") + "</b>");
-	} %>
-
+  	<h2>
+  	  <%= request.getParameter("notification_message") %>
+  	</h2>
+  	
   	<div>
 	  <form action="controller" method="post">
 	  	<input type="hidden" name="command" value="homepage" />
 		<button type="submit">
-		  <fmt:message key="button.homepage" />
+		  <fmt:message key="notification.button.ok" />
 		</button>
 	  </form>
   	</div>
-  	
-	<h1></h1>
-	
-	<div>
-	  <form action="controller" method="post">
-		<input type="hidden" name="command" value="sign_out" />
-		<input type="submit" value=<fmt:message key="button.exit" /> />
-	  </form>
-	</div>
   </body>
 </html>

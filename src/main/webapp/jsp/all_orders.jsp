@@ -112,7 +112,7 @@
 		  	
 		  	<td width="600" height="8">
 		  	  <label for="${order}">
-		  	  	${order.getCar().toString()}
+		  	  	${order.getCar().toShortString()}
 		  	  </label>
 		  	</td>
 

@@ -27,7 +27,7 @@ public class CarFindingCommand implements Command {
 	
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
-
+		
 		Date dateFrom = Date.valueOf(request.getParameter(RequestParameterName.DATE_FROM));
 		Date dateTo = Date.valueOf(request.getParameter(RequestParameterName.DATE_TO));
 		
@@ -40,18 +40,20 @@ public class CarFindingCommand implements Command {
 			request.setAttribute(RequestAttributeName.DATE_FROM, dateFrom);
 			request.setAttribute(RequestAttributeName.DATE_TO, dateTo);
 			
-			return JSPPageName.CAR_LIST;
+			return forward(JSPPageName.CAR_LIST);
 			
 		} catch (ServiceException e) {
 			logger.error(e);
 			request.setAttribute(RequestAttributeName.ERR, manager.getValue("car_finder.carlist.error"));
-			return JSPPageName.ERROR_PAGE;
+			
+			return forward(JSPPageName.ERROR_PAGE);
+			
 		} catch (ServiceUserException e) {
 			logger.error(e);
 			request.setAttribute(RequestAttributeName.CAR_FINDER_ERR
 					 , manager.getValue("car_finder.error") + e.getMessage());
 
-			return JSPPageName.CAR_FINDER;
+			return forward(JSPPageName.CAR_FINDER);
 		}
 	}
 

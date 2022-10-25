@@ -15,7 +15,6 @@
   </head>
 
   <body>
-  	
 	<h1>
 	  <fmt:message key="car_finder.label.search" />
 	</h1>
@@ -48,7 +47,5 @@
 	  	<fmt:message key="href.homepage" />
 	  </a>
 	</p>
-	
-
   </body>
 </html>

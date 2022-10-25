@@ -1,5 +1,8 @@
 package com.epam.jwd.kirvepa.controller.command.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -25,13 +28,34 @@ public class LoginChangingCommand implements Command {
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
 		
-		HttpSession session = request.getSession();
+		HttpSession session = request.getSession(false);
+		if (session == null) {
+			request.setAttribute(RequestAttributeName.AUTH_ERR
+					 , manager.getValue("session.expired"));
+			return forward(JSPPageName.AUTHORIZATION);
+		}
 		
 		int userId = (int) session.getAttribute(RequestAttributeName.USR_ID);
-		String newLogin =  request.getParameter(RequestParameterName.USR_LOGIN);
+		String currentLogin = (String) session.getAttribute(RequestAttributeName.USR_LOGIN);
+		String newLogin =  request.getParameter(RequestParameterName.USR_LOGIN).trim();
 
 		String error = manager.getValue("edit_profile.login.error");
 		String message = manager.getValue("edit_profile.login.message");
+		String sameLogins = manager.getValue("edit_profile.login.same");
+		String root = manager.getValue("edit_profile.login.root");
+		
+		if (currentLogin.equals("root")) {
+			logger.error(error + root);
+			request.setAttribute(RequestAttributeName.PROFILE_ERR, error + root);
+			return forward(JSPPageName.EDIT_PROFILE);
+		}
+		if (newLogin.equals(currentLogin)) {
+			logger.error(error + sameLogins);
+			request.setAttribute(RequestAttributeName.PROFILE_ERR, error + sameLogins);
+			return forward(JSPPageName.EDIT_PROFILE);
+		}
+		
+		Map<String, String> parameters = new HashMap<>();
 		
 		boolean success;
 		try {
@@ -39,25 +63,31 @@ public class LoginChangingCommand implements Command {
 			
 			if (!success) {
 				logger.error(error);
-				request.setAttribute(RequestAttributeName.PROFILE_ERR, error);
-				return JSPPageName.EDIT_PROFILE;
+				
+				parameters.put(RequestAttributeName.ERR
+					 	   	  , manager.getValue("error.unexpected"));
+				
+				return redirect(JSPPageName.ERROR_PAGE, parameters);
 				
 			} else {
 				session.setAttribute(RequestAttributeName.USR_LOGIN, newLogin);
 				logger.info(message + newLogin);
-				request.setAttribute(RequestAttributeName.PROFILE_MSG, message + newLogin);
-				return JSPPageName.EDIT_PROFILE;
+				
+				parameters.put(RequestAttributeName.PROFILE_MSG
+					 	   	  , message + newLogin);
+
+				return redirect(JSPPageName.EDIT_PROFILE, parameters);
 			}
 			
 		} catch (ServiceException e) {
 			logger.error(error + e);
-			request.setAttribute(RequestAttributeName.PROFILE_ERR, error);
-			return JSPPageName.EDIT_PROFILE;
+			parameters.put(RequestAttributeName.ERR, error);
+			return redirect(JSPPageName.ERROR_PAGE, parameters);
 			
 		} catch (ServiceUserException e) {
 			logger.error(error + e);
-			request.setAttribute(RequestAttributeName.PROFILE_ERR, error + e.getMessage());
-			return JSPPageName.EDIT_PROFILE;
+			parameters.put(RequestAttributeName.PROFILE_ERR, error + e.getMessage());
+			return redirect(JSPPageName.EDIT_PROFILE, parameters);
 		}
 	}
 

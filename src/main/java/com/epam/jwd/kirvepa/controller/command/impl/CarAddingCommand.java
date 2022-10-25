@@ -1,5 +1,8 @@
 package com.epam.jwd.kirvepa.controller.command.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -51,32 +54,40 @@ public class CarAddingCommand implements Command {
 						 , weight
 						 , available);
 		
+		Map<String, String> parameters = new HashMap<>();
+		
 		boolean success;
 		try {
 			success = carService.addCar(car);
 			
 			if (!success) {
-				logger.error(manager.getValue("add_car.error")
+				logger.error(manager.getValue("error.car.adding")
 							+ manager.getValue("error.unexpected"));
-				request.setAttribute(RequestAttributeName.ERR
-									 , manager.getValue("add_employee.error"));
 				
-				return JSPPageName.ERROR_PAGE;
+				parameters.put(RequestAttributeName.ERR
+						   	  , manager.getValue("error.car.adding")
+						   	  + manager.getValue("error.unexpected"));
+			
+				return redirect(JSPPageName.ERROR_PAGE, parameters);
+
 			}
 			else {
 				logger.info("New car " + car.toString() + " has been added.");
-				request.setAttribute(RequestAttributeName.ADM_HEAD
-								 	 , manager.getValue("add_employee.success.message"));
 				
-				return JSPPageName.ADMIN_HOMEPAGE;
+				parameters.put(RequestAttributeName.NOTIFICATION_MSG
+					 	   	  , manager.getValue("add_car.success.message"));
+			
+				return redirect(JSPPageName.NOTIFICATION, parameters);
+
 			}
 			
 		} catch (ServiceException e) {
 			logger.error(e);
-			request.setAttribute(RequestAttributeName.ERR
-								 , manager.getValue("add_car.error"));
 			
-			return JSPPageName.ERROR_PAGE;
+			parameters.put(RequestAttributeName.ERR
+			 	   	  , manager.getValue("error.car.adding"));
+			
+			return redirect(JSPPageName.ERROR_PAGE, parameters);
 		}
 	}
 

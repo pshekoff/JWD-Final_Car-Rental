@@ -26,22 +26,14 @@ public class FrontController extends HttpServlet {
      */
     public FrontController() {
         super();
-        // TODO Auto-generated constructor stub
     }
     
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		boolean isAdmin = (boolean) request.getSession().getAttribute(RequestAttributeName.USR_ROLE);
-		String page;
-		if (isAdmin) {
-			page = JSPPageName.ADMIN_HOMEPAGE;
-		} else {
-			page = JSPPageName.USER_HOMEPAGE;
-		}
-		request.getRequestDispatcher(page).forward(request, response);
-		logger.info("Forward to \"" + page + "\".");
+        RequestDispatcher view = request.getRequestDispatcher("displayEmployee.jsp");
+        view.forward(request, response); 
 	}
 
 	/**
@@ -56,14 +48,25 @@ public class FrontController extends HttpServlet {
 
 		Command command = provider.getCommand(commandName); 
 
-		String page = command.execute(request, response);
+		String[] commandResult = command.execute(request, response).split(":");
 		logger.info("Command \"" + commandName + "\" was executed.");
-		logger.info("Forwarding to \"" + page + "\".");
 		
-		RequestDispatcher dispatcher = request.getRequestDispatcher(page);
-		dispatcher.forward(request, response);
-		
+		if (commandResult[0].equals("forward")) {
+			logger.info("Forwarding to \"" + commandResult[1] + "\".");
+			
+			RequestDispatcher dispatcher = request.getRequestDispatcher(commandResult[1]);
+			dispatcher.forward(request, response);
+			
+		} else if (commandResult[0].equals("redirect")) {
+			logger.info("Redirecting to \"" + request.getContextPath() + commandResult[1] + "\".");
+			response.sendRedirect(request.getContextPath() + commandResult[1]);
+		} else {
+			logger.info("Redirecting to \"" + request.getContextPath() + JSPPageName.ERROR_PAGE + "\".");
+			response.sendRedirect(request.getContextPath() + JSPPageName.ERROR_PAGE);
+		}
 
 	}
+	
+	
 
 }

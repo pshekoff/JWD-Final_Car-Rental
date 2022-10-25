@@ -36,14 +36,6 @@
   	<h2>
 	  <fmt:message key="new_orders.header" />
 	</h2>
-	
-  	<p>
-  	  ${orders_message}
-  	</p>
-  	
-	<p style="color:#ff0000">
-  	  ${orders_error}
-  	</p>
 
 	<form class="orders" action="controller" method="post">
 		<table border="1">
@@ -112,7 +104,7 @@
 		  	
 		  	<td width="600" height="8">
 		  	  <label for="${order}">
-		  	  	${order.getCar().toString()}
+		  	  	${order.getCar().toShortString()}
 		  	  </label>
 		  	</td>
 

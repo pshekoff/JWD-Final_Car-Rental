@@ -1,5 +1,8 @@
 package com.epam.jwd.kirvepa.controller.command.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -26,6 +29,8 @@ public class CarBlockingUnblockingCommand implements Command {
 		
 		int carId = Integer.parseInt(request.getParameter(RequestParameterName.CAR_ID));
 		
+		Map<String, String> parameters = new HashMap<>();
+		
 		try {
 			carService.blockUnblockCar(carId);
 			
@@ -37,9 +42,11 @@ public class CarBlockingUnblockingCommand implements Command {
 			
 		} catch (ServiceException e) {
 			logger.error(e);
-			request.setAttribute(RequestAttributeName.ERR
-								, manager.getValue("car.block_unblock.error"));
-			return JSPPageName.ERROR_PAGE;
+			parameters.put(RequestAttributeName.ERR
+					 	   , manager.getValue("car.block_unblock.error"));
+			
+			return redirect(JSPPageName.ERROR_PAGE, parameters);
+
 		}
 	}
 

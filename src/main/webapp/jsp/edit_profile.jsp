@@ -19,13 +19,17 @@
   	  <fmt:message key="edit_profile.header" />
   	</h2>
 
-	<p style="color:#ff0000">
+	<p style="color:red">
   	  ${profile_error}
   	</p>
   	
-	<h3>
-  	  ${profile_message}
-  	</h3>  	
+  	<% if (request.getParameter("profile_error") != null) {
+		out.println("<p style=\"color:red\">" + request.getParameter("profile_error") + "</p>");
+	} %>
+  	
+  	<% if (request.getParameter("profile_message") != null) {
+		out.println("<p style=\"color:green\">" + request.getParameter("profile_message") + "</p>");
+	} %>	
 
 	<form action="controller" method="post">
 	  <input type="hidden" name="command" value="change_login" />
@@ -74,10 +78,13 @@
 	  </table>
 	</form>
 
-    <p>
-	  <a href="controller">
-		<fmt:message key="href.homepage" />
-	  </a>
-	</p>
+  	<div>
+	  <form action="controller" method="post">
+	  	<input type="hidden" name="command" value="homepage" />
+		<button type="submit">
+		  <fmt:message key="button.homepage" />
+		</button>
+	  </form>
+  	</div>
   </body>
 </html>

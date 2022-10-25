@@ -1,5 +1,8 @@
 package com.epam.jwd.kirvepa.controller.command.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -26,6 +29,8 @@ public class UserAccessChangingCommand implements Command {
 		
 		int userId = Integer.parseInt(request.getParameter(RequestParameterName.USR_ID));
 		
+		Map<String, String> parameters = new HashMap<>();
+		
 		try {
 			userService.changeUserAccess(userId);
 			
@@ -37,10 +42,12 @@ public class UserAccessChangingCommand implements Command {
 
 		} catch (ServiceException e) {
 			logger.error(e);
-			request.setAttribute(RequestAttributeName.ERR
-								, manager.getValue("user_list.access_change.error"));
-			return JSPPageName.ERROR_PAGE;
-		} 
+			parameters.put(RequestAttributeName.ERR
+					 	   , manager.getValue("user_list.access_change.error"));
+			
+			return redirect(JSPPageName.ERROR_PAGE, parameters);
+
+		}
 
 	}
 

@@ -1,5 +1,8 @@
 package com.epam.jwd.kirvepa.controller.command.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -36,9 +39,11 @@ public class RegistrationCommand implements Command {
 			request.setAttribute(RequestAttributeName.REG_ERR
 								 , manager.getValue("reg.error.pass.match"));
 			
-			return JSPPageName.REGISTRATION;
+			return forward(JSPPageName.REGISTRATION);
 		}
 
+		Map<String, String> parameters = new HashMap<>();
+		
 		int userId;
 		try {
 			logger.info("Registration attempt with username (" + login + "), email(" + email + ")");
@@ -46,25 +51,23 @@ public class RegistrationCommand implements Command {
 			
 			if (userId == 0) {
 				logger.error(manager.getValue("reg.error") + manager.getValue("error.unexpected"));
-				request.setAttribute(RequestAttributeName.REG_ERR
-									 , manager.getValue("reg.error"));
+
+				parameters.put(RequestAttributeName.ERR
+					 	   	  , manager.getValue("reg.error"));
 				
-				return JSPPageName.REGISTRATION;
+				return redirect(JSPPageName.ERROR_PAGE, parameters);
 			}
 			else {
 				logger.info("User " + login + "ID=" + userId + " has been registered.");
-				request.setAttribute(RequestAttributeName.AUTH_MSG
-								 	 , manager.getValue("reg.success.message"));
-				
-				return JSPPageName.AUTHORIZATION;
+				return redirect(JSPPageName.REG_SUCCESS, null);
 			}
 			
 		} catch (ServiceException e) {
 			logger.error(e);
-			request.setAttribute(RequestAttributeName.REG_ERR
+			request.setAttribute(RequestAttributeName.ERR
 								 , manager.getValue("reg.error"));
 			
-			return JSPPageName.REGISTRATION;
+			return forward(JSPPageName.ERROR_PAGE);
 			
 		} catch (ServiceUserException e) {
 			logger.error(e);
@@ -72,7 +75,7 @@ public class RegistrationCommand implements Command {
 								 , manager.getValue("reg.error")
 								 + e.getMessage());
 			
-			return JSPPageName.REGISTRATION;
+			return forward(JSPPageName.REGISTRATION);
 		}
 
 	}

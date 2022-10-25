@@ -3,9 +3,6 @@ package com.epam.jwd.kirvepa.service.impl;
 import java.sql.Date;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.epam.jwd.kirvepa.bean.Car;
 import com.epam.jwd.kirvepa.bean.Order;
 import com.epam.jwd.kirvepa.dao.OrderDAO;
@@ -17,7 +14,6 @@ import com.epam.jwd.kirvepa.service.exception.ServiceException;
 import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 
 public class OrderServiceImpl implements OrderService {
-	private static final Logger logger = LogManager.getLogger(OrderServiceImpl.class);
 	private static final OrderDAO orderDAO = DAOFactory.getInstance().getOrderDAO();
 	
 	@Override
@@ -26,10 +22,8 @@ public class OrderServiceImpl implements OrderService {
 		try {
 			return orderDAO.registerOrder(userId, car, from, to, price);
 		} catch (DAOException e) {
-			logger.error(e);
 			throw new ServiceException(e);
 		} catch (DAOUserException e) {
-			logger.error(e);
 			throw new ServiceUserException(e.getMessage());
 		}
 	}
@@ -41,10 +35,8 @@ public class OrderServiceImpl implements OrderService {
 			orderDAO.cancelOrder(orderId);
 
 		} catch (DAOException e) {
-			logger.error(e);
 			throw new ServiceException(e);
 		} catch (DAOUserException e) {
-			logger.error(e);
 			throw new ServiceUserException(e.getMessage());
 		}
 	}
@@ -62,10 +54,8 @@ public class OrderServiceImpl implements OrderService {
 			}
 			
 		} catch (DAOException e) {
-			logger.error(e);
 			throw new ServiceException(e);
 		} catch (DAOUserException e) {
-			logger.error(e);
 			throw new ServiceUserException(e.getMessage());
 		}
 		
@@ -76,7 +66,6 @@ public class OrderServiceImpl implements OrderService {
 		try {
 			return orderDAO.getOrders(filter, userId);
 		} catch (DAOException e) {
-			logger.error(e);
 			throw new ServiceException(e);
 		}
 	}
@@ -86,10 +75,8 @@ public class OrderServiceImpl implements OrderService {
 		try {
 			orderDAO.approveOrder(orderId);
 		} catch (DAOException e) {
-			logger.error(e);
 			throw new ServiceException(e);
 		} catch (DAOUserException e) {
-			logger.error(e);
 			throw new ServiceUserException(e);
 		}
 		
@@ -100,14 +87,10 @@ public class OrderServiceImpl implements OrderService {
 		try {
 			orderDAO.rejectOrder(orderId);
 		} catch (DAOException e) {
-			logger.error(e);
 			throw new ServiceException(e);
 		}
 		
 	}
-
-
-
 
 	
 }

@@ -38,7 +38,7 @@ public final class ConnectionPool {
 		try {
 			tmp = new ConnectionPool();
 		} catch (ConnectionPoolException e) {
-			logger.error("Can't initialize connection pool.", e);
+			logger.error(ConnectionPoolException.MSG_INIT_FAIL, e);
 		}
 		instance = tmp;
 	}
@@ -63,7 +63,7 @@ public final class ConnectionPool {
 			poolSize = Integer.parseInt(getProperties().getProperty(DBParameter.DB_POOL_SIZE));
 		} catch (NumberFormatException e) {
 			poolSize = 5;
-			logger.warn("Can't read data from properties file. Connections count set to " + poolSize + ".", e);
+			logger.error(ConnectionPoolException.MSG_PROP_READ_FAIL + poolSize + ". " + e);
 		}
 		
 		initPoolData();
@@ -103,9 +103,9 @@ public final class ConnectionPool {
 				connectionQueue.add(poledConnection);
 			}
 		} catch (SQLException e) {
-			throw new ConnectionPoolException("SQLException in connection pool.", e);
+			throw new ConnectionPoolException(ConnectionPoolException.MSG_SQL_EXC + e);
 		} catch (ClassNotFoundException e) {
-			throw new ConnectionPoolException("Can't find database driver class.", e);
+			throw new ConnectionPoolException(ConnectionPoolException.MSG_DB_DRIVER_FAIL + e);
 		}
 	}
 	
@@ -118,7 +118,7 @@ public final class ConnectionPool {
 			closeConnectionQueue(givenConnectionQueue);
 			closeConnectionQueue(connectionQueue);
 		} catch (SQLException e) {
-			logger.error("Error closing the connection.", e);
+			logger.error(ConnectionPoolException.MSG_CONN_CLOSE_FAIL + e);
 		}
 	}
 	
@@ -128,21 +128,21 @@ public final class ConnectionPool {
 				con.close();
 			}
 		} catch (SQLException e) {
-			logger.error("Connection isn't return to the pool.", e);
+			logger.error(ConnectionPoolException.MSG_CONN_RETURN_FAIL + e);
 		}
 		try {
 			if (rs != null) {
 				rs.close();
 			}
 		} catch (SQLException e) {
-			logger.error("Result set isn't closed.", e);
+			logger.error(ConnectionPoolException.MSG_RS_CLOSE_FAIL + e);
 		}
 		try {
 			if (st != null) {
 				st.close();
 			}
 		} catch (SQLException e) {
-			logger.error("Statement isn't closed.", e);
+			logger.error(ConnectionPoolException.MSG_ST_CLOSE_FAIL + e);
 		}
 	}
 	
@@ -152,14 +152,14 @@ public final class ConnectionPool {
 				con.close();
 			}
 		} catch (SQLException e) {
-			logger.error("Connection isn't return to the pool.", e);
+			logger.error(ConnectionPoolException.MSG_CONN_RETURN_FAIL + e);
 		}
 		try {
 			if (st != null) {
 				st.close();
 			}
 		} catch (SQLException e) {
-			logger.error("Statement isn't closed.", e);
+			logger.error(ConnectionPoolException.MSG_ST_CLOSE_FAIL + e);
 		}
 	}
 	
@@ -169,7 +169,7 @@ public final class ConnectionPool {
 				con.close();
 			}
 		} catch (SQLException e) {
-			logger.error("Connection isn't return to the pool.", e);
+			logger.error(ConnectionPoolException.MSG_CONN_RETURN_FAIL + e);
 		}
 	}
 	
@@ -189,7 +189,7 @@ public final class ConnectionPool {
 			connection = connectionQueue.take();
 			givenConnectionQueue.add(connection);
 		} catch (InterruptedException e) {
-			throw new ConnectionPoolException("Error connecting ot the data source.", e);
+			throw new ConnectionPoolException(ConnectionPoolException.MSG_CONN_TAKE_FAIL + e);
 		}
 		return connection;
 	}
@@ -204,6 +204,22 @@ public final class ConnectionPool {
 		
 		public void reallyClose() throws SQLException {
 			connection.close();
+		}
+		
+		@Override
+		public void close() throws SQLException {
+			if (connection.isClosed()) {
+				throw new SQLException(ConnectionPoolException.MSG_CONN_CLOSE_CLOSED);
+			}
+			if (connection.isReadOnly()) {
+				connection.setReadOnly(false);
+			}
+			if (!givenConnectionQueue.remove(this)) {
+				throw new SQLException(ConnectionPoolException.MSG_CONN_REMOVE_QUEUE);
+			}
+			if (!connectionQueue.offer(this)) {
+				throw new SQLException(ConnectionPoolException.MSG_CONN_ADD_QUEUE);
+			}
 		}
 
 		@Override
@@ -249,28 +265,11 @@ public final class ConnectionPool {
 		@Override
 		public void commit() throws SQLException {
 			connection.commit();
-			
 		}
 
 		@Override
 		public void rollback() throws SQLException {
 			connection.rollback();
-		}
-
-		@Override
-		public void close() throws SQLException {
-			if (connection.isClosed()) {
-				throw new SQLException("Attemping to close closed connection.");
-			}
-			if (connection.isReadOnly()) {
-				connection.setReadOnly(false);
-			}
-			if (!givenConnectionQueue.remove(this)) {
-				throw new SQLException("Error deleting connection from the giwen away connection pool.");
-			}
-			if (!connectionQueue.offer(this)) {
-				throw new SQLException("Error allocating connection in the connection pool.");
-			}
 		}
 
 		@Override
@@ -335,7 +334,8 @@ public final class ConnectionPool {
 		}
 
 		@Override
-		public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
+		public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency)
+				throws SQLException {
 			return connection.prepareCall(sql, resultSetType, resultSetConcurrency);
 		}
 

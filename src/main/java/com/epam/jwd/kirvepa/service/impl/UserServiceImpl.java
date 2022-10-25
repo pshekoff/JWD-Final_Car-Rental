@@ -26,7 +26,6 @@ public class UserServiceImpl implements UserService {
 	public User authorization(String login, int passwordHash) throws ServiceException, ServiceUserException {
 
 		if(!validator.loginValidation(login)){
-			logger.error(ServiceUserException.MSG_USR_LOGIN_VAL_FAIL);
 			throw new ServiceUserException(ServiceUserException.MSG_USR_LOGIN_WRONG);
 		}
 		
@@ -34,10 +33,8 @@ public class UserServiceImpl implements UserService {
 			return userDAO.authorization(login, passwordHash);
 			
 		} catch (DAOException e) {
-			logger.error(e);
 			throw new ServiceException(e);
 		} catch (DAOUserException e) {
-			logger.error(e);
 			throw new ServiceUserException(e.getMessage());
 		}
 		
@@ -47,21 +44,25 @@ public class UserServiceImpl implements UserService {
 	public int registration(User user, int passwordHash) throws ServiceException, ServiceUserException {
 		
 		if(!validator.loginValidation(user.getLogin())) {
-			logger.error(ServiceUserException.MSG_USR_LOGIN_VAL_FAIL);
+			if (logger.isDebugEnabled()) {
+				logger.debug(ServiceUserException.MSG_USR_LOGIN_VAL_FAIL);
+			}
+			
 			throw new ServiceUserException(ServiceUserException.MSG_USR_LOGIN_WRONG);
 		}
 		if (!validator.emailValidation(user.getEmail())) {
-			logger.error(ServiceUserException.MSG_USR_EMAIL_VAL_FAIL);
+			if (logger.isDebugEnabled()) {
+				logger.debug(ServiceUserException.MSG_USR_EMAIL_VAL_FAIL);
+			}
+			
 			throw new ServiceUserException(ServiceUserException.MSG_USR_EMAIL_WRONG);
 		}
 		
 		try {
 			return userDAO.insertUser(user, passwordHash);
 		} catch (DAOException e) {
-			logger.error(e);
 			throw new ServiceException(e);
 		} catch (DAOUserException e) {
-			logger.error(e);
 			throw new ServiceUserException(e.getMessage());
 		}
 
@@ -71,21 +72,25 @@ public class UserServiceImpl implements UserService {
 	public boolean addEmployee(Employee employee, int passwordHash) throws ServiceException, ServiceUserException {
 		
 		if(!validator.loginValidation(employee.getLogin())) {
-			logger.error(ServiceUserException.MSG_USR_LOGIN_VAL_FAIL);
+			if (logger.isDebugEnabled()) {
+				logger.debug(ServiceUserException.MSG_USR_LOGIN_VAL_FAIL);
+			}
+			
 			throw new ServiceException(ServiceUserException.MSG_USR_LOGIN_WRONG);
 		}
 		if (!validator.emailValidation(employee.getEmail())) {
-			logger.error(ServiceUserException.MSG_USR_EMAIL_VAL_FAIL);
+			if (logger.isDebugEnabled()) {
+				logger.debug(ServiceUserException.MSG_USR_EMAIL_VAL_FAIL);
+			}
+			
 			throw new ServiceException(ServiceUserException.MSG_USR_EMAIL_WRONG);
 		}
 		
 		try {
 			return userDAO.insertEmployee(employee, passwordHash);
 		} catch (DAOException e) {
-			logger.error(e);
 			throw new ServiceException(e);
 		} catch (DAOUserException e) {
-			logger.error(e);
 			throw new ServiceUserException(e.getMessage());
 		}
 		
@@ -95,17 +100,18 @@ public class UserServiceImpl implements UserService {
 	public boolean changeLogin(int userId, String login) throws ServiceException, ServiceUserException {
 		
 		if(!validator.loginValidation(login)){
-			logger.error(ServiceUserException.MSG_USR_LOGIN_VAL_FAIL);
+			if (logger.isDebugEnabled()) {
+				logger.debug(ServiceUserException.MSG_USR_LOGIN_VAL_FAIL);
+			}
+			
 			throw new ServiceException(ServiceUserException.MSG_USR_LOGIN_WRONG);
 		}
 		
 		try {
 			return userDAO.updateLogin(userId, login);
 		} catch (DAOException e) {
-			logger.error(e);
 			throw new ServiceException(e);
 		} catch (DAOUserException e) {
-			logger.error(e);
 			throw new ServiceUserException(e.getMessage());
 		}
 	}
@@ -115,10 +121,8 @@ public class UserServiceImpl implements UserService {
 		try {
 			return userDAO.updatePassword(userId, passwordHash);
 		} catch (DAOException e) {
-			logger.error(e);
 			throw new ServiceException(e);
 		} catch (DAOUserException e) {
-			logger.error(e);
 			throw new ServiceUserException(e.getMessage());
 		}
 	}
@@ -127,17 +131,18 @@ public class UserServiceImpl implements UserService {
 	public boolean changeEmail(int userId, String email) throws ServiceException, ServiceUserException {
 		
 		if (!validator.emailValidation(email)) {
-			logger.error(ServiceUserException.MSG_USR_EMAIL_VAL_FAIL);
+			if (logger.isDebugEnabled()) {
+				logger.debug(ServiceUserException.MSG_USR_EMAIL_VAL_FAIL);
+			}
+
 			throw new ServiceUserException(ServiceUserException.MSG_USR_EMAIL_WRONG);
 		}
 		
 		try {
 			return userDAO.updateEmail(userId, email);
 		} catch (DAOException e) {
-			logger.error(e);
 			throw new ServiceException(e);
 		} catch (DAOUserException e) {
-			logger.error(e);
 			throw new ServiceUserException(e.getMessage());
 		}
 	}
@@ -147,7 +152,6 @@ public class UserServiceImpl implements UserService {
 		try {
 			return userDAO.getUsers();
 		} catch (DAOException e) {
-			logger.error(e);
 			throw new ServiceException(e);
 		}
 	}
@@ -157,7 +161,6 @@ public class UserServiceImpl implements UserService {
 		try {
 			userDAO.changeUserAccess(userId);
 		} catch (DAOException e) {
-			logger.error(e);
 			throw new ServiceException(e);
 		}
 	}
@@ -167,10 +170,8 @@ public class UserServiceImpl implements UserService {
 		try {
 			userDAO.insertPersonalData(userId, personalData);
 		} catch (DAOException e) {
-			logger.error(e);
 			throw new ServiceException(e);
 		} catch (DAOUserException e) {
-			logger.error(e);
 			throw new ServiceUserException(e.getMessage());
 		}
 		

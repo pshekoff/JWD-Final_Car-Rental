@@ -15,7 +15,7 @@ public class UnknownCommand implements Command {
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
 		//return request.getContextPath();
 		request.setAttribute(RequestAttributeName.ERR, manager.getValue("command.unknown.error"));
-		return JSPPageName.ERROR_PAGE;
+		return forward(JSPPageName.ERROR_PAGE);
 	}
 
 }

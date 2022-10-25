@@ -1,5 +1,8 @@
 package com.epam.jwd.kirvepa.controller.command.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -24,30 +27,43 @@ public class OrderCancellationCommand implements Command {
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
 		
-		int orderId = Integer.parseInt(request.getParameter(RequestParameterName.ORDER_ID));
+		Map<String, String> parameters = new HashMap<>();
 		
 		try {
+			int orderId = Integer.parseInt(request.getParameter(RequestParameterName.ORDER_ID));
+			
 			orderService.cancelOrder(orderId);
 			
-			request.setAttribute(RequestAttributeName.USR_HOME_MSG
-						 		, manager.getValue("user_home.order.cancelled"));
-	
-			return JSPPageName.USER_HOMEPAGE;
+			parameters.put(RequestAttributeName.NOTIFICATION_MSG
+				 	   , manager.getValue("notification.order.cancelled"));
+		
+			return redirect(JSPPageName.NOTIFICATION, parameters);
 			
-		} catch (ServiceException e) {
+		} catch (NumberFormatException e) {
 			logger.error(e);
-			request.setAttribute(RequestAttributeName.ERR
-								 , manager.getValue("error.order.cancellation"));
 			
-			return JSPPageName.ERROR_PAGE;
+			request.setAttribute(RequestAttributeName.USR_ORDERS_ERR
+								, manager.getValue("user_orders.cancel.error")
+								+ manager.getValue("user_orders.order.absent"));
+			
+			return forward(JSPPageName.USER_ORDERS);
+			
+		}  catch (ServiceException e) {
+			logger.error(e);
+			
+			parameters.put(RequestAttributeName.ERR
+				 	   , manager.getValue("error.order.cancellation"));
+			
+			return redirect(JSPPageName.ERROR_PAGE, parameters);
 			
 		} catch (ServiceUserException e) {
 			logger.error(e);
-			request.setAttribute(RequestAttributeName.USR_HOME_ERR
-								 , manager.getValue("user_orders.cancel.error")
-								 + e.getMessage());
 			
-			return JSPPageName.USER_HOMEPAGE;
+			parameters.put(RequestAttributeName.NOTIFICATION_MSG
+				 	   , manager.getValue("notification.error")
+				 	   + e.getMessage());
+
+			return redirect(JSPPageName.NOTIFICATION, parameters);
 		}
 	}
 

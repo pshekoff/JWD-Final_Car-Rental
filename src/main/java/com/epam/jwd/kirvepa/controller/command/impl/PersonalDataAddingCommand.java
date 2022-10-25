@@ -1,9 +1,12 @@
 package com.epam.jwd.kirvepa.controller.command.impl;
 
 import java.sql.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,11 +26,18 @@ public class PersonalDataAddingCommand implements Command{
 	private static final Logger logger = LogManager.getLogger(PersonalDataAddingCommand.class);
 	private static final ResourceManager manager = ResourceManager.getInstance();
 	private static final UserService userService = ServiceFactory.getInstance().getUserService();
-	
+		
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
 		
-		int userId = (int) request.getSession(false).getAttribute(RequestAttributeName.USR_ID);
+		HttpSession session = request.getSession(false);
+		if (session == null) {
+			request.setAttribute(RequestAttributeName.AUTH_ERR
+					 , manager.getValue("session.expired"));
+			return forward(JSPPageName.AUTHORIZATION);
+		}
+		
+		int userId = (int) session.getAttribute(RequestAttributeName.USR_ID);
 		
 		//user personal data
 		String firstName = request.getParameter(RequestParameterName.USR_F_NAME);
@@ -43,28 +53,32 @@ public class PersonalDataAddingCommand implements Command{
 		PersonalData personalData = new PersonalData(firstName, lastName, dayOfBirth, docNum
 													, docIssueDate, docExpDate, IdNum, address, phone);
 		
+		Map<String, String> parameters = new HashMap<>();
+		
 		try {
 			userService.addPersonalData(userId, personalData);
 			
-			request.setAttribute(RequestAttributeName.AUTH_MSG
-					 			, manager.getValue("add_pers_data.success.message"));
+			parameters.put(RequestAttributeName.NOTIFICATION_MSG
+					 	   , manager.getValue("add_pers_data.success.message"));
 			
-			return JSPPageName.USER_HOMEPAGE;
+			return redirect(JSPPageName.NOTIFICATION, parameters);
 			
 		} catch (ServiceException e) {
 			logger.error(e);
-			request.setAttribute(RequestAttributeName.ERR
-								 , manager.getValue("add_pers_data.error"));
 			
-			return JSPPageName.ERROR_PAGE;
+			parameters.put(RequestAttributeName.ERR
+						   , manager.getValue("add_pers_data.error"));
+			
+			return redirect(JSPPageName.ERROR_PAGE, parameters);
 			
 		} catch (ServiceUserException e) {
 			logger.error(e);
-			request.setAttribute(RequestAttributeName.PERS_DATA_ERR
-								 , manager.getValue("add_pers_data.error")
-								 + e.getMessage());
 			
-			return JSPPageName.PERSONAL_DATA;
+			parameters.put(RequestAttributeName.PERS_DATA_ERR
+					 	   , manager.getValue("add_pers_data.error")
+					 	   + e.getMessage());
+			
+			return redirect(JSPPageName.PERSONAL_DATA, parameters);
 		}
 	}
 

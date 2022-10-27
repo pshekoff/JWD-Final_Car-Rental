@@ -2,21 +2,30 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-<fmt:setLocale value="${param.lang}" />
-<fmt:setBundle basename="messages"/>
+<%
+session.setAttribute("language", request.getAttribute("lang"));
+%>
+
+<c:if test="${sessionScope.language==null}">
+  <c:set scope="session" var="language" value="${param.lang}"/>
+</c:if>
+
+<fmt:setLocale value="${sessionScope.language}" />
+<fmt:setBundle basename="messages" />
 
 <!DOCTYPE html>
-<html lang="${param.lang}">
+<html>
   <head>
 	<meta charset="UTF-8">
-    	
+
 	<title>
 	  <fmt:message key="index.title" />
 	</title>
   </head>
   
   <body>
-	<h2><fmt:message key="index.label.welcome" /></h2>
+
+	<h2><fmt:message  key="index.label.welcome" /></h2>
 	
 	<h3><fmt:message key="index.label.logination" /></h3>
 	
@@ -33,5 +42,10 @@
       	<fmt:message key="index.button.registration" />
       </button>
 	</form>
+
+	<ul>
+	  <li><a href="/CarRental/?lang=en"><fmt:message key="label.lang.en" /></a></li>
+	  <li><a href="/CarRental/?lang=ru"><fmt:message key="label.lang.ru" /></a></li>
+	</ul>
   </body>
 </html>

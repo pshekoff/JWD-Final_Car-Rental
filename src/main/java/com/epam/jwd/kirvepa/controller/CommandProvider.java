@@ -79,7 +79,7 @@ public class CommandProvider {
 			command = repository.get(commandName);
 		} catch(IllegalArgumentException | NullPointerException e){
 			logger.error(e);
-			command = repository.get(CommandName.UNKNOWN_COMMAND);
+			return repository.get(CommandName.UNKNOWN_COMMAND);
 		}
 		
 		return command;

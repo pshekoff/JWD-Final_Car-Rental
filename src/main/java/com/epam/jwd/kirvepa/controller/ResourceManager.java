@@ -4,9 +4,8 @@ import java.util.ResourceBundle;
 
 public final class ResourceManager {
 	private final static ResourceManager instance = new ResourceManager();
-
-	private ResourceBundle bundle = ResourceBundle.getBundle("messages");
 	
+	private ResourceBundle bundle;
 	private ResourceManager() {}
 	
 	public static ResourceManager getInstance() {
@@ -14,6 +13,7 @@ public final class ResourceManager {
 	}
 	
 	public String getValue(String key) {
+		bundle = ResourceBundle.getBundle("messages", FrontController.locale);
 		return bundle.getString(key);
 	}
 }

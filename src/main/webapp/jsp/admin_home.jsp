@@ -2,11 +2,15 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-<fmt:setLocale value="${param.lang}" />
+<c:if test="${sessionScope.language==null}">
+  <c:set scope="session" var="language" value="${param.lang}"/>
+</c:if>
+
+<fmt:setLocale value="${sessionScope.language}" />
 <fmt:setBundle basename="messages"/>
 
 <!DOCTYPE html>
-<html lang="${param.lang}">
+<html>
   <head>
 	<meta charset="UTF-8">
 	
@@ -69,9 +73,10 @@
   	</h2>
 
 	<div>
-	  <form id="editProf" action="controller" method="post">
-		<input type="hidden" name="command" value="edit_profile" />
-		<input type="submit" value=<fmt:message key="admin_home.submit.edit_profile" /> />
+	  <form id="editProfile" action="edit_profile.jsp">
+	  	<button type="submit" id="btnEditProfile" name="editProfile" >
+		  <fmt:message key="admin_home.submit.edit_profile" />
+		</button>
 	  </form>
 
 	  <form id="signOut" action="controller" method="post">

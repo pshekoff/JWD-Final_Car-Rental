@@ -21,6 +21,13 @@ import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
 public class LoginChangingCommand implements Command {
+	private static final String MESSAGE = "edit_profile.login.message";
+	private static final String ERROR = "edit_profile.login.error";
+	private static final String SAME_LOGIN = "edit_profile.login.same";
+	private static final String LOGIN_ROOT = "edit_profile.login.root";
+	private static final String ROOT = "root";
+	private static final String SESSION = "session.expired";
+
 	private static final Logger logger = LogManager.getLogger(LoginChangingCommand.class);
 	private static final ResourceManager manager = ResourceManager.getInstance();
 	private static final UserService userService = ServiceFactory.getInstance().getUserService();
@@ -31,7 +38,7 @@ public class LoginChangingCommand implements Command {
 		HttpSession session = request.getSession(false);
 		if (session == null) {
 			request.setAttribute(RequestAttributeName.AUTH_ERR
-					 , manager.getValue("session.expired"));
+					 , manager.getValue(SESSION, request));
 			return forward(JSPPageName.AUTHORIZATION);
 		}
 		
@@ -39,19 +46,19 @@ public class LoginChangingCommand implements Command {
 		String currentLogin = (String) session.getAttribute(RequestAttributeName.USR_LOGIN);
 		String newLogin =  request.getParameter(RequestParameterName.USR_LOGIN).trim();
 
-		String error = manager.getValue("edit_profile.login.error");
-		String message = manager.getValue("edit_profile.login.message");
-		String sameLogins = manager.getValue("edit_profile.login.same");
-		String root = manager.getValue("edit_profile.login.root");
+		String error = manager.getValue(ERROR, request);
+		String message = manager.getValue(MESSAGE, request);
+		String sameLogins = manager.getValue(SAME_LOGIN, request);
+		String root = manager.getValue(LOGIN_ROOT, request);
 		
-		if (currentLogin.equals("root")) {
+		if (currentLogin.equals(ROOT)) {
 			logger.error(error + root);
-			request.setAttribute(RequestAttributeName.PROFILE_ERR, error + root);
+			request.setAttribute(RequestAttributeName.ERR, error + root);
 			return forward(JSPPageName.EDIT_PROFILE);
 		}
 		if (newLogin.equals(currentLogin)) {
 			logger.error(error + sameLogins);
-			request.setAttribute(RequestAttributeName.PROFILE_ERR, error + sameLogins);
+			request.setAttribute(RequestAttributeName.ERR, error + sameLogins);
 			return forward(JSPPageName.EDIT_PROFILE);
 		}
 		
@@ -63,31 +70,32 @@ public class LoginChangingCommand implements Command {
 			
 			if (!success) {
 				logger.error(error);
-				
-				parameters.put(RequestAttributeName.ERR
-					 	   	  , manager.getValue("error.unexpected"));
-				
-				return redirect(JSPPageName.ERROR_PAGE, parameters);
+				request.setAttribute(RequestAttributeName.ERR
+						, manager.getValue(error, request));
+
+				return forward(JSPPageName.ERROR_PAGE);
 				
 			} else {
 				session.setAttribute(RequestAttributeName.USR_LOGIN, newLogin);
 				logger.info(message + newLogin);
-				
-				parameters.put(RequestAttributeName.PROFILE_MSG
-					 	   	  , message + newLogin);
+				parameters.put(RequestParameterName.MSG, message);
 
 				return redirect(JSPPageName.EDIT_PROFILE, parameters);
 			}
 			
 		} catch (ServiceException e) {
-			logger.error(error + e);
-			parameters.put(RequestAttributeName.ERR, error);
-			return redirect(JSPPageName.ERROR_PAGE, parameters);
+			logger.error(e);
+			request.setAttribute(RequestAttributeName.ERR
+					, manager.getValue(error, request));
+
+			return forward(JSPPageName.ERROR_PAGE);
 			
 		} catch (ServiceUserException e) {
-			logger.error(error + e);
-			parameters.put(RequestAttributeName.PROFILE_ERR, error + e.getMessage());
-			return redirect(JSPPageName.EDIT_PROFILE, parameters);
+			logger.error(e);
+			request.setAttribute(RequestAttributeName.ERR
+					, manager.getValue(error, request) + e.getMessage());
+			
+			return forward(JSPPageName.EDIT_PROFILE);
 		}
 	}
 

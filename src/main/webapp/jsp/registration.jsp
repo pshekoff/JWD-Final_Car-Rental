@@ -3,12 +3,12 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions"  prefix="fn" %>
 
+<fmt:setLocale value="${sessionScope.language}" />
+<fmt:setBundle basename="messages"/>
+
 <c:if test="${sessionScope.language==null}">
   <c:set scope="session" var="language" value="${param.lang}"/>
 </c:if>
-
-<fmt:setLocale value="${sessionScope.language}" />
-<fmt:setBundle basename="messages"/>
 
 <!DOCTYPE html>
 <html>
@@ -45,7 +45,7 @@
 		</tr>		
 	  </table>
 	  <input type="submit" value=<fmt:message key="registration.submit" /> />
-	  <b style="color:#ff0000">&nbsp;${reg_error}</b>
+	  <b style="color:red">&nbsp;${error}</b>
   	</form>
 	
 	<p>

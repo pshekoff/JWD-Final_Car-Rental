@@ -21,6 +21,13 @@ import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
 public class OrderPaymentCommand implements Command {
+	private static final String MESSAGE_PERS_DATA = "personal_data.add.message";
+	private static final String MESSAGE_NOTE = "notification.order.paid";
+	private static final String ERROR = "error.order.payment";
+	private static final String ERROR_ORDER_PAYMENT = "user_orders.payment.error";
+	private static final String ERROR_ORDER_ADSENT = "user_orders.order.absent";
+	private static final String SESSION = "session.expired";
+	
 	private static final Logger logger = LogManager.getLogger(OrderPaymentCommand.class);
 	private static final ResourceManager manager = ResourceManager.getInstance();
 	private static final OrderService orderService = ServiceFactory.getInstance().getOrderService();
@@ -30,8 +37,8 @@ public class OrderPaymentCommand implements Command {
 
 		HttpSession session = request.getSession(false);
 		if (session == null) {
-			request.setAttribute(RequestAttributeName.AUTH_ERR
-					 , manager.getValue("session.expired"));
+			request.setAttribute(RequestAttributeName.ERR
+					, manager.getValue(SESSION, request));
 			return forward(JSPPageName.AUTHORIZATION);
 		}
 		
@@ -44,15 +51,11 @@ public class OrderPaymentCommand implements Command {
 			boolean success = orderService.payOrder(orderId, userId);
 			
 			if (!success) {
-				parameters.put(RequestAttributeName.PERS_DATA_MSG
-							   , manager.getValue("personal_data.add.message"));
-				
+				parameters.put(RequestParameterName.MSG, MESSAGE_PERS_DATA);
 				return redirect(JSPPageName.PERSONAL_DATA, parameters);
 			}
 			else {
-				parameters.put(RequestAttributeName.NOTIFICATION_MSG
-						 	   , manager.getValue("notification.order.paid"));
-				
+				parameters.put(RequestParameterName.MSG, MESSAGE_NOTE);
 				return redirect(JSPPageName.NOTIFICATION, parameters);
 			}
 			
@@ -60,27 +63,24 @@ public class OrderPaymentCommand implements Command {
 			logger.error(e);
 			
 			request.setAttribute(RequestAttributeName.USR_ORDERS_ERR
-								, manager.getValue("user_orders.payment.error")
-								+ manager.getValue("user_orders.order.absent"));
+					, manager.getValue(ERROR_ORDER_PAYMENT, request)
+						+ manager.getValue(ERROR_ORDER_ADSENT, request));
 			
 			return forward(JSPPageName.USER_ORDERS);
 			
 		} catch (ServiceException e) {
 			logger.error(e);
+			request.setAttribute(RequestAttributeName.ERR
+					, manager.getValue(ERROR, request));
 			
-			parameters.put(RequestAttributeName.ERR
-					 	   , manager.getValue("error.order.payment"));
-			
-			return redirect(JSPPageName.ERROR_PAGE, parameters);
+			return forward(JSPPageName.ERROR_PAGE);
 			
 		} catch (ServiceUserException e) {
 			logger.error(e);
+			request.setAttribute(RequestAttributeName.ERR
+					, manager.getValue(ERROR, request) + e.getMessage());
 			
-			parameters.put(RequestAttributeName.NOTIFICATION_MSG
-					 	   , manager.getValue("notification.error")
-					 	   + e.getMessage());
-	
-			return redirect(JSPPageName.NOTIFICATION, parameters);
+			return forward(JSPPageName.NOTIFICATION);
 		}
 
 	}

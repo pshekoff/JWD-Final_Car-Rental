@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.epam.jwd.kirvepa.controller.CommandProvider;
 import com.epam.jwd.kirvepa.controller.JSPPageName;
 import com.epam.jwd.kirvepa.controller.RequestAttributeName;
 import com.epam.jwd.kirvepa.controller.RequestParameterName;
@@ -20,6 +19,9 @@ import com.epam.jwd.kirvepa.service.exception.ServiceException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
 public class CarBlockingUnblockingCommand implements Command {
+	private static final String MESSAGE = "car.block_unblock.success";
+	private static final String ERROR = "car.block_unblock.error";
+	
 	private static final Logger logger = LogManager.getLogger(AuthorizationCommand.class);
 	private static final ResourceManager manager = ResourceManager.getInstance();
 	private static final CarService carService = ServiceFactory.getInstance().getCarService();
@@ -28,24 +30,22 @@ public class CarBlockingUnblockingCommand implements Command {
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
 		
 		int carId = Integer.parseInt(request.getParameter(RequestParameterName.CAR_ID));
-		
-		Map<String, String> parameters = new HashMap<>();
-		
 		try {
 			carService.blockUnblockCar(carId);
-			
-			String page = CommandProvider.getInstance()
-	   				 					 .getCommand(CommandName.GET_CARS.name())
-	   				 					 .execute(request, response);
-
-			return page;
+		
+			Map<String, String> parameters = new HashMap<>();
+		
+			parameters.put(RequestParameterName.MSG, MESSAGE);
+			parameters.put(RequestParameterName.COMMAND, CommandName.GET_CARS.name());
+		
+			return redirect(JSPPageName.RESULT, parameters);
 			
 		} catch (ServiceException e) {
 			logger.error(e);
-			parameters.put(RequestAttributeName.ERR
-					 	   , manager.getValue("car.block_unblock.error"));
+			request.setAttribute(RequestAttributeName.ERR
+					, manager.getValue(ERROR, request));
 			
-			return redirect(JSPPageName.ERROR_PAGE, parameters);
+			return forward(JSPPageName.ERROR_PAGE);
 
 		}
 	}

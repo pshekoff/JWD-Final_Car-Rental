@@ -7,6 +7,7 @@ public final class RequestAttributeName {
 	public static final String ADM_HEAD = "admin_header";
 	public static final String AUTH_MSG = "auth_message";
 	public static final String AUTH_ERR = "auth_error";
+	public static final String CAR_ADD_INFO = "car_add_info";
 	public static final String CAR_BODY_LIST = "bodylist";
 	public static final String CAR_FINDER_ERR = "car_finder_error";
 	public static final String CAR_HANDOVER_RETURN = "handover_return_message";

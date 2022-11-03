@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.epam.jwd.kirvepa.controller.CommandProvider;
 import com.epam.jwd.kirvepa.controller.JSPPageName;
 import com.epam.jwd.kirvepa.controller.RequestAttributeName;
 import com.epam.jwd.kirvepa.controller.RequestParameterName;
@@ -20,6 +19,9 @@ import com.epam.jwd.kirvepa.service.exception.ServiceException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
 public class UserAccessChangingCommand implements Command {
+	private static final String MESSAGE = "user.access_change.success";
+	private static final String ERROR = "user_list.access_change.error";
+	
 	private static final Logger logger = LogManager.getLogger(AuthorizationCommand.class);
 	private static final ResourceManager manager = ResourceManager.getInstance();
 	private static final UserService userService = ServiceFactory.getInstance().getUserService();
@@ -29,23 +31,22 @@ public class UserAccessChangingCommand implements Command {
 		
 		int userId = Integer.parseInt(request.getParameter(RequestParameterName.USR_ID));
 		
-		Map<String, String> parameters = new HashMap<>();
-		
 		try {
 			userService.changeUserAccess(userId);
 			
-			String page = CommandProvider.getInstance()
-						   				 .getCommand(CommandName.GET_USERS.name())
-						   				 .execute(request, response);
+			Map<String, String> parameters = new HashMap<>();
 			
-			return page;
+			parameters.put(RequestParameterName.MSG, MESSAGE);
+			parameters.put(RequestParameterName.COMMAND, CommandName.GET_USERS.name());
+			
+			return redirect(JSPPageName.RESULT, parameters);
 
 		} catch (ServiceException e) {
 			logger.error(e);
-			parameters.put(RequestAttributeName.ERR
-					 	   , manager.getValue("user_list.access_change.error"));
+			request.setAttribute(RequestAttributeName.ERR
+					, manager.getValue(ERROR, request));
 			
-			return redirect(JSPPageName.ERROR_PAGE, parameters);
+			return forward(JSPPageName.ERROR_PAGE);
 
 		}
 

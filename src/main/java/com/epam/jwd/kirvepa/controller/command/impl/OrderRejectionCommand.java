@@ -19,6 +19,9 @@ import com.epam.jwd.kirvepa.service.exception.ServiceException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
 public class OrderRejectionCommand implements Command {
+	private static final String MESSAGE = "notification.order.rejected";
+	private static final String ERROR = "error.order.rejection";
+	
 	private static final Logger logger = LogManager.getLogger(OrderRejectionCommand.class);
 	private static final ResourceManager manager = ResourceManager.getInstance();
 	private static final OrderService orderService = ServiceFactory.getInstance().getOrderService();
@@ -32,17 +35,15 @@ public class OrderRejectionCommand implements Command {
 		
 		try {
 			orderService.rejectOrder(orderId);
-			parameters.put(RequestAttributeName.NOTIFICATION_MSG
-			 	   	  	  , manager.getValue("notification.order.rejected"));
-	
+			parameters.put(RequestParameterName.MSG, MESSAGE);
 			return redirect(JSPPageName.NOTIFICATION, parameters);
 			
 		} catch (ServiceException e) {
 			logger.error(e);
-			parameters.put(RequestAttributeName.ERR
-								 , manager.getValue("error.order.rejection"));
+			request.setAttribute(RequestAttributeName.ERR
+					, manager.getValue(ERROR, request));
 			
-			return redirect(JSPPageName.ERROR_PAGE, parameters);
+			return forward(JSPPageName.ERROR_PAGE);
 			
 		}
 	}

@@ -1,8 +1,6 @@
 package com.epam.jwd.kirvepa.controller.command.impl;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -20,6 +18,8 @@ import com.epam.jwd.kirvepa.service.exception.ServiceException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
 public class GetCarsCommand implements Command {
+	private static final String ERROR = "car_list.error";
+	
 	private static final Logger logger = LogManager.getLogger(AuthorizationCommand.class);
 	private static final ResourceManager manager = ResourceManager.getInstance();
 	private static final CarService carService = ServiceFactory.getInstance().getCarService();
@@ -27,21 +27,19 @@ public class GetCarsCommand implements Command {
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
 
-		Map<String, String> parameters = new HashMap<>();
+		String language = getLanguage(request.getSession(false));
 		
 		try {
-			List<Car> cars = carService.getCars();
-			
+			List<Car> cars = carService.getCars(language);
 			request.setAttribute(RequestAttributeName.CAR_LIST, cars);
-			
 			return forward(JSPPageName.CAR_LIST_ALL);
 			
 		} catch (ServiceException e) {
 			logger.error(e);
-			parameters.put(RequestAttributeName.ERR
-		 	   	  	  , manager.getValue("car_list.error"));
+			request.setAttribute(RequestAttributeName.ERR
+					, manager.getValue(ERROR, request));
 			
-			return redirect(JSPPageName.ERROR_PAGE, parameters);
+			return forward(JSPPageName.ERROR_PAGE);
 		}
 	}
 

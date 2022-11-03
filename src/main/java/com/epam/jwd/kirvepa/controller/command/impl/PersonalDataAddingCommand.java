@@ -23,6 +23,10 @@ import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
 public class PersonalDataAddingCommand implements Command{
+	private static final String MESSAGE = "add_pers_data.success.message";
+	private static final String ERROR = "add_pers_data.error";
+	private static final String SESSION = "session.expired";
+	
 	private static final Logger logger = LogManager.getLogger(PersonalDataAddingCommand.class);
 	private static final ResourceManager manager = ResourceManager.getInstance();
 	private static final UserService userService = ServiceFactory.getInstance().getUserService();
@@ -33,7 +37,7 @@ public class PersonalDataAddingCommand implements Command{
 		HttpSession session = request.getSession(false);
 		if (session == null) {
 			request.setAttribute(RequestAttributeName.AUTH_ERR
-					 , manager.getValue("session.expired"));
+					, manager.getValue(SESSION, request));
 			return forward(JSPPageName.AUTHORIZATION);
 		}
 		
@@ -57,28 +61,22 @@ public class PersonalDataAddingCommand implements Command{
 		
 		try {
 			userService.addPersonalData(userId, personalData);
-			
-			parameters.put(RequestAttributeName.NOTIFICATION_MSG
-					 	   , manager.getValue("add_pers_data.success.message"));
-			
+			parameters.put(RequestParameterName.MSG, MESSAGE);
 			return redirect(JSPPageName.NOTIFICATION, parameters);
 			
 		} catch (ServiceException e) {
 			logger.error(e);
+			request.setAttribute(RequestAttributeName.ERR
+					, manager.getValue(ERROR, request));
 			
-			parameters.put(RequestAttributeName.ERR
-						   , manager.getValue("add_pers_data.error"));
-			
-			return redirect(JSPPageName.ERROR_PAGE, parameters);
+			return forward(JSPPageName.ERROR_PAGE);
 			
 		} catch (ServiceUserException e) {
 			logger.error(e);
+			request.setAttribute(RequestAttributeName.ERR
+					, manager.getValue(ERROR, request) + e.getMessage());
 			
-			parameters.put(RequestAttributeName.PERS_DATA_ERR
-					 	   , manager.getValue("add_pers_data.error")
-					 	   + e.getMessage());
-			
-			return redirect(JSPPageName.PERSONAL_DATA, parameters);
+			return forward(JSPPageName.PERSONAL_DATA);
 		}
 	}
 

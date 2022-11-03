@@ -16,6 +16,7 @@ import com.epam.jwd.kirvepa.controller.command.impl.CarHandoverReturnCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.CommandName;
 import com.epam.jwd.kirvepa.controller.command.impl.EmailChangingCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.GetCarBodyListCommand;
+import com.epam.jwd.kirvepa.controller.command.impl.GetCarsAddingInfoCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.GetCarsCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.GetOrdersCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.GetUsersCommand;
@@ -54,6 +55,7 @@ public class CommandProvider {
 		repository.put(CommandName.FIND_CAR, new CarFindingCommand());
 		repository.put(CommandName.GET_CAR_BODY_LIST, new GetCarBodyListCommand());
 		repository.put(CommandName.GET_CARS, new GetCarsCommand());
+		repository.put(CommandName.GET_CARS_ADDING_INFO, new GetCarsAddingInfoCommand());
 		repository.put(CommandName.GET_ORDERS, new GetOrdersCommand());
 		repository.put(CommandName.GET_USERS, new GetUsersCommand());
 		repository.put(CommandName.HOMEPAGE, new HomePageCommand());

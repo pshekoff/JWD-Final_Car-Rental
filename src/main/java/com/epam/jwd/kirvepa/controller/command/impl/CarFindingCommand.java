@@ -21,6 +21,9 @@ import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
 public class CarFindingCommand implements Command {
+	private static final String ERROR_LIST = "car_finder.carlist.error";
+	private static final String ERROR = "car_finder.error";
+	
 	private static final Logger logger = LogManager.getLogger(CarFindingCommand.class);
 	private static final ResourceManager manager = ResourceManager.getInstance();
 	private static final CarService carService = ServiceFactory.getInstance().getCarService();
@@ -33,8 +36,10 @@ public class CarFindingCommand implements Command {
 		
 		String[] bodies = request.getParameterValues(RequestParameterName.CAR_BODY);
 		
+		String language = getLanguage(request.getSession(false));
+		
 		try {
-			Map<Car, Double> cars = carService.getCarList(dateFrom, dateTo, bodies);
+			Map<Car, Double> cars = carService.getCarList(dateFrom, dateTo, bodies, language);
 				
 			request.setAttribute(RequestAttributeName.CAR_LIST, cars);
 			request.setAttribute(RequestAttributeName.DATE_FROM, dateFrom);
@@ -44,14 +49,15 @@ public class CarFindingCommand implements Command {
 			
 		} catch (ServiceException e) {
 			logger.error(e);
-			request.setAttribute(RequestAttributeName.ERR, manager.getValue("car_finder.carlist.error"));
+			request.setAttribute(RequestAttributeName.ERR
+					, manager.getValue(ERROR_LIST, request));
 			
 			return forward(JSPPageName.ERROR_PAGE);
 			
 		} catch (ServiceUserException e) {
 			logger.error(e);
 			request.setAttribute(RequestAttributeName.CAR_FINDER_ERR
-					 , manager.getValue("car_finder.error") + e.getMessage());
+					 , manager.getValue(ERROR, request) + e.getMessage());
 
 			return forward(JSPPageName.CAR_FINDER);
 		}

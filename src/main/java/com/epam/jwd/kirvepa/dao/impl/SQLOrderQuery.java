@@ -34,14 +34,22 @@ public class SQLOrderQuery {
 			+ " SET order_status_id = (SELECT id FROM order_statuses WHERE description = 'CREATED')"
 			+ " WHERE id = ?;";
 	
-	protected static final String GET_ORDER = "SELECT"
+	protected static final String GET_ORDER_0 = "SELECT"
 			+ " u.id, u.login, u.email, u.admin, u.active,"
-			+ " c.manufacturer, c.model, bt.description_ru, c.engine, c.transmission_type, c.drive_type,"
+			+ " c.manufacturer, c.model, bt.description_";
+	
+	protected static final String GET_ORDER_1 = ", c.engine, tt.description_";
+	
+	protected static final String GET_ORDER_2 = ", dt.description_";
+	
+	protected static final String GET_ORDER_3 = ", "
 			+ " o.date_handover, o.date_return, o.total_price, os.description"
 			+ " FROM orders o"
 			+ " LEFT JOIN users u ON u.id = o.user_id"
 			+ " LEFT JOIN cars c ON c.id = o.car_id"
 			+ " LEFT JOIN body_types bt ON bt.id = c.body_type_id"
+			+ " LEFT JOIN transmission_types tt ON tt.id = c.transmission_type_id"
+			+ " LEFT JOIN drive_types dt ON dt.id = c.drive_type_id"
 			+ " LEFT JOIN order_statuses os ON os.id = o.order_status_id"
 			+ " WHERE o.id = ?";	
 

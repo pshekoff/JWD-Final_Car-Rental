@@ -2,12 +2,12 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
+<fmt:setLocale value="${sessionScope.language}" />
+<fmt:setBundle basename="messages"/>
+
 <c:if test="${sessionScope.language==null}">
   <c:set scope="session" var="language" value="${param.lang}"/>
 </c:if>
-
-<fmt:setLocale value="${sessionScope.language}" />
-<fmt:setBundle basename="messages"/>
 
 <!DOCTYPE html>
 <html>
@@ -20,10 +20,13 @@
   </head>
 
   <body>
-  	<% if (request.getParameter("pers_data_message") != null) {
-		out.println("<p style=\"color:green\">" + request.getParameter("pers_data_message") + "</p>");
-	} %>
-  	
+   	<p><b style="color:green">${message}</b></p>
+   	  
+	<c:set var = "msg" value = '<%=request.getParameter("message")%>'/>
+    <c:if test = "${msg != null}">
+      <p style="color:green"><fmt:message key="${msg}" /></p>
+    </c:if>
+
 	<h3>
       <fmt:message key="personal_data.header" />
     </h3>
@@ -69,9 +72,13 @@
 		</tr>
 	  </table>
 	  <input type="submit" value=<fmt:message key="personal_data.submit" /> />
-	  <% if (request.getParameter("pers_data_error") != null) {
-		out.println("<b style=\"color:green\">" + request.getParameter("pers_data_error") + "</b>");
-	  } %>
+	  
+	  <p><b style="color:red">${error}</b></p>
+	     	
+	  <c:set var = "err" value = '<%=request.getParameter("error")%>'/>
+      <c:if test = "${err != null}">
+      	<p style="color:red"><fmt:message key="${err}" /></p>
+      </c:if>
   	</form>
 	
 	<p>

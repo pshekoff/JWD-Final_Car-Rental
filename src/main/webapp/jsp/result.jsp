@@ -15,14 +15,11 @@
 	<meta charset="UTF-8">
 	
 	<title>
-	  <fmt:message key="notification.title" />
+	  <fmt:message key="result.title" />
 	</title>
   </head>
   
   <body>
-   	<p><b style="color:green">${message}</b></p>
-	<p><b style="color:red">${error}</b></p>
-	
   	<c:set var = "msg" value = '<%=request.getParameter("message")%>'/>
     <c:if test = "${msg != null}">
       <p>
@@ -32,11 +29,14 @@
       </p>
     </c:if>
   	
+  	<c:set var = "command" value = '<%=request.getParameter("command")%>'/>
+  	<c:set var = "filter" value = '<%=request.getParameter("filter")%>'/>
   	<div>
 	  <form action="controller" method="post">
-	  	<input type="hidden" name="command" value="homepage" />
+	  	<input type="hidden" name="command" value="${command}" />
+	  	<input type="hidden" name="filter" value="${filter}" />
 		<button type="submit">
-		  <fmt:message key="notification.button.ok" />
+		  <fmt:message key="result.button.ok" />
 		</button>
 	  </form>
   	</div>

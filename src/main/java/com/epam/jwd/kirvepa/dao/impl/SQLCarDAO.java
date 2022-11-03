@@ -24,11 +24,9 @@ import com.epam.jwd.kirvepa.dao.exception.DAOUserException;
 
 public class SQLCarDAO implements CarDAO {
 	private static final Logger logger = LogManager.getLogger(SQLCarDAO.class);
-	private static final String FILTER_ALL = "all";
-	private static final String FILTER_EXIST = "exist";
 	
 	@Override
-	public List<String> getCarBodyList(String filter) throws DAOException {
+	public List<String> getCarBodyList(String language) throws DAOException {
 		
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -37,13 +35,10 @@ public class SQLCarDAO implements CarDAO {
         try {
 			connection = ConnectionPool.getInstance().takeConnection();
 			
-			if (filter.equals(FILTER_ALL)) {
-				preparedStatement = connection.prepareStatement(SQLCarQuery.GET_BODYTYPES_ALL);
-			}
-			else if (filter.equals(FILTER_EXIST)) {
-				preparedStatement = connection.prepareStatement(SQLCarQuery.GET_BODYTYPES_EXIST);
-			}
-			
+			preparedStatement = connection.prepareStatement(SQLCarQuery.GET_BODYTYPES_HEADER
+					+ language
+					+ SQLCarQuery.GET_BODYTYPES_EXIST);
+	
 			if (logger.isDebugEnabled()) {
 				logger.debug(preparedStatement.toString());
 			}
@@ -71,7 +66,35 @@ public class SQLCarDAO implements CarDAO {
 	}
 
 	@Override
-	public Map<Car, Double> getCarList(Date from, Date to, String[] bodies) throws DAOException {
+	public List<List<String>> GetCarsAddingInfo(String language) throws DAOException {
+        
+		Connection connection = null;
+        
+        try {
+			connection = ConnectionPool.getInstance().takeConnection();
+			
+			List<List<String>> carAddInfo = new ArrayList<>();
+			
+	        carAddInfo.add(getBodyTypes(language, connection));
+	        carAddInfo.add(getTransmissionTypes(language, connection));
+	        carAddInfo.add(getDriveTypes(language, connection));
+	        carAddInfo.add(getColors(language, connection));
+
+	        return carAddInfo;
+	
+		} catch (ConnectionPoolException e) {
+			throw new DAOException(e);
+			
+		} catch (SQLException e) {
+			throw new DAOException(e);
+			
+		} finally {
+			ConnectionPool.getInstance().closeConnectionQueue(connection);
+		}
+	}
+	
+	@Override
+	public Map<Car, Double> getCarList(Date from, Date to, String[] bodies, String language) throws DAOException {
         
 		Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -85,7 +108,16 @@ public class SQLCarDAO implements CarDAO {
 				bodiesList.append(",").append(bodies[i]);
 			}
 			
-			preparedStatement = connection.prepareStatement(SQLCarQuery.GET_CAR_LIST);
+			preparedStatement = connection.prepareStatement(SQLCarQuery.GET_CAR_LIST_0
+					+ language
+					+ SQLCarQuery.GET_CAR_LIST_1
+					+ language
+					+ SQLCarQuery.GET_CAR_LIST_2
+					+ language
+					+ SQLCarQuery.GET_CAR_LIST_3
+					+ language
+					+ SQLCarQuery.GET_CAR_LIST_4);
+			
 			preparedStatement.setDate(1, to);
 			preparedStatement.setDate(2, from);
 			preparedStatement.setString(3, bodiesList.toString());
@@ -185,7 +217,7 @@ public class SQLCarDAO implements CarDAO {
 	
 
 	@Override
-	public boolean insertCar(Car car) throws DAOException {
+	public boolean insertCar(Car car, String language) throws DAOException {
 
 		Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -194,8 +226,17 @@ public class SQLCarDAO implements CarDAO {
         try {
 			connection = ConnectionPool.getInstance().takeConnection();
 			
-			preparedStatement = connection.prepareStatement(SQLCarQuery.INSERT_CAR
-															, Statement.RETURN_GENERATED_KEYS);
+			preparedStatement = connection.prepareStatement(SQLCarQuery.INSERT_CAR_0
+					+ language
+					+ SQLCarQuery.INSERT_CAR_1
+					+ language
+					+ SQLCarQuery.INSERT_CAR_2
+					+ language
+					+ SQLCarQuery.INSERT_CAR_3
+					+ language
+					+ SQLCarQuery.INSERT_CAR_4
+					, Statement.RETURN_GENERATED_KEYS);
+			
 			preparedStatement.setString(1, car.getManufacturer());
 			preparedStatement.setString(2, car.getModel());
 			preparedStatement.setString(3, car.getLicensePlate());
@@ -233,7 +274,7 @@ public class SQLCarDAO implements CarDAO {
 	}
 	
 	@Override
-	public List<Car> getCars() throws DAOException {
+	public List<Car> getCars(String language) throws DAOException {
 
 		Connection connection = null;
 		PreparedStatement preparedStatement = null;
@@ -242,7 +283,15 @@ public class SQLCarDAO implements CarDAO {
 		try {
 			connection = ConnectionPool.getInstance().takeConnection();
 			
-			preparedStatement = connection.prepareStatement(SQLCarQuery.GET_ALL_CARS);
+			preparedStatement = connection.prepareStatement(SQLCarQuery.GET_ALL_CARS_0
+					+ language
+					+ SQLCarQuery.GET_ALL_CARS_1
+					+ language
+					+ SQLCarQuery.GET_ALL_CARS_2
+					+ language
+					+ SQLCarQuery.GET_ALL_CARS_3
+					+ language
+					+ SQLCarQuery.GET_ALL_CARS_4);
 			
 			if (logger.isDebugEnabled()) {
 				logger.debug(preparedStatement.toString());
@@ -314,9 +363,15 @@ public class SQLCarDAO implements CarDAO {
 		}
 	}
 	
-	public static int getCarId(Car car, Date from, Date to, Connection connection) throws SQLException {
+	public static int getCarId(Car car, Date from, Date to, String language, Connection connection) throws SQLException {
 		
-		PreparedStatement preparedStatement = connection.prepareStatement(SQLCarQuery.FIND_CAR_ID);
+		PreparedStatement preparedStatement = connection.prepareStatement(SQLCarQuery.FIND_CAR_ID_0
+				+ language
+				+ SQLCarQuery.FIND_CAR_ID_1
+				+ language
+				+ SQLCarQuery.FIND_CAR_ID_2
+				+ language
+				+ SQLCarQuery.FIND_CAR_ID_3);
 			
 		preparedStatement.setString(1, car.getManufacturer());
 		preparedStatement.setString(2, car.getModel());
@@ -346,7 +401,112 @@ public class SQLCarDAO implements CarDAO {
 		preparedStatement.close();
 		
 		return result;
-
 	}
+	
+	private ArrayList<String> getBodyTypes(String language, Connection connection) throws SQLException {
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
+		
+		preparedStatement = connection.prepareStatement(SQLCarQuery.GET_CAR_BODY_TYPES_LIST_0
+				+ language
+				+ SQLCarQuery.GET_CAR_BODY_TYPES_LIST_1);
+		
+		if (logger.isDebugEnabled()) {
+			logger.debug(preparedStatement.toString());
+		}
+		
+        resultSet = preparedStatement.executeQuery();
+
+        ArrayList<String> bodyTypes = new ArrayList<>();
+        
+        while(resultSet.next()) {
+            bodyTypes.add(resultSet.getString(1));
+        }
+        
+        preparedStatement.close();
+        resultSet.close();
+        
+        return bodyTypes;
+	}
+	
+	private ArrayList<String> getTransmissionTypes(String language, Connection connection) throws SQLException {
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
+		
+		preparedStatement = connection.prepareStatement(SQLCarQuery.GET_CAR_TRANSMISSION_TYPES_LIST_0
+				+ language
+				+ SQLCarQuery.GET_CAR_TRANSMISSION_TYPES_LIST_1);
+		
+		if (logger.isDebugEnabled()) {
+			logger.debug(preparedStatement.toString());
+		}
+		
+        resultSet = preparedStatement.executeQuery();
+
+        ArrayList<String> transmissionTypes = new ArrayList<>();
+        
+        while(resultSet.next()) {
+        	transmissionTypes.add(resultSet.getString(1));
+        }
+        
+        preparedStatement.close();
+        resultSet.close();
+        
+        return transmissionTypes;
+	}
+	
+	private ArrayList<String> getDriveTypes(String language, Connection connection) throws SQLException {
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
+		
+		preparedStatement = connection.prepareStatement(SQLCarQuery.GET_CAR_DRIVE_TYPES_LIST_0
+				+ language
+				+ SQLCarQuery.GET_CAR_DRIVE_TYPES_LIST_1);
+		
+		if (logger.isDebugEnabled()) {
+			logger.debug(preparedStatement.toString());
+		}
+		
+        resultSet = preparedStatement.executeQuery();
+
+        ArrayList<String> driveTypes = new ArrayList<>();
+        
+        while(resultSet.next()) {
+        	driveTypes.add(resultSet.getString(1));
+        }
+        
+        preparedStatement.close();
+        resultSet.close();
+        
+        return driveTypes;
+	}
+	
+	private ArrayList<String> getColors(String language, Connection connection) throws SQLException {
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
+		
+		preparedStatement = connection.prepareStatement(SQLCarQuery.GET_CAR_COLORS_LIST_0
+				+ language
+				+ SQLCarQuery.GET_CAR_COLORS_LIST_1);
+		
+		if (logger.isDebugEnabled()) {
+			logger.debug(preparedStatement.toString());
+		}
+		
+        resultSet = preparedStatement.executeQuery();
+
+        ArrayList<String> colors = new ArrayList<>();
+        
+        while(resultSet.next()) {
+        	colors.add(resultSet.getString(1));
+        }
+        
+        preparedStatement.close();
+        resultSet.close();
+        
+        return colors;
+	}
+	
+	
 
 }

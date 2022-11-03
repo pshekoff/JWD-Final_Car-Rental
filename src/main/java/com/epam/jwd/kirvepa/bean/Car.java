@@ -230,15 +230,15 @@ public class Car implements Serializable {
 				&& this.available == other.available;
 	}
 
-	public String toShortString() {
-		return String.format("%s %s %s, " + manager.getValue("string.format.engine") + " %s, %s, %s",
-				manufacturer, model, bodyType, engine, transmission, driveType);
+	public String toShortString(String language) {
+		return String.format("%s %s %s, " + manager.getValue("string.format.engine", language) + " %s, %s, %s"
+				, manufacturer, model, bodyType, engine, transmission, driveType);
 	}
 	
-	public String toLongString() {
-		return String.format("%s %s %d, %s, %s, " + manager.getValue("string.format.engine")
-							+ " %s, %s, %s, " + manager.getValue("string.format.weight") + " %s",
-				manufacturer, model, issueYear, color, bodyType, engine, transmission, driveType, weight);
+	public String toLongString(String language) {
+		return String.format("%s %s %d, %s, %s, " + manager.getValue("string.format.engine", language)
+				+ " %s, %s, %s, " + manager.getValue("string.format.weight", language) + " %s"
+				, manufacturer, model, issueYear, color, bodyType, engine, transmission, driveType, weight);
 	}
 	
 	public String getStatus() {

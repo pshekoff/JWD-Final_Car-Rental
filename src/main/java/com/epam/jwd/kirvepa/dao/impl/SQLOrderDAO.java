@@ -30,7 +30,8 @@ public class SQLOrderDAO implements OrderDAO {
 	private static final String FILTER_HANDOVER_RETURN = "handover_return";
 	
 	@Override
-	public synchronized Order registerOrder(int userId, Car car, Date from, Date to, double price) throws DAOException, DAOUserException {
+	public synchronized Order registerOrder(int userId, Car car, Date from, Date to
+			, double price, String language) throws DAOException, DAOUserException {
 		
 		Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -47,7 +48,7 @@ public class SQLOrderDAO implements OrderDAO {
 				orderStatus = OrderStatus.PREPARED.name();
 			}
 
-			int carId = SQLCarDAO.getCarId(car, from, to, connection);
+			int carId = SQLCarDAO.getCarId(car, from, to, language, connection);
 
 			if (carId == 0) {
 				throw new DAOUserException(DAOUserException.MSG_CAR_ABSENT);
@@ -78,7 +79,7 @@ public class SQLOrderDAO implements OrderDAO {
 				orderId = resultSet.getInt(1);
 			}
 
-			Order order = getOrder(orderId, connection);
+			Order order = getOrder(orderId, language, connection);
 
 			if (order == null) {
 				connection.rollback();
@@ -215,7 +216,7 @@ public class SQLOrderDAO implements OrderDAO {
 	}
 	
 	@Override
-	public List<Order> getOrders(String filter, int userId) throws DAOException {
+	public List<Order> getOrders(String filter, int userId, String language) throws DAOException {
 
 		Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -254,7 +255,7 @@ public class SQLOrderDAO implements OrderDAO {
 			int orderId;
 			while (resultSet.next()) {
 				orderId = resultSet.getInt(1); 
-				orders.add(getOrder(orderId, connection));
+				orders.add(getOrder(orderId, language, connection));
 			}
 			
 			return orders;
@@ -354,9 +355,17 @@ public class SQLOrderDAO implements OrderDAO {
 		
 	}
 	
-	private static Order getOrder(int orderId, Connection connection) throws SQLException, DAOException {
+	private static Order getOrder(int orderId, String language, Connection connection)
+			throws SQLException, DAOException {
 
-		PreparedStatement preparedStatement = connection.prepareStatement(SQLOrderQuery.GET_ORDER);
+		PreparedStatement preparedStatement = connection.prepareStatement(SQLOrderQuery.GET_ORDER_0
+				+ language
+				+ SQLOrderQuery.GET_ORDER_1
+				+ language
+				+ SQLOrderQuery.GET_ORDER_2
+				+ language
+				+ SQLOrderQuery.GET_ORDER_3);
+		
 		preparedStatement.setInt(1, orderId);
 
 		if (logger.isDebugEnabled()) {

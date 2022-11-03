@@ -25,6 +25,11 @@ import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
 public class OrderRegistrationCommand implements Command {
+	private static final String MESSAGE = "personal_data.new_order.message";
+	private static final String ERROR = "error.order.creation";
+	private static final String ORDER_HEADER = "order_created.header";
+	private static final String SESSION = "session.expired";
+	
 	private static final Logger logger = LogManager.getLogger(OrderRegistrationCommand.class);
 	private static final ResourceManager manager = ResourceManager.getInstance();
 	private static final OrderService orderService = ServiceFactory.getInstance().getOrderService();
@@ -35,10 +40,12 @@ public class OrderRegistrationCommand implements Command {
 		HttpSession session = request.getSession(false);
 		if (session == null) {
 			request.setAttribute(RequestAttributeName.AUTH_ERR
-					 , manager.getValue("session.expired"));
+					, manager.getValue(SESSION, request));
 			return forward(JSPPageName.AUTHORIZATION);
 		}
 		
+		String language = getLanguage(session);
+
 		int userId = (int) session.getAttribute(RequestAttributeName.USR_ID);
 		
 		String[] carParams = request.getParameter(RequestParameterName.CAR).split(";");
@@ -58,49 +65,40 @@ public class OrderRegistrationCommand implements Command {
 		Map<String, String> parameters = new HashMap<>();
 		
 		try {
-			Order order = orderService.registerOrder(userId, car, dateFrom, dateTo, price);
+			Order order = orderService.registerOrder(userId, car, dateFrom, dateTo, price, language);
 
 			if (order.getStatus().equals(OrderStatus.PREPARED)) {
-				parameters.put(RequestAttributeName.PERS_DATA_MSG
-							   , manager.getValue("personal_data.new_order.message"));
-	
+				parameters.put(RequestParameterName.MSG, MESSAGE);
 				return redirect(JSPPageName.PERSONAL_DATA, parameters);
 				
 			} else if (order.getStatus().equals(OrderStatus.CREATED)) {
-				
-				parameters.put(RequestAttributeName.ORDER_ID, Integer.toString(order.getId()));
-				parameters.put(RequestAttributeName.ORDER_AMOUNT, Double.toString(order.getAmount()));
-				parameters.put(RequestAttributeName.ORDER_HEAD
-						 	   , manager.getValue("order_created.header"));
+				parameters.put(RequestParameterName.ORDER_ID, Integer.toString(order.getId()));
+				parameters.put(RequestParameterName.ORDER_AMOUNT, Double.toString(order.getAmount()));
+				parameters.put(RequestParameterName.HEAD, ORDER_HEADER);
 				
 				return redirect(JSPPageName.ORDER_CREATED, parameters);
 				
 			} else {
-				logger.error(manager.getValue("error.unexpected")
-							+ manager.getValue("error.order.creation"));
+				logger.error(manager.getValue(ERROR, request));
+				request.setAttribute(RequestAttributeName.ERR
+						, manager.getValue(ERROR, request));
 				
-				parameters.put(RequestAttributeName.ERR
-			 			 	   , manager.getValue("error.order.creation"));
-
-				return redirect(JSPPageName.ERROR_PAGE, parameters);
+				return forward(JSPPageName.ERROR_PAGE);
 			}
 
 		} catch (ServiceException e) {
 			logger.error(e);
+			request.setAttribute(RequestAttributeName.ERR
+					, manager.getValue(ERROR, request));
 			
-			parameters.put(RequestAttributeName.ERR
-	 			 	   , manager.getValue("error.order.creation"));
-			
-			return redirect(JSPPageName.ERROR_PAGE, parameters);
+			return forward(JSPPageName.ERROR_PAGE);
 			
 		} catch (ServiceUserException e) {
 			logger.error(e);
+			request.setAttribute(RequestAttributeName.ERR
+					, manager.getValue(ERROR, request) + e.getMessage());
 			
-			parameters.put(RequestAttributeName.ERR
-	 			 	   	   , manager.getValue("error.order.creation")
-	 			 	   	   + e.getMessage());
-			
-			return redirect(JSPPageName.ERROR_PAGE, parameters);
+			return forward(JSPPageName.NOTIFICATION);
 		}
 	}
 	

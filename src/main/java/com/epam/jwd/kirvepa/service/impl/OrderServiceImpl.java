@@ -17,10 +17,10 @@ public class OrderServiceImpl implements OrderService {
 	private static final OrderDAO orderDAO = DAOFactory.getInstance().getOrderDAO();
 	
 	@Override
-	public Order registerOrder(int userId, Car car, Date from, Date to, double price) throws ServiceException, ServiceUserException {
+	public Order registerOrder(int userId, Car car, Date from, Date to, double price, String language) throws ServiceException, ServiceUserException {
 		
 		try {
-			return orderDAO.registerOrder(userId, car, from, to, price);
+			return orderDAO.registerOrder(userId, car, from, to, price, language);
 		} catch (DAOException e) {
 			throw new ServiceException(e);
 		} catch (DAOUserException e) {
@@ -62,9 +62,9 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
-	public List<Order> getOrders(String filter, int userId) throws ServiceException {
+	public List<Order> getOrders(String filter, int userId, String language) throws ServiceException {
 		try {
-			return orderDAO.getOrders(filter, userId);
+			return orderDAO.getOrders(filter, userId, language);
 		} catch (DAOException e) {
 			throw new ServiceException(e);
 		}

@@ -2,12 +2,12 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
+<fmt:setLocale value="${sessionScope.language}" />
+<fmt:setBundle basename="messages"/>
+
 <c:if test="${sessionScope.language==null}">
   <c:set scope="session" var="language" value="${param.lang}"/>
 </c:if>
-
-<fmt:setLocale value="${sessionScope.language}" />
-<fmt:setBundle basename="messages"/>
 
 <!DOCTYPE html>
 <html>
@@ -23,17 +23,17 @@
   	  <fmt:message key="edit_profile.header" />
   	</h2>
 
-	<p style="color:red">
-  	  ${profile_error}
-  	</p>
+	<p><b style="color:red">${error}</b></p>
+	<p><b style="color:green">${message}</b></p>
   	
-  	<% if (request.getParameter("profile_error") != null) {
-		out.println("<p style=\"color:red\">" + request.getParameter("profile_error") + "</p>");
-	} %>
-  	
-  	<% if (request.getParameter("profile_message") != null) {
-		out.println("<p style=\"color:green\">" + request.getParameter("profile_message") + "</p>");
-	} %>	
+	<c:set var = "msg" value = '<%=request.getParameter("message")%>'/>
+    <c:if test = "${msg != null}">
+      <p>
+      	<b style="color:green">
+      	  <fmt:message key="${msg}" />
+      	</b>
+      </p>
+    </c:if>
 
 	<form action="controller" method="post">
 	  <input type="hidden" name="command" value="change_login" />

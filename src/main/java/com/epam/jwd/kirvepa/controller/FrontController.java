@@ -22,9 +22,7 @@ public class FrontController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final CommandProvider provider = CommandProvider.getInstance();
 	private static final Logger logger = LogManager.getLogger(FrontController.class);
-	
-	public static Locale locale = Locale.getDefault();
-       
+    
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -45,13 +43,6 @@ public class FrontController extends HttpServlet {
 		request.setCharacterEncoding("UTF-8");
 		response.setContentType("text/html; charset=UTF-8");
 
-		HttpSession session = request.getSession(false);
-		
-		if (session.getAttribute("language") != null) {
-			String lang = session.getAttribute("language").toString();
-			locale = new Locale(lang);
-		}
-	
 		String commandName = request.getParameter(RequestParameterName.COMMAND);
 		logger.info("Command \"" + commandName + "\" was requested.");
 
@@ -69,11 +60,27 @@ public class FrontController extends HttpServlet {
 		} else if (commandResult[0].equals("redirect")) {
 			logger.info("Redirecting to \"" + request.getContextPath() + commandResult[1] + "\".");
 			response.sendRedirect(request.getContextPath() + commandResult[1]);
+		} else if (commandResult[0].equals("doGet")) {
+			doGet(request, response);
 		} else {
 			logger.info("Redirecting to \"" + request.getContextPath() + JSPPageName.ERROR_PAGE + "\".");
 			response.sendRedirect(request.getContextPath() + JSPPageName.ERROR_PAGE);
 		}
 
+	}
+	
+	public static Locale getLocale(HttpServletRequest request) {
+		HttpSession session = request.getSession(false);
+		
+		Locale locale;
+		if (session.getAttribute("language") != null) {
+			String lang = session.getAttribute("language").toString();
+			locale = new Locale(lang);
+		} else {
+			locale = Locale.getDefault();
+		}
+		
+		return locale;
 	}
 	
 	

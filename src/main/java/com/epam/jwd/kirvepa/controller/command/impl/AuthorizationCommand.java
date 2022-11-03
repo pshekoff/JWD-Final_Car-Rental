@@ -19,6 +19,10 @@ import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
 public class AuthorizationCommand implements Command {
+	private static final String ERROR_UNEXPECTED = "error.unexpected";
+	private static final String ERROR_NULL = "auth.error.null";
+	private static final String ERROR = "auth.error";
+	
 	private static final Logger logger = LogManager.getLogger(AuthorizationCommand.class);
 	private static final ResourceManager manager = ResourceManager.getInstance();
 	private static final UserService userService = ServiceFactory.getInstance().getUserService();
@@ -54,11 +58,11 @@ public class AuthorizationCommand implements Command {
 
 			}
 			else {
-				logger.error(manager.getValue("error.unexpected")
-							+ manager.getValue("auth.error.null"));
+				logger.error(manager.getValue(ERROR_UNEXPECTED, request)
+						+ manager.getValue(ERROR_NULL, request));
 				
 				request.setAttribute(RequestAttributeName.ERR
-									 , manager.getValue("auth.error"));
+						, manager.getValue(ERROR, request));
 				
 				return forward(JSPPageName.ERROR_PAGE);
 			}
@@ -66,14 +70,14 @@ public class AuthorizationCommand implements Command {
 		} catch (ServiceException e) {
 			logger.error(e);
 			request.setAttribute(RequestAttributeName.ERR
-								 , manager.getValue("auth.error"));
+					, manager.getValue(ERROR, request));
 			
 			return forward(JSPPageName.ERROR_PAGE);
 			
 		} catch (ServiceUserException e) {
 			logger.error(e);
-			request.setAttribute(RequestAttributeName.AUTH_ERR
-								 , manager.getValue("auth.error") + e.getMessage());
+			request.setAttribute(RequestAttributeName.ERR
+					, manager.getValue(ERROR, request) + e.getMessage());
 			
 			return forward(JSPPageName.AUTHORIZATION);
 		}

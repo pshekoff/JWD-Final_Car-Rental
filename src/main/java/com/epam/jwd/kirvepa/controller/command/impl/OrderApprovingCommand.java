@@ -20,6 +20,9 @@ import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
 public class OrderApprovingCommand implements Command {
+	private static final String MESSAGE = "notification.order.approved";
+	private static final String ERROR = "error.order.approving";
+			
 	private static final Logger logger = LogManager.getLogger(OrderApprovingCommand.class);
 	private static final ResourceManager manager = ResourceManager.getInstance();
 	private static final OrderService orderService = ServiceFactory.getInstance().getOrderService();
@@ -33,26 +36,22 @@ public class OrderApprovingCommand implements Command {
 		
 		try {
 			orderService.approveOrder(orderId);
-			
-			parameters.put(RequestAttributeName.NOTIFICATION_MSG
-				 	   	  , manager.getValue("notification.order.approved"));
-		
+			parameters.put(RequestParameterName.MSG, MESSAGE);
 			return redirect(JSPPageName.NOTIFICATION, parameters);
 
 		} catch (ServiceException e) {
 			logger.error(e);
-			parameters.put(RequestAttributeName.ERR
-								 , manager.getValue("error.order.approving"));
+			request.setAttribute(RequestAttributeName.ERR
+					, manager.getValue(ERROR, request));
 			
-			return redirect(JSPPageName.ERROR_PAGE, parameters);
+			return forward(JSPPageName.ERROR_PAGE);
 			
 		} catch (ServiceUserException e) {
 			logger.error(e);
-			parameters.put(RequestAttributeName.NOTIFICATION_MSG
-								 , manager.getValue("notification.error")
-								 + e.getMessage());
+			request.setAttribute(RequestAttributeName.ERR
+					, manager.getValue(ERROR, request) + e.getMessage());
 			
-			return redirect(JSPPageName.NOTIFICATION, parameters);
+			return forward(JSPPageName.NOTIFICATION);
 		}
 	}
 

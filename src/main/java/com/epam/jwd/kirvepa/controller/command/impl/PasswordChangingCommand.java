@@ -21,6 +21,11 @@ import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
 public class PasswordChangingCommand implements Command {
+	private static final String MESSAGE = "edit_profile.pass.message";
+	private static final String ERROR = "edit_profile.pass.error";
+	private static final String PASS_MISMATCH = "edit_profile.pass.match.error";
+	private static final String SESSION = "session.expired";
+	
 	private static final Logger logger = LogManager.getLogger(EmailChangingCommand.class);
 	private static final ResourceManager manager = ResourceManager.getInstance();
 	private static final UserService userService = ServiceFactory.getInstance().getUserService();
@@ -30,8 +35,8 @@ public class PasswordChangingCommand implements Command {
 		
 		HttpSession session = request.getSession(false);
 		if (session == null) {
-			request.setAttribute(RequestAttributeName.AUTH_ERR
-					 , manager.getValue("session.expired"));
+			request.setAttribute(RequestAttributeName.ERR
+					, manager.getValue(SESSION, request));
 			return forward(JSPPageName.AUTHORIZATION);
 		}
 		
@@ -39,13 +44,12 @@ public class PasswordChangingCommand implements Command {
 		String password = request.getParameter(RequestParameterName.USR_PASS);
 		String passwordRepeat = request.getParameter(RequestParameterName.USR_PASS_REPEAT);
 		
-		String error = manager.getValue("edit_profile.pass.error");
-		String message = manager.getValue("edit_profile.pass.message");
+		String error = manager.getValue(ERROR, request);
 		
 		if (!password.equals(passwordRepeat)) {
-			logger.error(error + manager.getValue("edit_profile.pass.match.error"));
-			request.setAttribute(RequestAttributeName.PROFILE_ERR
-								 , error + manager.getValue("edit_profile.pass.match.error"));
+			logger.error(error + manager.getValue(PASS_MISMATCH, request));
+			request.setAttribute(RequestAttributeName.ERR
+					, error + manager.getValue(PASS_MISMATCH, request));
 			
 			return forward(JSPPageName.EDIT_PROFILE);
 		}
@@ -58,30 +62,30 @@ public class PasswordChangingCommand implements Command {
 			
 			if (!success) {
 				logger.error(error);
-				
-				parameters.put(RequestAttributeName.ERR
-					 	   	  , manager.getValue("error.unexpected"));
-				
-				return redirect(JSPPageName.ERROR_PAGE, parameters);
+				request.setAttribute(RequestAttributeName.ERR
+						, manager.getValue(error, request));
+
+				return forward(JSPPageName.ERROR_PAGE);
 				
 			} else {
-				logger.info(message);
-				
-				parameters.put(RequestAttributeName.PROFILE_MSG
-					 	   	  , message);
-
+				logger.info(manager.getValue(MESSAGE, request));
+				parameters.put(RequestParameterName.MSG, MESSAGE);
 				return redirect(JSPPageName.EDIT_PROFILE, parameters);
 			}
 			
 		} catch (ServiceException e) {
-			logger.error(error + e);
-			parameters.put(RequestAttributeName.ERR, error);
-			return redirect(JSPPageName.ERROR_PAGE, parameters);
+			logger.error(e);
+			request.setAttribute(RequestAttributeName.ERR
+					, manager.getValue(error, request));
+
+			return forward(JSPPageName.ERROR_PAGE);
 			
 		} catch (ServiceUserException e) {
-			logger.error(error + e);
-			parameters.put(RequestAttributeName.PROFILE_ERR, error + e.getMessage());
-			return redirect(JSPPageName.EDIT_PROFILE, parameters);
+			logger.error(e);
+			request.setAttribute(RequestAttributeName.ERR
+					, manager.getValue(error, request) + e.getMessage());
+			
+			return forward(JSPPageName.EDIT_PROFILE);
 		}
 	}
 

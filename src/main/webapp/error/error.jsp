@@ -2,12 +2,12 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
+<fmt:setLocale value="${sessionScope.language}" />
+<fmt:setBundle basename="messages"/>
+
 <c:if test="${sessionScope.language==null}">
   <c:set scope="session" var="language" value="${param.lang}"/>
 </c:if>
-
-<fmt:setLocale value="${sessionScope.language}" />
-<fmt:setBundle basename="messages"/>
 
 <!DOCTYPE html>
 <html>
@@ -24,12 +24,17 @@
 	</h4>
 
 	<p>
-	  <b style="color:#ff0000">${error}</b>
+	  <b style="color:red">${error}</b>
 	</p>
 	
-	<% if (request.getParameter("error") != null) {
-		out.println("<b style=\"color:#ff0000\">" + request.getParameter("error") + "</b>");
-	} %>
+	<c:set var = "err" value = '<%=request.getParameter("error")%>'/>
+	<c:if test = "${err != null}">
+	  <p>
+	  	<b style="color:red">
+	  	  <fmt:message key="${err}" />
+	  	</b>
+	  </p>
+	</c:if>
 
   	<div>
 	  <form action="controller" method="post">

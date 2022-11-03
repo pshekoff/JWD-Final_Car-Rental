@@ -20,6 +20,11 @@ import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
 public class OrderCancellationCommand implements Command {
+	private static final String MESSAGE = "notification.order.cancelled";
+	private static final String ERROR = "error.order.cancellation";
+	private static final String ERROR_ORDER_CANCEL = "user_orders.cancel.error";
+	private static final String ERROR_ORDER_ABSENT = "user_orders.order.absent";
+	
 	private static final Logger logger = LogManager.getLogger(OrderCancellationCommand.class);
 	private static final ResourceManager manager = ResourceManager.getInstance();
 	private static final OrderService orderService = ServiceFactory.getInstance().getOrderService();
@@ -31,39 +36,32 @@ public class OrderCancellationCommand implements Command {
 		
 		try {
 			int orderId = Integer.parseInt(request.getParameter(RequestParameterName.ORDER_ID));
-			
 			orderService.cancelOrder(orderId);
-			
-			parameters.put(RequestAttributeName.NOTIFICATION_MSG
-				 	   , manager.getValue("notification.order.cancelled"));
-		
+			parameters.put(RequestParameterName.MSG, MESSAGE);		
 			return redirect(JSPPageName.NOTIFICATION, parameters);
 			
 		} catch (NumberFormatException e) {
 			logger.error(e);
 			
-			request.setAttribute(RequestAttributeName.USR_ORDERS_ERR
-								, manager.getValue("user_orders.cancel.error")
-								+ manager.getValue("user_orders.order.absent"));
+			request.setAttribute(RequestAttributeName.ERR
+					, manager.getValue(ERROR_ORDER_CANCEL, request)
+						+ manager.getValue(ERROR_ORDER_ABSENT, request));
 			
 			return forward(JSPPageName.USER_ORDERS);
 			
 		}  catch (ServiceException e) {
 			logger.error(e);
+			request.setAttribute(RequestAttributeName.ERR
+					, manager.getValue(ERROR, request));
 			
-			parameters.put(RequestAttributeName.ERR
-				 	   , manager.getValue("error.order.cancellation"));
-			
-			return redirect(JSPPageName.ERROR_PAGE, parameters);
+			return forward(JSPPageName.ERROR_PAGE);
 			
 		} catch (ServiceUserException e) {
 			logger.error(e);
+			request.setAttribute(RequestAttributeName.ERR
+					, manager.getValue(ERROR, request) + e.getMessage());
 			
-			parameters.put(RequestAttributeName.NOTIFICATION_MSG
-				 	   , manager.getValue("notification.error")
-				 	   + e.getMessage());
-
-			return redirect(JSPPageName.NOTIFICATION, parameters);
+			return forward(JSPPageName.NOTIFICATION);
 		}
 	}
 

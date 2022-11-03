@@ -4,7 +4,6 @@ public final class RequestParameterName {
 	
 	public static final String CAR = "car";
 	public static final String CAR_BODY = "body";
-	public static final String CAR_BODY_FILTER = "filter";
 	public static final String CAR_COLOR = "drive";
 	public static final String CAR_DRIVE = "drive";
 	public static final String CAR_ENGINE = "engine";
@@ -23,6 +22,11 @@ public final class RequestParameterName {
 	public static final String EMPL_DEPT = "department";
 	public static final String EMPL_POS = "position";
 	public static final String EMPL_SAL = "salary";
+	public static final String ERR = "error";
+	public static final String ERR_MSG = "error_message";
+	public static final String HEAD = "header";
+	public static final String MSG = "message";
+	public static final String ORDER_AMOUNT = "amount";
 	public static final String ORDER_FILTER = "filter";
 	public static final String ORDER_ID = "order_id";
 	public static final String NEXT_PAGE = "next_page";

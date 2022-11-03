@@ -2,12 +2,12 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
+<fmt:setLocale value="${sessionScope.language}" />
+<fmt:setBundle basename="messages"/>
+
 <c:if test="${sessionScope.language==null}">
   <c:set scope="session" var="language" value="${param.lang}"/>
 </c:if>
-
-<fmt:setLocale value="${sessionScope.language}" />
-<fmt:setBundle basename="messages"/>
 
 <!DOCTYPE html>
 <html>
@@ -46,8 +46,8 @@
 		<tr>
 		  <td><fmt:message key="label.bodyType" /></td>
 		  <td>
-			<select name="body" title="aaa">
-  			  <c:forEach items="${bodylist}" var="body">
+			<select name="body">
+  			  <c:forEach items="${car_add_info.get(0)}" var="body">
     			<option value="${body}">${body}</option>
   			  </c:forEach>
 			</select>
@@ -63,15 +63,33 @@
 		</tr>
 		<tr>
 		  <td><fmt:message key="label.transmission" /></td>
-		  <td><input type="text" name="transmission" required /></td>
-		</tr>
+		  <td>
+			<select name=transmission>
+  			  <c:forEach items="${car_add_info.get(1)}" var="transmission">
+    			<option value="${transmission}">${transmission}</option>
+  			  </c:forEach>
+			</select>
+	  	  </td>
+		</tr>	
 		<tr>
 		  <td><fmt:message key="label.driveType" /></td>
-		  <td><input type="text" name="drive" required /></td>
-		</tr>
+		  <td>
+			<select name="drive">
+  			  <c:forEach items="${car_add_info.get(2)}" var="drive">
+    			<option value="${drive}">${drive}</option>
+  			  </c:forEach>
+			</select>
+	  	  </td>
+		</tr>		
 		<tr>
 		  <td><fmt:message key="label.color" /></td>
-		  <td><input type="text" name="color" required /></td>
+		  <td>
+			<select name="color">
+  			  <c:forEach items="${car_add_info.get(3)}" var="color">
+    			<option value="${color}">${color}</option>
+  			  </c:forEach>
+			</select>
+	  	  </td>
 		</tr>
 		<tr>
 		  <td><fmt:message key="label.weight" /></td>

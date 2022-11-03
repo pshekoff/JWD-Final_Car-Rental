@@ -21,6 +21,9 @@ import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
 public class CarAddingCommand implements Command {
 	private static final boolean available = true;
+	private static final String MESSAGE = "add_car.success.message";
+	private static final String ERROR = "error.car.adding";
+	
 	private static final Logger logger = LogManager.getLogger(EmployeeAddingCommand.class);
 	private static final ResourceManager manager = ResourceManager.getInstance();
 	private static final CarService carService = ServiceFactory.getInstance().getCarService();
@@ -54,40 +57,33 @@ public class CarAddingCommand implements Command {
 						 , weight
 						 , available);
 		
+		String language = getLanguage(request.getSession(false));
+		
 		Map<String, String> parameters = new HashMap<>();
 		
 		boolean success;
 		try {
-			success = carService.addCar(car);
+			success = carService.addCar(car, language);
 			
 			if (!success) {
-				logger.error(manager.getValue("error.car.adding")
-							+ manager.getValue("error.unexpected"));
-				
-				parameters.put(RequestAttributeName.ERR
-						   	  , manager.getValue("error.car.adding")
-						   	  + manager.getValue("error.unexpected"));
-			
-				return redirect(JSPPageName.ERROR_PAGE, parameters);
+				logger.error(manager.getValue(ERROR, request));
+				request.setAttribute(RequestAttributeName.ERR
+						, manager.getValue(ERROR, request));
 
-			}
-			else {
+				return forward(JSPPageName.ERROR_PAGE);	
+				
+			} else {
 				logger.info("New car " + car.toString() + " has been added.");
-				
-				parameters.put(RequestAttributeName.NOTIFICATION_MSG
-					 	   	  , manager.getValue("add_car.success.message"));
-			
+				parameters.put(RequestParameterName.MSG, MESSAGE);
 				return redirect(JSPPageName.NOTIFICATION, parameters);
-
 			}
 			
 		} catch (ServiceException e) {
 			logger.error(e);
+			request.setAttribute(RequestAttributeName.ERR
+					, manager.getValue(ERROR, request));
 			
-			parameters.put(RequestAttributeName.ERR
-			 	   	  , manager.getValue("error.car.adding"));
-			
-			return redirect(JSPPageName.ERROR_PAGE, parameters);
+			return forward(JSPPageName.ERROR_PAGE);	
 		}
 	}
 

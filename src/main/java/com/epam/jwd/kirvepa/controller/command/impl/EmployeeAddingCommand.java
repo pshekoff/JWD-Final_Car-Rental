@@ -23,6 +23,10 @@ import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 import com.epam.jwd.kirvepa.service.factory.ServiceFactory;
 
 public class EmployeeAddingCommand implements Command {
+	private static final String ERROR = "error.employee.adding";
+	private static final String MESSAGE = "add_employee.success.message";
+	private static final String ERROR_PASS_MISMATCH = "add_employee.pass.match.error";
+	
 	private static final boolean admin = true;
 	private static final Logger logger = LogManager.getLogger(EmployeeAddingCommand.class);
 	private static final ResourceManager manager = ResourceManager.getInstance();
@@ -50,9 +54,9 @@ public class EmployeeAddingCommand implements Command {
 		Double salary = Double.parseDouble(request.getParameter(RequestParameterName.EMPL_SAL));
 		
 		if (!password.equals(passwordRepeat)) {
-			logger.error(manager.getValue("add_employee.pass.match.error"));
-			request.setAttribute(RequestAttributeName.ADD_EMP_ERR
-								 , manager.getValue("add_employee.pass.match.error"));
+			logger.error(manager.getValue(ERROR_PASS_MISMATCH, request));
+			request.setAttribute(RequestAttributeName.ERR
+					, manager.getValue(ERROR_PASS_MISMATCH, request));
 			
 			return forward(JSPPageName.ADD_EMPLOYEE);
 		}
@@ -82,38 +86,32 @@ public class EmployeeAddingCommand implements Command {
 			success = userService.addEmployee(employee, password.hashCode());
 			
 			if (!success) {
-				logger.error(manager.getValue("error.empoyee.adding")
-							+ manager.getValue("error.unexpected"));
+				logger.error(manager.getValue(ERROR, request));
+				request.setAttribute(RequestAttributeName.ERR
+						, manager.getValue(ERROR, request));
 				
-				parameters.put(RequestAttributeName.ERR
-				 	   	  	  , manager.getValue("error.empoyee.adding")
-							  + manager.getValue("error.unexpected"));
-				
-				return redirect(JSPPageName.ERROR_PAGE, parameters);
+				return forward(JSPPageName.ERROR_PAGE);
 			}
 			else {
 				logger.info("Employee " + employee.toString() + " has been added.");
-				
-				parameters.put(RequestAttributeName.NOTIFICATION_MSG
-					 	   	  , manager.getValue("add_employee.success.message"));
-			
+				parameters.put(RequestParameterName.MSG, MESSAGE);			
 				return redirect(JSPPageName.NOTIFICATION, parameters);
 			}
 			
 		} catch (ServiceException e) {
 			logger.error(e);
-			parameters.put(RequestAttributeName.ERR
-				 	   	  , manager.getValue("error.empoyee.adding"));
+			request.setAttribute(RequestAttributeName.ERR
+					, manager.getValue(ERROR, request));
 		
-			return redirect(JSPPageName.ERROR_PAGE, parameters);
+			return forward(JSPPageName.ERROR_PAGE);
 
 		} catch (ServiceUserException e) {
 			logger.error(e);
-			parameters.put(RequestAttributeName.NOTIFICATION_MSG
-				 	   	  , manager.getValue("notification.error")
-				 	   	  + e.getMessage());
-
-			return redirect(JSPPageName.NOTIFICATION, parameters);
+			request.setAttribute(RequestAttributeName.ERR
+					, manager.getValue(ERROR, request)
+					+ e.getMessage());
+			
+			return forward(JSPPageName.NOTIFICATION);
 
 		}
 

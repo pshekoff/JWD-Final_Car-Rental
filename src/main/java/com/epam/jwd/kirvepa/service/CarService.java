@@ -9,10 +9,11 @@ import com.epam.jwd.kirvepa.service.exception.ServiceException;
 import com.epam.jwd.kirvepa.service.exception.ServiceUserException;
 
 public interface CarService {
-	List<String> getCarBodyList(String filter) throws ServiceException;
-	Map<Car, Double> getCarList(Date from, Date to, String[] bodies) throws ServiceException, ServiceUserException;
+	List<String> getCarBodyList(String language) throws ServiceException;
+	List<List<String>> GetCarsAddingInfo(String language) throws ServiceException;
+	Map<Car, Double> getCarList(Date from, Date to, String[] bodies, String language) throws ServiceException, ServiceUserException;
 	void handoverReturnCar(int orderId) throws ServiceException, ServiceUserException;
-	boolean addCar(Car car) throws ServiceException;
-	List<Car> getCars() throws ServiceException;
+	boolean addCar(Car car, String language) throws ServiceException;
+	List<Car> getCars(String language) throws ServiceException;
 	void blockUnblockCar(int carId) throws ServiceException;
 }

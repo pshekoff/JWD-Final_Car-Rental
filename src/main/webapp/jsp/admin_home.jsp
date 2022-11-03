@@ -2,12 +2,12 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
+<fmt:setLocale value="${sessionScope.language}" />
+<fmt:setBundle basename="messages"/>
+
 <c:if test="${sessionScope.language==null}">
   <c:set scope="session" var="language" value="${param.lang}"/>
 </c:if>
-
-<fmt:setLocale value="${sessionScope.language}" />
-<fmt:setBundle basename="messages"/>
 
 <!DOCTYPE html>
 <html>
@@ -17,54 +17,6 @@
 	<title>
 	  <fmt:message key="admin_home.title" />
 	</title>
-	
-	<style>
-	  form#signOut {
-  		position: relative;
-  		top: -21px;
-  		right: -90px;
-	  }
-	  form#addEmp {
- 		position: relative;
- 		top: -15px;
-	  }
-	  form#blockUsr {
-  		position: relative;
-  		top: -36px;
-  		right: -115px;
-	  }
-	  #carHead {
- 		position: relative;
-  		top: -40px;
-	  }	  
-	  form#addCar {
-  		position: relative;
-  		top: -55px;
-	  }
-	  form#block_unblockCar {
-  		position: relative;
-  		top: -76px;
-  		right: -78px;
-	  }
-	  form#hand_retnCar {
-  		position: relative;
-  		top: -97px;
-  		right: -219px;
-	  }
-	  #ordHead {
- 		position: relative;
-  		top: -100px;
-	  }
-	  form#newOrd {
- 		position: relative;
- 		top: -113.5px;
-	  }
-	  form#allOrd {
- 		position: relative;
- 		top: -135px;
- 		right: -102px;
-	  }
-	</style>
   </head>
 
   <body>
@@ -102,9 +54,7 @@
 	<div>
 	  <h4 id="carHead"><fmt:message key="admin_home.label.car_management" /></h4>
 	  <form id="addCar" action="controller" method="post">
-	  	<input type="hidden" name="command" value="get_car_body_list" />
-	  	<input type="hidden" name="filter" value="all" />
-	  	<input type="hidden" name="next_page" value="/jsp/add_car.jsp" />
+	  	<input type="hidden" name="command" value="get_cars_adding_info" />
 	  	<input type="submit" value=<fmt:message key="admin_home.submit.add_car" /> />
 	  </form>
 

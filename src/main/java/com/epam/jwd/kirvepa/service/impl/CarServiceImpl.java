@@ -19,16 +19,25 @@ public class CarServiceImpl implements CarService{
 	private static final CarDAO carDAO = DAOFactory.getInstance().getCarDAO();
 	
 	@Override
-	public List<String> getCarBodyList(String filter) throws ServiceException {
+	public List<String> getCarBodyList(String language) throws ServiceException {
 		try {
-			return carDAO.getCarBodyList(filter);
+			return carDAO.getCarBodyList(language);
 		} catch (DAOException e) {
 			throw new ServiceException(e);
 		}
 	}
 
 	@Override
-	public Map<Car, Double> getCarList(Date from, Date to, String[] bodies) throws ServiceException, ServiceUserException {
+	public List<List<String>> GetCarsAddingInfo(String language) throws ServiceException {
+		try {
+			return carDAO.GetCarsAddingInfo(language);
+		} catch (DAOException e) {
+			throw new ServiceException(e);
+		}
+	}
+	
+	@Override
+	public Map<Car, Double> getCarList(Date from, Date to, String[] bodies, String language) throws ServiceException, ServiceUserException {
 		
 		if (!validator.bodyValidation(bodies)) {
 			throw new ServiceUserException(ServiceUserException.MSG_CAR_BODY_SELECT_NULL);
@@ -37,7 +46,7 @@ public class CarServiceImpl implements CarService{
 		switch (validator.DateValidation(from, to)) {
 			case (1):
 				try {
-					return carDAO.getCarList(from, to, bodies);
+					return carDAO.getCarList(from, to, bodies, language);
 				} catch (DAOException e) {
 					throw new ServiceException(e);
 				}
@@ -67,18 +76,18 @@ public class CarServiceImpl implements CarService{
 	}
 
 	@Override
-	public boolean addCar(Car car) throws ServiceException {
+	public boolean addCar(Car car, String language) throws ServiceException {
 		try {
-			return carDAO.insertCar(car);
+			return carDAO.insertCar(car, language);
 		} catch (DAOException e) {
 			throw new ServiceException(e);
 		}
 	}
 
 	@Override
-	public List<Car> getCars() throws ServiceException {
+	public List<Car> getCars(String language) throws ServiceException {
 		try {
-			return carDAO.getCars();
+			return carDAO.getCars(language);
 		} catch (DAOException e) {
 			throw new ServiceException(e);
 		}

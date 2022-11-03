@@ -2,12 +2,12 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
+<fmt:setLocale value="${sessionScope.language}" />
+<fmt:setBundle basename="messages"/>
+
 <c:if test="${sessionScope.language==null}">
   <c:set scope="session" var="language" value="${param.lang}"/>
 </c:if>
-
-<fmt:setLocale value="${sessionScope.language}" />
-<fmt:setBundle basename="messages"/>
 
 <!DOCTYPE html>
 <html>
@@ -76,7 +76,7 @@
 		  	</td>
 		  	<td width="800" height="8">
 		  	  <label for="${cars}">
-		  	  	${car.toLongString()}
+		  	  	${car.toLongString(sessionScope.language)}
 		  	  </label>
 		  	</td>
 		  	<td width="100" height="8">

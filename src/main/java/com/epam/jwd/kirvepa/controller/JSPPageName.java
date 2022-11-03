@@ -20,6 +20,7 @@ public final class JSPPageName {
 	public final static String PERSONAL_DATA = "/jsp/personal_data.jsp";
 	public final static String REG_SUCCESS = "/jsp/reg_sucess.jsp";
 	public final static String REGISTRATION = "/jsp/registration.jsp";
+	public final static String RESULT = "/jsp/result.jsp";
 	public final static String USER_HOMEPAGE = "/jsp/user_home.jsp";
 	public final static String USER_LIST = "/jsp/user_list.jsp";
 	public final static String USER_ORDERS = "/jsp/user_orders.jsp";

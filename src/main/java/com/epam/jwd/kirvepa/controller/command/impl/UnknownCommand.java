@@ -9,12 +9,14 @@ import com.epam.jwd.kirvepa.controller.RequestAttributeName;
 import com.epam.jwd.kirvepa.controller.command.Command;
 
 public class UnknownCommand implements Command {
+	private static final String ERROR = "command.unknown.error";
 	private static final ResourceManager manager = ResourceManager.getInstance();
 
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
 		//return request.getContextPath();
-		request.setAttribute(RequestAttributeName.ERR, manager.getValue("command.unknown.error"));
+		request.setAttribute(RequestAttributeName.ERR
+				, manager.getValue(ERROR, request));
 		return forward(JSPPageName.ERROR_PAGE);
 	}
 

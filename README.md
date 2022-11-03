@@ -19,42 +19,37 @@ and additional bill value (in necessary).
 
 * User management
     * View all users
-    * Inactivate a user
-      <br/>
+	* Add administrator
+    * Block/Unblock users
       <br/>
 * Car management
     * View all cars
     * Add a new car
-    * Update an exists car
-    * Inactivate a car
-      <br/>
+    * Activate/Deactivate cars
       <br/>
 * Order management
     * View all orders
-    * Confirm the orders
-    * Complete the orders
-    * Cancel the orders
+    * Approve order
+	* Reject order
+    * Complete order
       <br/>
+* Update profile
+	* Change login
+	* Change password
+	* Change email
       <br/>
-* Return form management
-    * Add a new return form
-    * View all return forms
-      <br/>
-      <br/>
-* Update personal info
-* Change password
-* Create an order
-* View the own orders
-* Cancel the own order
-* Change the language
 * Log out
 
 <h3>Customer</h3>
-
-* Update personal info
-* Change password
-* Create an order
-* View the own orders
-* Cancel the own order
-* Change the language
+* Order management
+    * Create order
+    * Pay order
+	* Cancel order
+	* View own orders
+      <br/>
+* Update profile
+	* Change login
+	* Change password
+	* Change email
+      <br/>
 * Log out

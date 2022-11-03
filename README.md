@@ -56,7 +56,7 @@ and additional bill value (in necessary).
 * Log out
 
 <h2>Database schema</h2>
-![db_schema](https://github.com/pshekoff/JWD-Final_Car-Rental/blob/main/DB_car_rental_model.PNG)
+![image text](https://github.com/pshekoff/JWD-Final_Car-Rental/blob/main/DB_car_rental_model.PNG)
 
 <h2>General requirements for the web-project</h2>
 

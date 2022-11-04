@@ -15,4 +15,5 @@ public interface OrderDAO {
 	List<Order> getOrders(String filter, int userId, String language) throws DAOException;
 	void approveOrder(int orderId) throws DAOException, DAOUserException;
 	void rejectOrder(int orderId) throws DAOException;
+	Order findOrder(int orderId, String language) throws DAOException;
 }

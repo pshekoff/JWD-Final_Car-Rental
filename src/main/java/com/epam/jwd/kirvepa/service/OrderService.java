@@ -15,4 +15,5 @@ public interface OrderService {
 	List<Order> getOrders(String filter, int userId, String language) throws ServiceException;
 	void approveOrder(int orderId) throws ServiceException, ServiceUserException;
 	void rejectOrder(int orderId) throws ServiceException;
+	Order findOrder(int orderId, String language) throws ServiceException;
 }

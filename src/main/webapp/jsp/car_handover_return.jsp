@@ -49,10 +49,16 @@
   	  <input type="text" name="order_id" placeholder=<fmt:message key="car_handover_return.placeholder.search" /> required />
   	  <input type="submit" value=<fmt:message key="car_handover_return.submit.order.search" /> />
   	</form>
-	<p style="color:#ff0000">
-  	  ${car_handover_error}
-  	</p>
-
+  	
+	<b style="color:red;">&nbsp;${error}</b>
+	<p style="color:green;">${message}</p>
+	
+	<form id="hand_retnCar" action="controller" method="post">
+	  <input type="hidden" name="command" value="get_orders" />
+	  <input type="hidden" name="filter" value="handover_return" />
+	  <input type="submit" value=<fmt:message key="admin_home.submit.all_orders" /> />
+	</form>
+  		
 	<form class="orders" action="controller" method="post">
 		<table border="1">
 	  	  <tr>
@@ -148,9 +154,6 @@
 	  	<input type="hidden" name="command" value="car_handover_return" />
 	  	<input type="submit" value=<fmt:message key="car_handover_return.button.handover_return" /> />
 	  </p>
-	  
-	  <b style="color:red;">&nbsp;${handover_return_error}</b>
-	  <p style="color:green;">${handover_return_message}</p>
 	</form>
 	
 	<p>  

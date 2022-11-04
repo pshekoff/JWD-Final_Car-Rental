@@ -92,5 +92,14 @@ public class OrderServiceImpl implements OrderService {
 		
 	}
 
+	@Override
+	public Order findOrder(int orderId, String language) throws ServiceException {
+		try {
+			return orderDAO.findOrder(orderId, language);
+		} catch (DAOException e) {
+			throw new ServiceException(e);
+		}
+	}
+
 	
 }

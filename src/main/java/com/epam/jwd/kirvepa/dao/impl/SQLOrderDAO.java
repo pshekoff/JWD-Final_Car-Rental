@@ -355,6 +355,34 @@ public class SQLOrderDAO implements OrderDAO {
 		
 	}
 	
+	@Override
+	public Order findOrder(int orderId, String language) throws DAOException {
+
+		Connection connection = null;
+		
+		try {
+			connection = ConnectionPool.getInstance().takeConnection();
+			
+			Order order = getOrder(orderId, language, connection);
+				
+			if (order != null && (order.getStatus().equals(OrderStatus.APPROVED)
+								 || order.getStatus().equals(OrderStatus.IN_PROGRESS))) {
+				return order;
+			} else {
+				return null;
+			}
+
+		} catch (ConnectionPoolException e) {
+			throw new DAOException(e);
+			
+		} catch (SQLException e) {
+			throw new DAOException(e);
+			
+		} finally {
+			ConnectionPool.getInstance().closeConnectionQueue(connection);
+		}
+	}
+	
 	private static Order getOrder(int orderId, String language, Connection connection)
 			throws SQLException, DAOException {
 
@@ -395,6 +423,7 @@ public class SQLOrderDAO implements OrderDAO {
 	    	OrderStatus status = OrderStatus.valueOf(resultSet.getString(15));
 	    	
 	    	resultSet.close();
+	    	preparedStatement.close();
 	    	
 			return new Order(orderId, new User(userId, login, email, admin, active) //+PersonalData
 							, new Car(manufacturer, model, body, engine, transmission, drive)

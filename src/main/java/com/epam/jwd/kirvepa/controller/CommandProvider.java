@@ -24,6 +24,7 @@ import com.epam.jwd.kirvepa.controller.command.impl.HomePageCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.LoginChangingCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.OrderApprovingCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.OrderCancellationCommand;
+import com.epam.jwd.kirvepa.controller.command.impl.OrderFindingCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.PasswordChangingCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.PersonalDataAddingCommand;
 import com.epam.jwd.kirvepa.controller.command.impl.OrderPaymentCommand;
@@ -53,6 +54,7 @@ public class CommandProvider {
 		repository.put(CommandName.CHANGE_LOGIN, new LoginChangingCommand());
 		repository.put(CommandName.CHANGE_PASSWORD, new PasswordChangingCommand());
 		repository.put(CommandName.FIND_CAR, new CarFindingCommand());
+		repository.put(CommandName.FIND_ORDER, new OrderFindingCommand());
 		repository.put(CommandName.GET_CAR_BODY_LIST, new GetCarBodyListCommand());
 		repository.put(CommandName.GET_CARS, new GetCarsCommand());
 		repository.put(CommandName.GET_CARS_ADDING_INFO, new GetCarsAddingInfoCommand());

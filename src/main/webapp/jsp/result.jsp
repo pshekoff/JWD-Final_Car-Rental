@@ -20,6 +20,8 @@
   </head>
   
   <body>
+  	<p style="color:red">${message}</p>
+  	
   	<c:set var = "msg" value = '<%=request.getParameter("message")%>'/>
     <c:if test = "${msg != null}">
       <p>
@@ -29,8 +31,14 @@
       </p>
     </c:if>
   	
-  	<c:set var = "command" value = '<%=request.getParameter("command")%>'/>
-  	<c:set var = "filter" value = '<%=request.getParameter("filter")%>'/>
+  	<c:if test = "${command == null}">
+	  <c:set var = "command" value = '<%=request.getParameter("command")%>'/>
+  	</c:if>
+  	
+	<c:if test = "${filter == null}">
+  	  <c:set var = "filter" value = '<%=request.getParameter("filter")%>'/>
+  	</c:if>
+
   	<div>
 	  <form action="controller" method="post">
 	  	<input type="hidden" name="command" value="${command}" />

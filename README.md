@@ -1,5 +1,3 @@
-# Final project of course Java Web Development
-
 <h1>CAR RENTAL</h1>
 <h2>Subject area</h2>
 
